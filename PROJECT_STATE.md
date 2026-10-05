@@ -2,8 +2,8 @@
 
 ## Current stage
 
-M1 is implemented on `feat/m1-daily-spread`. The user approved committing,
-pushing, and opening its PR on 2026-10-05. Visual review remains pending.
+M1 is committed and pushed on `feat/m1-daily-spread`; PR #3 is open for review.
+The user approved commit/push/PR publication on 2026-10-05. Visual review remains pending.
 No M2 work, cloud services, or public deployment has begun.
 
 ## Completed work
@@ -28,9 +28,10 @@ No M2 work, cloud services, or public deployment has begun.
 
 - Active branch: `feat/m1-daily-spread`, based on main at
   `49c3176a9d1ba1d82fab18cb85150881d0bfac5f`.
-- M1 publication is authorized and underway. Tracking issue:
+- M1 implementation commit: `e2c7da7`; pushed to the branch's origin upstream.
+- Open, unmerged PR: https://github.com/sre0089/TechnoNichi/pull/3.
+- Tracking issue:
   https://github.com/sre0089/TechnoNichi/issues/2.
-- The PR link and GitHub CI result will be recorded after publication.
 - Both original prompt files remain local and untracked. Reference attachments
   are not in the application assets. Screenshots/traces are ignored local artifacts.
 - Setup history: `7e962e1`, `a1c2539`, merged through
@@ -60,7 +61,8 @@ The global Node installation was not replaced.
 - `git diff --cached --check`: pass. Staged source paths and the storage/editor/CI
   diff were reviewed; private inputs and screenshots are excluded. Credential
   pattern scan passed. No secret scan is claimed to prove absence of every secret.
-- CI workflow: authored locally, not executed on GitHub.
+- GitHub CI: triggered by PR #3; its first result is pending verification.
+  See the PR's Checks tab for results on the latest branch commit.
 - Real tablet/touch/IME, performance benchmarks, and visual approval: not run.
 - Final synthetic screenshots are in ignored `artifacts/m1-blank.png`,
   `m1-normal.png`, `m1-dense.png`, `m1-phone.png`, and `m1-phone-editor.png`.
@@ -100,7 +102,6 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Exact next action: publish the approved M1 branch and PR, verify GitHub CI, then
-review the runnable M1 and screenshots for visual feedback. Stop before merge
-approval or M2. Recommend branch protections only
+Exact next action: verify GitHub CI and review the runnable M1 and screenshots
+for visual feedback. Stop before merge approval or M2. Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.

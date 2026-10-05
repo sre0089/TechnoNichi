@@ -66,7 +66,8 @@ Read [AGENTS](AGENTS.md), [project state](PROJECT_STATE.md), [PRD](docs/PRD.md),
 the implementation currently stops at M1.
 
 Public repository: https://github.com/sre0089/TechnoNichi. M1 is tracked in
-[issue #2](https://github.com/sre0089/TechnoNichi/issues/2) on `feat/m1-daily-spread`.
+[issue #2](https://github.com/sre0089/TechnoNichi/issues/2) and available for review in
+[PR #3](https://github.com/sre0089/TechnoNichi/pull/3) on `feat/m1-daily-spread`.
 The original prompt files and private photo remain outside the public repository.
 
 Kalam font assets are locally bundled under SIL OFL 1.1; the complete font copyright
