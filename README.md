@@ -3,8 +3,9 @@
 Repository bootstrap for a new software project. This repository name is a
 working identifier; product scope and branding await the product PRD.
 
-The user confirmed `sre0089/TechnoNichi` with public visibility. Remote creation
-and push verification are pending; see `PROJECT_STATE.md` for current status.
+The public repository is [sre0089/TechnoNichi](https://github.com/sre0089/TechnoNichi).
+The initial setup commit on `main` has been pushed and verified. See
+`PROJECT_STATE.md` for current status.
 
 ## Start here
 
@@ -23,5 +24,12 @@ Open the existing `TechnoNichi` folder in your editor. From its parent directory
 cd TechnoNichi
 ```
 
-Read the current project state before continuing. Once a remote has been verified,
-its clone instructions will be added here.
+To obtain a fresh copy:
+
+```sh
+git clone https://github.com/sre0089/TechnoNichi.git
+cd TechnoNichi
+```
+
+Read the current project state before continuing. The original prompt files are
+local inputs and are not included in the public bootstrap commit.
