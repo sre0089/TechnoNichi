@@ -2,8 +2,10 @@
 
 ## Reading order
 
-Read this file, `PROJECT_STATE.md`, the approved product PRD once available,
-then documents relevant to the active task. Do not read private references or
+Read this file, `PROJECT_STATE.md`, `docs/PRD.md`, then documents relevant to
+the active task. M1 preparation is in `docs/ARCHITECTURE.md`; template requirements
+and unresolved reference measurements are in `docs/PAGE_TEMPLATE_SPEC.md`.
+Do not read private references or
 unapproved documents without authorization. The original local preface is
 `01_AGENT_AND_GITHUB_PREFACE.md`; surface contradictions with these instructions.
 The PRD defines product scope; this file defines working behavior.
@@ -87,5 +89,23 @@ deployments without authorization.
 - Review changes: `git diff` and `git diff --cached`
 - Check whitespace: `git diff --check` and `git diff --cached --check`
 - Inspect GitHub authentication: `gh auth status` (requires GitHub CLI).
-- Install, development, build, format, lint, type-check, and test commands:
-  **pending the PRD and stack selection**.
+- Product baseline: Next.js, React, TypeScript, and Dexie/IndexedDB as specified
+  in `docs/PRD.md`. Use Node 24 LTS and the exact npm lockfile.
+- Install: `npm ci`; local app: `npm run dev` (http://127.0.0.1:3000).
+- Combined checks: `npm run check` (format, lint, strict types, units, production build).
+- Individual checks: `npm run format:check`, `npm run lint`, `npm run typecheck`,
+  `npm test`, `npm run build`.
+- Browser engines: `npx playwright install chromium firefox webkit`;
+  browser journeys: `npm run test:browser`.
+- Format changes: `npm run format`; production local preview: `npm run start`.
+- Screenshots and traces are ignored local artifacts and must use synthetic data.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

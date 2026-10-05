@@ -1,9 +1,9 @@
 ---
 name: Task or bug
 about: One actionable milestone or reproducible bug
-title: ""
-labels: ""
-assignees: ""
+title: ''
+labels: ''
+assignees: ''
 ---
 
 ## Problem or requirement

@@ -2,102 +2,105 @@
 
 ## Current stage
 
-GitHub repository bootstrap is complete and verified. Final status documentation
-is on `chore/repo-verification`, awaiting approval to open and merge a PR.
-No application implementation has started.
+M1 is implemented on `feat/m1-daily-spread`. The user approved committing,
+pushing, and opening its PR on 2026-10-05. Visual review remains pending.
+No M2 work, cloud services, or public deployment has begun.
 
 ## Completed work
 
-- Read the user's agent and GitHub preface.
-- Inspected the workspace, Git availability and configured identity, parent
-  instruction locations, and GitHub CLI availability.
-- Confirmed destination: `sre0089/TechnoNichi`; visibility: **public**.
-- Prepared repository instructions, README, state, contributing guide, ignore
-  rules, decision log, and issue/PR templates.
-- Installed GitHub CLI with Homebrew and initialized a new Git repository on
-  `main`, with no existing history or remotes to replace.
-- Verified GitHub authentication as `sre0089` and confirmed the destination does
-  not yet exist. Configured repository-local GitHub CLI authentication and the
-  account's verified-ID no-reply commit email; global Git settings unchanged.
-- Created the public repository at https://github.com/sre0089/TechnoNichi.
-- Committed the eight reviewed setup files as `7e962e1` and pushed `main`.
-- Verified `main` tracks `origin/main`, the local and remote commit IDs match,
-  and the public remote contains only the reviewed setup files.
+- Public GitHub repository: https://github.com/sre0089/TechnoNichi.
+- Bootstrap setup and verification PR #1 merged; base commit `49c3176`.
+- Full PRD body preserved in `docs/PRD.md`; architecture, roadmap, and template documented.
+- Inspected the real spread and mockup attached on 2026-10-05. Recorded approximate
+  logical geometry and explicit midnight anchors; references remain private.
+- Implemented Next.js/React/TypeScript client editor, daily template, stable dated
+  page manifest, two-day spread, timed text, positioned notes, five checklist slots,
+  exact-time control, previous/next, resume position, single-page focus, page sizing,
+  toolbar side, enlarged text editing, and linear day outline.
+- Implemented Dexie/IndexedDB schema v1 and serialized revision-checked writes.
+  Save confirmation follows transaction success; failed writes retain drafts and
+  block page navigation, with retry and copyable recovery text.
+- Added meaningful unit/browser tests, exact dependency lockfile, formatter/linter,
+  strict types, and a real CI workflow with verified pinned GitHub Actions.
+- Generated and visually inspected synthetic blank, normal, dense, and phone fixtures.
 
-## Git and GitHub status
+## Git status and publication
 
-- Active branch: `chore/repo-verification`; base: synchronized `main`/`origin/main`.
-- Local Git initialization, identity configuration, and staged review: complete.
-  Initial commit: `7e962e1` (`docs: establish repository working agreement and bootstrap`).
-- GitHub CLI: installed, version 2.102.0.
-- GitHub authentication: verified as `sre0089` using the system keyring.
-- Origin: `https://github.com/sre0089/TechnoNichi.git`; visibility: public.
-- Initial push and remote verification: complete. Default branch: `main`.
-- Final status documentation: prepared on the task branch; PR/merge requires
-  separate user approval. No PR has been opened.
+- Active branch: `feat/m1-daily-spread`, based on main at
+  `49c3176a9d1ba1d82fab18cb85150881d0bfac5f`.
+- M1 publication is authorized and underway. Tracking issue:
+  https://github.com/sre0089/TechnoNichi/issues/2.
+- The PR link and GitHub CI result will be recorded after publication.
+- Both original prompt files remain local and untracked. Reference attachments
+  are not in the application assets. Screenshots/traces are ignored local artifacts.
+- Setup history: `7e962e1`, `a1c2539`, merged through
+  https://github.com/sre0089/TechnoNichi/pull/1.
+- GitHub identity/authentication and origin were verified during setup. Repository-local
+  commits use the verified account's no-reply email; global Git settings were preserved.
 
-## Checks actually run
+## Runtime and checks actually run
 
-- `pwd`: pass; confirmed the intended workspace.
-- `rg --files --hidden` with exclusions: pass; found the two local prompt files.
-- Parent `AGENTS.md` existence checks: pass; none found along the workspace path.
-- `git --version`: pass; Git 2.42.1 available.
-- `git config --get user.name` and `git config --get user.email`: pass;
-  identity configured. Values are not copied into public project documents.
-- `git status --short --branch`, `git remote -v`, and
-  `git branch --show-current`: not applicable before initialization; reported
-  that this folder is not a Git repository.
-- `command -v brew`: pass; Homebrew available.
-- `command -v gh` and `gh auth status`: fail; GitHub CLI not installed.
-- `brew install gh`: pass; installed GitHub CLI. Homebrew also performed its
-  automatic update and cache cleanup.
-- `git init -b main`: first attempt blocked by the workspace sandbox; approved
-  retry passed.
-- `gh --version`: pass; version 2.102.0.
-- Before browser login, `gh auth status`: not authenticated.
-- After browser login, sandboxed GitHub checks could not connect to the API;
-  approved network retry passed authentication and account verification via
-  `gh auth status` and `gh api user`.
-- `gh repo view sre0089/TechnoNichi`: destination does not yet exist; creation
-  can proceed without replacing remote history.
-- Before initial commit, `git status --short --branch` and `git branch --show-current`: pass;
-  empty `main`, eight setup files staged, original prompts untracked.
-- Before remote creation, `git remote -v`: pass; no remotes configured.
-- `git diff --cached --check`: pass; no whitespace errors.
-- `git diff --cached` and `git diff --cached --stat`: reviewed; only the eight
-  setup files are staged, with no credentials or personal content identified.
-- `git check-ignore` on `.env`, `.env.local`, private references, runtime data,
-  exports, and dependencies: pass; all sample paths ignored.
-- `git check-ignore` on environment examples, a lockfile, sanitized fixture,
-  and migration: pass; all sample paths remain eligible for tracking.
-- Application checks: not run; no application or stack exists.
-- `git commit -m 'docs: establish repository working agreement and bootstrap'`:
-  pass; eight reviewed setup files committed.
-- `gh repo create sre0089/TechnoNichi --public --source=. --remote=origin --push`:
-  pass; repository created, origin connected, and main pushed with upstream.
-- `gh repo view sre0089/TechnoNichi --json nameWithOwner,visibility,isEmpty,defaultBranchRef,url`:
-  pass; confirmed public visibility and populated default branch main.
-- `git ls-remote origin refs/heads/main`, `git rev-parse HEAD`, and
-  `git rev-parse 'main@{upstream}'`: pass; all returned
-  `7e962e1691b1d60a2dbece0aaf8586b9392652d7` before the verification branch was created.
-- `gh api repos/sre0089/TechnoNichi/git/trees/main` and
-  `git ls-tree -r --name-only HEAD`: pass; verified the published bootstrap tree.
-- Post-push `git status --short --branch`: pass; synchronized main, no tracked
-  changes, both original prompt files untracked.
-- Post-push `git diff --check` and `git diff --cached --check`: pass.
+Named environment: this macOS arm64 workspace, temporary project-specific Node
+24.21.0 and npm 11.8.0, Playwright-managed desktop Chromium, Firefox, and WebKit.
+The global Node installation was not replaced.
 
-## Blockers and local inputs
+- `npm ci --no-audit --no-fund`: pass; clean lockfile installation.
+- `npm run lint`: pass with supported ESLint 10 and standalone TypeScript,
+  React Hooks, and Next.js plugins.
+- `npm run typecheck`: pass.
+- `npm test`: pass; 12 tests across calendar/geometry, durable writes,
+  stale revision rejection, in-flight typing, and failed-write recovery.
+- `npm run test:browser`: pass; 19 passed, 2 skipped. All six functional journeys
+  passed in Chromium, Firefox,
+  and WebKit. Visual capture is Chromium-only; the equivalent screenshot cases are
+  deliberately skipped in Firefox/WebKit.
+- `npm run check`: pass; final formatting, lint, strict types, all 12 unit tests,
+  and optimized production build passed after the last source changes.
+- PRD source-body comparison: pass; requirement content retained verbatim.
+- `git diff --cached --check`: pass. Staged source paths and the storage/editor/CI
+  diff were reviewed; private inputs and screenshots are excluded. Credential
+  pattern scan passed. No secret scan is claimed to prove absence of every secret.
+- CI workflow: authored locally, not executed on GitHub.
+- Real tablet/touch/IME, performance benchmarks, and visual approval: not run.
+- Final synthetic screenshots are in ignored `artifacts/m1-blank.png`,
+  `m1-normal.png`, `m1-dense.png`, `m1-phone.png`, and `m1-phone-editor.png`.
+- Fresh staged-file copy without `.next` or `next-env.d.ts`: `npm run typecheck`
+  passed after generating route types, verifying the clean-clone type-check path.
+- Local dev server is running at http://127.0.0.1:3000; HTTP request returned 200.
 
-No GitHub setup blocker remains. Separate approval is required to open and merge
-the task branch's final status update into main. No branch protection, CI, license,
-application stack, or deployment has been configured; those decisions are deferred.
+Early issues corrected: sandbox denied the local listening port (approved
+browser-test retry); module mode changed during a first browser run (stable rerun
+passed); Next's bundled React lint preset did not support ESLint 10 (replaced with
+compatible standalone plugins); a browser alert selector also matched Next's route
+announcer (selector scoped to the real application alert). Final outcomes supersede
+those early failures.
 
-`02_PRODUCT_PRD_AND_START.md` is present locally but remains unread and unreviewed.
-It must stay outside the initial public commit. The original preface also remains
-local; the bootstrap commit contains only the eight reviewed setup files.
+## Files and scope
 
-## Exact next action
+- App/editor: `src/app/`, `src/editor/`.
+- Pure document/template/calendar: `src/domain/`, `src/templates/`.
+- Durable storage/draft serialization: `src/local/`.
+- Unit and browser journeys: `tests/`.
+- Tooling: `package.json`, `package-lock.json`, `.nvmrc`, TypeScript/Next/ESLint/
+  Prettier/Vitest/Playwright configs, ignore rules, `.github/workflows/checks.yml`.
+- Docs: PRD, architecture, page template, decisions, README, contributing guide,
+  and AGENTS. Font license: `public/licenses/kalam-OFL.txt`.
 
-Receive the product PRD for authorized review. Final setup-status documentation
-can be integrated after separate PR/merge approval. Do not begin application
-implementation during setup.
+## Limits and next action
+
+The visual template is independently drawn and estimated, not an exact measured
+copy. The initial book is 2026, opening on October 6–7; navigation stays within
+that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
+There are no duration blocks, dragging/resizing, styles, undo/soft deletion,
+export/import, cached offline reopening, search, accounts, sync, or deployment.
+
+Stale writes are blocked rather than silently overwriting; rich conflict resolution,
+cross-tab change notifications, and full recovery/archives are M2. Browser eviction
+can still remove local data, and the auxiliary draft buffer is best effort.
+A local save is not a cloud sync or backup. Device checks and full performance
+profiling remain pending; no FPS claims were made.
+
+Exact next action: publish the approved M1 branch and PR, verify GitHub CI, then
+review the runnable M1 and screenshots for visual feedback. Stop before merge
+approval or M2. Recommend branch protections only
+after the first real GitHub CI run and verification of available repository features.
