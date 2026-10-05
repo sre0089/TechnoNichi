@@ -73,6 +73,8 @@ notifications, conflict choices, export/import, and movement/undo stay in M2.
 Use a simple CSS transition for M1. Curl/cover work stays in M3; offline shell
 caching stays in M4. CI has read-only permissions and verified commit-pinned
 checkout/setup-node actions; no deployment credentials or production services.
+The first published CI verification passed on Ubuntu in
+[run 37390840274](https://github.com/sre0089/TechnoNichi/actions/runs/37390840274).
 
 Generate route/environment declarations with `next typegen` before strict type
 checks and ignore the generated `next-env.d.ts`, following the

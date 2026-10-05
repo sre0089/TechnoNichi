@@ -61,8 +61,9 @@ The global Node installation was not replaced.
 - `git diff --cached --check`: pass. Staged source paths and the storage/editor/CI
   diff were reviewed; private inputs and screenshots are excluded. Credential
   pattern scan passed. No secret scan is claimed to prove absence of every secret.
-- GitHub CI: triggered by PR #3; its first result is pending verification.
-  See the PR's Checks tab for results on the latest branch commit.
+- GitHub CI: full validation passed on Ubuntu for commit `5881f48` in
+  https://github.com/sre0089/TechnoNichi/actions/runs/37390840274.
+  See the PR's Checks tab for results on subsequent documentation commits.
 - Real tablet/touch/IME, performance benchmarks, and visual approval: not run.
 - Final synthetic screenshots are in ignored `artifacts/m1-blank.png`,
   `m1-normal.png`, `m1-dense.png`, `m1-phone.png`, and `m1-phone-editor.png`.
@@ -102,6 +103,6 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Exact next action: verify GitHub CI and review the runnable M1 and screenshots
-for visual feedback. Stop before merge approval or M2. Recommend branch protections only
+Exact next action: review the runnable M1 and screenshots for visual feedback.
+Stop before merge approval or M2. Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.
