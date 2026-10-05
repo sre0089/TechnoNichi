@@ -2,7 +2,7 @@
 
 ## 2026-10-05 — Bootstrap destination and visibility
 
-Status: approved by the user; remote setup pending.
+Status: approved by the user; public remote created and bootstrap push verified.
 
 Use GitHub owner `sre0089`, repository name `TechnoNichi`, and public visibility.
 Private visibility was recommended initially; the user explicitly chose public.

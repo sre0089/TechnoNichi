@@ -2,7 +2,9 @@
 
 ## Current stage
 
-Repository bootstrap in progress. No application implementation has started.
+GitHub repository bootstrap is complete and verified. Final status documentation
+is on `chore/repo-verification`, awaiting approval to open and merge a PR.
+No application implementation has started.
 
 ## Completed work
 
@@ -17,15 +19,22 @@ Repository bootstrap in progress. No application implementation has started.
 - Verified GitHub authentication as `sre0089` and confirmed the destination does
   not yet exist. Configured repository-local GitHub CLI authentication and the
   account's verified-ID no-reply commit email; global Git settings unchanged.
+- Created the public repository at https://github.com/sre0089/TechnoNichi.
+- Committed the eight reviewed setup files as `7e962e1` and pushed `main`.
+- Verified `main` tracks `origin/main`, the local and remote commit IDs match,
+  and the public remote contains only the reviewed setup files.
 
 ## Git and GitHub status
 
-- Active branch: `main`; no commits yet.
+- Active branch: `chore/repo-verification`; base: synchronized `main`/`origin/main`.
 - Local Git initialization, identity configuration, and staged review: complete.
-  Initial commit: pending.
+  Initial commit: `7e962e1` (`docs: establish repository working agreement and bootstrap`).
 - GitHub CLI: installed, version 2.102.0.
 - GitHub authentication: verified as `sre0089` using the system keyring.
-- Remote existence, creation, connection, push, and verification: pending.
+- Origin: `https://github.com/sre0089/TechnoNichi.git`; visibility: public.
+- Initial push and remote verification: complete. Default branch: `main`.
+- Final status documentation: prepared on the task branch; PR/merge requires
+  separate user approval. No PR has been opened.
 
 ## Checks actually run
 
@@ -45,15 +54,15 @@ Repository bootstrap in progress. No application implementation has started.
 - `git init -b main`: first attempt blocked by the workspace sandbox; approved
   retry passed.
 - `gh --version`: pass; version 2.102.0.
-- Latest `gh auth status`: not authenticated; browser login required.
+- Before browser login, `gh auth status`: not authenticated.
 - After browser login, sandboxed GitHub checks could not connect to the API;
   approved network retry passed authentication and account verification via
   `gh auth status` and `gh api user`.
 - `gh repo view sre0089/TechnoNichi`: destination does not yet exist; creation
   can proceed without replacing remote history.
-- Latest `git status --short --branch` and `git branch --show-current`: pass;
+- Before initial commit, `git status --short --branch` and `git branch --show-current`: pass;
   empty `main`, eight setup files staged, original prompts untracked.
-- Latest `git remote -v`: pass; no remotes configured.
+- Before remote creation, `git remote -v`: pass; no remotes configured.
 - `git diff --cached --check`: pass; no whitespace errors.
 - `git diff --cached` and `git diff --cached --stat`: reviewed; only the eight
   setup files are staged, with no credentials or personal content identified.
@@ -62,11 +71,26 @@ Repository bootstrap in progress. No application implementation has started.
 - `git check-ignore` on environment examples, a lockfile, sanitized fixture,
   and migration: pass; all sample paths remain eligible for tracking.
 - Application checks: not run; no application or stack exists.
+- `git commit -m 'docs: establish repository working agreement and bootstrap'`:
+  pass; eight reviewed setup files committed.
+- `gh repo create sre0089/TechnoNichi --public --source=. --remote=origin --push`:
+  pass; repository created, origin connected, and main pushed with upstream.
+- `gh repo view sre0089/TechnoNichi --json nameWithOwner,visibility,isEmpty,defaultBranchRef,url`:
+  pass; confirmed public visibility and populated default branch main.
+- `git ls-remote origin refs/heads/main`, `git rev-parse HEAD`, and
+  `git rev-parse 'main@{upstream}'`: pass; all returned
+  `7e962e1691b1d60a2dbece0aaf8586b9392652d7` before the verification branch was created.
+- `gh api repos/sre0089/TechnoNichi/git/trees/main` and
+  `git ls-tree -r --name-only HEAD`: pass; verified the published bootstrap tree.
+- Post-push `git status --short --branch`: pass; synchronized main, no tracked
+  changes, both original prompt files untracked.
+- Post-push `git diff --check` and `git diff --cached --check`: pass.
 
 ## Blockers and local inputs
 
-No authentication blocker remains. Create the confirmed public repository,
-push the reviewed bootstrap commit, and verify the upstream and remote tree.
+No GitHub setup blocker remains. Separate approval is required to open and merge
+the task branch's final status update into main. No branch protection, CI, license,
+application stack, or deployment has been configured; those decisions are deferred.
 
 `02_PRODUCT_PRD_AND_START.md` is present locally but remains unread and unreviewed.
 It must stay outside the initial public commit. The original preface also remains
@@ -74,5 +98,6 @@ local; the bootstrap commit contains only the eight reviewed setup files.
 
 ## Exact next action
 
-Finish repository bootstrap and verify the remote/push. Then: receive the product
-PRD for authorized review. Do not begin application implementation during setup.
+Receive the product PRD for authorized review. Final setup-status documentation
+can be integrated after separate PR/merge approval. Do not begin application
+implementation during setup.
