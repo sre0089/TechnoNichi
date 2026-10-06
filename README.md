@@ -129,8 +129,8 @@ Public repository: https://github.com/sre0089/TechnoNichi. M1 is tracked in
 [issue #2](https://github.com/sre0089/TechnoNichi/issues/2) and merged through
 [PR #3](https://github.com/sre0089/TechnoNichi/pull/3). Writing controls merged through
 [PR #5](https://github.com/sre0089/TechnoNichi/pull/5); backup work is on
-`feat/planner-backups`, with approved publication tracked by
-[issue #8](https://github.com/sre0089/TechnoNichi/issues/8).
+`feat/planner-backups`, published in [PR #9](https://github.com/sre0089/TechnoNichi/pull/9)
+and tracked by [issue #8](https://github.com/sre0089/TechnoNichi/issues/8).
 The original prompt files and private photo remain outside the public repository.
 
 Kalam font assets are locally bundled under SIL OFL 1.1; the complete font copyright

@@ -18,8 +18,10 @@ Earlier local-review/publication sections are historical checkpoints.
 The user accepted the next bounded proposal on 2026-10-06: versioned local JSON
 export/import, including word formatting. Implementation is on `feat/planner-backups`,
 based on merged main `619945a` (PR #6). The user approved committing, pushing and
-opening a PR on 2026-10-06. Publication is in progress, tracked by
-[issue #8](https://github.com/sre0089/TechnoNichi/issues/8).
+opening a PR on 2026-10-06. Implementation commit `a9ebb3b` is pushed and published
+in [PR #9](https://github.com/sre0089/TechnoNichi/pull/9), tracked by
+[issue #8](https://github.com/sre0089/TechnoNichi/issues/8). The PR is open;
+its [Checks tab](https://github.com/sre0089/TechnoNichi/pull/9/checks) reports GitHub CI.
 The remainder of M2, cloud services and public deployment are not authorized or begun.
 
 ## Completed work
@@ -53,6 +55,9 @@ The remainder of M2, cloud services and public deployment are not authorized or 
   Merge-record/test maintenance is tracked by PR #6 below.
 - Merged M1 PR: https://github.com/sre0089/TechnoNichi/pull/3.
 - Merged writing-controls PR: https://github.com/sre0089/TechnoNichi/pull/5.
+- Published backup PR: https://github.com/sre0089/TechnoNichi/pull/9, base `main`,
+  branch `feat/planner-backups`, implementation `a9ebb3b` plus publication records.
+  Issue #8 remains open until the PR is merged. Merge approval has not been given.
 - Tracking issues #2 and #4 closed after their changes reached `main`.
 - Implementation history is retained through merge commits; no force push,
   shared-history rewrite, branch deletion or global Git setting change.
@@ -512,8 +517,11 @@ those early failures.
   private originals remain untracked and captures are ignored. No dependencies,
   credentials, personal planner data or private references are included.
 - Branch `feat/planner-backups` is based on `619945a`. The user approved
-  commit/push/PR publication on 2026-10-06; issue #8 tracks this slice. Publication
-  and GitHub CI verification are in progress. Merge requires separate approval.
+  commit/push/PR publication on 2026-10-06. Implementation `a9ebb3b` is committed,
+  pushed to the public origin and published in PR #9, which closes issue #8 when
+  merged. Publication records are included in a documentation follow-up commit.
+  [PR #9's Checks tab](https://github.com/sre0089/TechnoNichi/pull/9/checks) records
+  CI on each published head. Merge requires separate approval.
 
 ## Limits and next action
 
@@ -530,7 +538,7 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Next action: complete the approved commit/push/PR publication and verify GitHub CI.
+Next action: review PR #9 and its GitHub CI results; obtain separate merge approval.
 Do not begin another M2 slice.
 Physical device checks remain pending as described above.
 Recommend branch protections only

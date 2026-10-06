@@ -1,8 +1,8 @@
 # Architecture and milestone plan
 
 Status: M1 merged through PRs #3/#5/#6. The authorized first M2 slice implements
-local JSON export/import on `feat/planner-backups`; publication is approved and
-tracked by issue #8.
+local JSON export/import on `feat/planner-backups`, published in
+[PR #9](https://github.com/sre0089/TechnoNichi/pull/9) and tracked by issue #8.
 Requirements live in `docs/PRD.md`; visual measurements live in
 `docs/PAGE_TEMPLATE_SPEC.md`. The real spread and mockup were received as private
 conversation attachments and inspected. Geometry estimates retain their uncertainty.
