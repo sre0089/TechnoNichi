@@ -532,6 +532,13 @@ those early failures.
   locally across all three engines; all 12 backup journeys and `npm run check`
   passed again after the fixture correction. The test correction is included in PR #9;
   its Checks tab reports CI for the corrected head. Application source is unchanged.
+- The CI run on `6eae55a` passed all backup journeys and project checks; an existing
+  WebKit boundary-arrow fixture instead failed after a scripted focus jump to an
+  empty field. Tiptap schedules focus on an animation frame. Use real field clicks
+  and assert the starting focus before testing the boundary arrows, preserving
+  the existing focus/navigation assertions. All 15 repeated keyboard journeys
+  passed across the three engines, and `npm run check` passed again. PR #9 includes this fixture refinement;
+  application source remains the approved backup implementation.
 
 ## Limits and next action
 

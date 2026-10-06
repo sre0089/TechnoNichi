@@ -334,3 +334,12 @@ replace the original failure location. The application source is unchanged.
 Nine repeated round trips passed locally across the three engines.
 Official guidance: [Playwright test/teardown timeouts](https://playwright.dev/docs/test-timeouts)
 and [test fixtures](https://playwright.dev/docs/test-fixtures).
+
+The next CI run passed every backup journey but exposed an existing WebKit
+boundary-arrow test failure after an immediate programmatic focus jump. The
+installed Tiptap focus command schedules work on an animation frame. Switch
+those three fixture jumps to real pointer clicks and assert initial focus before
+the arrow key, retaining all endpoint, overnight, selection, IME and reload
+assertions. This is a fixture refinement; application source is unchanged.
+All 15 repeated keyboard journeys passed across Chromium/Firefox/WebKit; the
+required format/lint/types/43-unit/build checks passed afterward.

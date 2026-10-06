@@ -152,13 +152,18 @@ test('arrow keys move between hourly rows without taking over selection, multili
   await selectWriting(noon, 22, 22);
   await noon.press('ArrowDown');
   await expect(row('13:00')).toBeFocused();
-  await row('23:00').focus();
+  // Switch fields through real pointer interaction, allowing the editor's
+  // deferred focus work to settle before testing a boundary arrow.
+  await row('23:00').click();
+  await expect(row('23:00')).toBeFocused();
   await row('23:00').press('ArrowDown');
   await expect(row('00:00 +1')).toBeFocused();
-  await row('06:00').focus();
+  await row('06:00').click();
+  await expect(row('06:00')).toBeFocused();
   await row('06:00').press('ArrowUp');
   await expect(row('06:00')).toBeFocused();
-  await row('03:00 +1').focus();
+  await row('03:00 +1').click();
+  await expect(row('03:00 +1')).toBeFocused();
   await row('03:00 +1').press('ArrowDown');
   await expect(row('03:00 +1')).toBeFocused();
   await saved(page);
