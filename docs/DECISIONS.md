@@ -265,3 +265,13 @@ own React write echoes from external changes before replacing live content.
 Strengthen repeated replacement coverage and wait for observed editor selection
 instead of a fixed test delay; repeated WebKit runs exposed selection settling
 after undo/redo. PR #5 remains stacked on PR #3, with neither merged.
+
+## 2026-10-06 — Approved integration into main
+
+The user approved both outstanding merges. Merge PR #3 first, preserving its
+history, then retarget PR #5 to main and merge its unchanged checked head.
+Both tracking issues close after integration. Verify that the final merged tree
+matches the reviewed writing head and fast-forward local main without rewriting
+shared history or removing private untracked files. Record completed merges in
+PROJECT_STATE on a focused documentation branch. This approval completes the
+current implementation; it does not start later milestones or authorize deployment.
