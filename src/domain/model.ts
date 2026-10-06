@@ -20,13 +20,29 @@ export interface PageRecord {
   order: number;
 }
 
+export interface FormatRun {
+  from: number;
+  to: number;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+}
+
 interface BaseEntry {
   id: string;
   pageId: string;
   text: string;
+  formatRuns?: FormatRun[];
   revision: number;
   deletedAt: string | null;
-  style: { ink: 'purple'; emphasis: false };
+  style: {
+    ink: 'purple';
+    emphasis: false;
+    // Missing formatting flags on older records mean plain writing.
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+  };
 }
 
 export type Entry = BaseEntry &
@@ -132,6 +148,31 @@ export function assertEntry(value: unknown): asserts value is Entry {
   const style = e.style as Record<string, unknown> | undefined;
   if (!style || style.ink !== 'purple' || style.emphasis !== false)
     throw new Error('Invalid entry style');
+  for (const key of ['bold', 'italic', 'underline'])
+    if (style[key] !== undefined && typeof style[key] !== 'boolean')
+      throw new Error('Invalid writing format');
+  if (e.formatRuns !== undefined) {
+    if (!Array.isArray(e.formatRuns))
+      throw new Error('Invalid formatting ranges');
+    let end = 0;
+    for (const run of e.formatRuns) {
+      if (
+        !run ||
+        typeof run !== 'object' ||
+        !Number.isInteger(run.from) ||
+        !Number.isInteger(run.to) ||
+        run.from < end ||
+        run.to <= run.from ||
+        run.to > e.text.length ||
+        !['bold', 'italic', 'underline'].some((key) => run[key] === true) ||
+        ['bold', 'italic', 'underline'].some(
+          (key) => run[key] !== undefined && typeof run[key] !== 'boolean',
+        )
+      )
+        throw new Error('Invalid formatting ranges');
+      end = run.to;
+    }
+  }
   if (e.type === 'task') {
     if (
       !Number.isInteger(e.slot) ||

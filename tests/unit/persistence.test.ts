@@ -41,6 +41,14 @@ describe('durable local writes', () => {
       {
         ...newEntry(page, { type: 'scheduled-line', minute: 45, dayOffset: 1 }),
         text: 'Overnight reading',
+        formatRuns: [{ from: 10, to: 17, bold: true, underline: true }],
+        style: {
+          ink: 'purple',
+          emphasis: false,
+          bold: true,
+          italic: true,
+          underline: true,
+        },
         submitted: true,
         completed: true,
       },

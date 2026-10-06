@@ -53,11 +53,18 @@ attachments, handwriting, and a curl adapter are later milestone work.
   after transaction success. M1 must not promise cloud synchronization or backup.
 - Design transaction boundaries to accept expected revisions so M2 multi-tab
   stale-edit handling can be introduced without changing entry identity.
-- Use native text controls. Short lines/tasks finish on Enter; Shift+Enter adds a
+- The initial M1 used native text controls. The requested word-formatting addition
+  uses scoped Tiptap fields with controlled marks. Short lines/tasks finish on Enter; Shift+Enter adds a
   newline. Notes use Enter for newlines and an explicit finish control. Escape
   retains drafts. Respect IME composition and native selection/undo.
 - Preserve overflow text; expose focused reading/editing rather than shrinking
   fonts, expanding the paper, or pushing adjacent content.
+- The user requested a bounded keyboard refinement on 2026-10-06: hourly-row
+  Up/Down navigation and word-level bold/italic/underline shortcuts and controls.
+  Plain text plus validated formatting ranges retain older entry flags and require
+  no IndexedDB migration. Tiptap owns selection, composition and field-local undo;
+  the existing revision-checked save/recovery path persists text and ranges together.
+  This explicit scope does not start the remainder of M2.
 - Only explicit previous/next controls navigate in M1. Decorative book layers
   are hidden from accessibility and cannot intercept editing input.
 
@@ -75,10 +82,10 @@ Core versions: Next.js 16.3.8, React 19.3.0, Dexie 4.4.6, TypeScript 6.0.3.
 Tooling: Vitest 5.0.3, Playwright 1.63.0, ESLint 10.12.0 and Prettier 3.9.9.
 The app-wide UI now uses Tailwind 4.3.3, shared theme tokens and local native-control
 components, Radix dialogs/popovers/tooltips, and Lucide icons. Custom CSS retains
-the paper geometry and native page-writing fields. Tailwind Preflight is omitted
+the paper geometry and page-writing metrics. Tailwind Preflight is omitted
 to preserve reviewed metrics. See [the interface system](UI_SYSTEM.md) for exact
-versions, boundaries and interaction contracts. No flipbook, rich-text engine,
-or service worker was added in M1.
+versions, boundaries and interaction contracts. The requested word-formatting addition uses pinned Tiptap 3.31.4 for bounded entry
+editors. No flipbook or service worker was added.
 
 ## M1 plan and acceptance checklist
 
