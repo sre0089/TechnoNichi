@@ -2,31 +2,18 @@
 
 ## Current stage
 
-M1 is committed and pushed on `feat/m1-daily-spread`; PR #3 is open for review.
-The user approved commit/push/PR publication on 2026-10-05. Subsequent visual
-feedback and approvals are recorded below.
-The user approved publishing the reviewed grid, hourly editing, memo-area, and
-page-text font corrections on the same M1 branch on 2026-10-05. The PR's commit
-list and Checks tab provide the latest publication and validation status.
-Hourly writing size/baseline refinements are implemented locally after
-further visual feedback; they are not yet committed or published.
-Timed task completion and consecutive-hour vertical lines are also implemented
-locally at the user's request, together with that staged typography refinement.
-Further local review corrects grouped lines to include the first writing row and
-aligns their bold stroke with the faint grid stroke at desktop and phone sizes.
-The app-wide UI system is implemented locally at the user's request: Tailwind,
-shared native controls/theme, Radix floating interfaces and Lucide icons. The user
-explicitly selected the current-app UI scope; later features remain deferred.
-The user approved the current UI appearance and requested a tighter timed-writing
-inset. Writing now starts a quarter-square right of the bold line, within its
-same grid square; this refinement is implemented locally.
-Timed checkboxes now center within the clear space between horizontal grid lines,
-with their checked marks centered inside the box, also implemented locally.
-The user approved the latest checkbox alignment visually on 2026-10-05.
-The user authorized committing/pushing all reviewed local refinements to the
-existing PR #3 on 2026-10-05. Publication is in progress; the earlier local-review
-sections are historical checkpoints. No merge, M2 work, cloud services or public
-deployment is authorized by this publication approval.
+M1, including the reviewed UI and timed-writing refinements, is committed and
+pushed on `feat/m1-daily-spread`. Implementation commit: `55c7344`.
+[PR #3](https://github.com/sre0089/TechnoNichi/pull/3) is open and unmerged;
+[issue #2](https://github.com/sre0089/TechnoNichi/issues/2) remains open until merge.
+
+The user approved the current UI appearance and latest checkbox alignment, then
+explicitly authorized committing/pushing the reviewed local refinements on
+2026-10-05. GitHub CI passed for the new implementation head; the publication
+section below and PR Checks tab record validation. Earlier local-review sections
+are historical checkpoints rather than the current publication status.
+
+No merge, M2 work, cloud services or public deployment is authorized or begun.
 
 ## Completed work
 
@@ -299,9 +286,18 @@ those early failures.
 - Chosen implementation commit: `feat: refine planner writing and shared UI controls`.
   The final integrated implementation is one coherent review batch on the existing
   feature branch; no partial historical staging snapshot will be published.
-- Push and new-head GitHub CI verification are pending. The latest status is
-  available in the PR's commit list and Checks tab. Original private prompt files,
-  private references, synthetic screenshots and runtime data remain excluded.
+- Implementation `55c7344de2ac1a95a8e79d4568f13e942eef7e4d` was committed and
+  pushed successfully to the existing branch. PR #3's title and description were
+  updated to the final scope and validation. No force push, merge or issue closure.
+- GitHub CI passed for that implementation in
+  https://github.com/sre0089/TechnoNichi/actions/runs/37405700428:
+  format, lint, strict types, 17 unit tests, production build and 43 browser tests
+  passed; 2 screenshot cases were intentionally skipped.
+  The PR's Checks tab reports results for any later publication-record commits.
+- The reviewed 25 staged paths passed whitespace and credential-pattern checks.
+  Original private prompt files, private references, synthetic screenshots and
+  runtime data remain excluded. The only untracked workspace files after the
+  implementation commit are the two original private prompt documents.
 
 ## Files and scope
 
@@ -328,9 +324,8 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Exact next action: publish the approved refinement commit to PR #3 and verify its
-GitHub CI. The user has approved the current shared UI's appearance and the latest
-centered-checkbox alignment, and explicitly authorized commit/push.
+Exact next action: review PR #3 for merge readiness. UI/writing implementation and the authorized push are complete.
+Physical device checks remain pending as described above.
 Merge requires separate approval.
 Stop before merge approval or M2. Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.

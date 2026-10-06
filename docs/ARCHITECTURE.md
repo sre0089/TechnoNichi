@@ -1,6 +1,6 @@
 # Architecture and milestone plan
 
-Status: M1 implemented locally; validation and visual approval recorded in project state.
+Status: M1 implemented and published to PR #3; validation and visual approval recorded in project state.
 Requirements live in `docs/PRD.md`; visual measurements live in
 `docs/PAGE_TEMPLATE_SPEC.md`. The real spread and mockup were received as private
 conversation attachments and inspected. Geometry estimates retain their uncertainty.

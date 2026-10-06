@@ -123,7 +123,8 @@ and dense spreads. A 390 × 844 viewport captures focused-page and enlarged-edit
 views. All use synthetic text and isolated test stores. Screenshots are generated
 into ignored `artifacts/` and manually inspected; no changed baseline is auto-approved.
 
-Approximate margins, header ratios, time spacing, grid tone, and font choice still
-need the user's visual approval. Physical tablet, touch-keyboard, and real IME
+The user approved the current UI appearance and latest checkbox alignment on
+2026-10-05. Geometry and colors remain independent approximations rather than a
+claim of exact physical fidelity. Physical tablet, touch-keyboard, and real IME
 behavior remain unverified. M3 evaluates cover/curl motion against the actual editor;
 M1 uses only a restrained transition and explicit navigation.

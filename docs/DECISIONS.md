@@ -208,3 +208,8 @@ record their initial review checkpoints. Publish the final integrated implementa
 in one coherent commit, including its tests and documentation, rather than committing
 partial historical staging snapshots. Merge and later milestones remain separate.
 Project state and the PR's Checks tab record publication and CI results.
+
+The integrated implementation was published as `55c7344` on
+`feat/m1-daily-spread`, with PR #3 left open for review. Original private inputs and
+screenshots remain excluded. Publication-record documentation follows separately;
+no source changes or later milestone work are included in that follow-up.
