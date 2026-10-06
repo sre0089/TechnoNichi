@@ -2,28 +2,20 @@
 
 ## Current stage
 
-M1, including the reviewed UI and timed-writing refinements, is committed and
-pushed on `feat/m1-daily-spread`. Implementation commit: `55c7344`.
-[PR #3](https://github.com/sre0089/TechnoNichi/pull/3) is open and unmerged;
-[issue #2](https://github.com/sre0089/TechnoNichi/issues/2) remains open until merge.
+M1, including the reviewed UI, timed-writing refinements, hourly keyboard
+navigation and word-level formatting, is merged into `main`.
+The user explicitly approved both merges on 2026-10-06.
+[PR #3](https://github.com/sre0089/TechnoNichi/pull/3) merged as `5160a3e`;
+[PR #5](https://github.com/sre0089/TechnoNichi/pull/5) was retargeted to `main`
+and merged as `eb54eba`. Tracking issues #2 and #4 are closed.
 
-The user approved the current UI appearance and latest checkbox alignment, then
-explicitly authorized committing/pushing the reviewed local refinements on
-2026-10-05. GitHub CI passed for the new implementation head; the publication
-section below and PR Checks tab record validation. Earlier local-review sections
-are historical checkpoints rather than the current publication status.
+Both approved heads had successful GitHub CI before merge. Final writing source
+`7ae15d3` passed 22 unit tests, production build and 52 browser tests with two
+intentional screenshot skips. The merged application tree is identical to that
+checked head. Exact run links and merge details appear below.
+Earlier local-review/publication sections are historical checkpoints.
 
-Current task (2026-10-06): arrow-key hourly navigation and word-level
-bold/italic/underline shortcuts and controls, on `feat/writing-keyboard-controls`
-based on published `f5eb19b`. The user authorized this bounded editor addition,
-then commit/push and a follow-up PR on 2026-10-06. Implementation `700986f` is
-pushed in [PR #5](https://github.com/sre0089/TechnoNichi/pull/5), based on the
-still-open M1 branch and tracked by
-[issue #4](https://github.com/sre0089/TechnoNichi/issues/4). The first GitHub run
-found a Firefox formatting failure; the publication section records its correction.
-Use PR #5's Checks tab for the current published head's CI result.
-
-No merge, remainder of M2, cloud services or public deployment is authorized or begun.
+The remainder of M2, cloud services and public deployment are not authorized or begun.
 
 ## Completed work
 
@@ -47,12 +39,13 @@ No merge, remainder of M2, cloud services or public deployment is authorized or 
 
 ## Git status and publication
 
-- Published M1 branch: `feat/m1-daily-spread`, based on main at
-  `49c3176a9d1ba1d82fab18cb85150881d0bfac5f`.
-- M1 implementation commit: `e2c7da7`; pushed to the branch's origin upstream.
-- Open, unmerged PR: https://github.com/sre0089/TechnoNichi/pull/3.
-- Tracking issue:
-  https://github.com/sre0089/TechnoNichi/issues/2.
+- Integrated branch: `main`; application merge: `eb54eba`.
+  Merge-record/test maintenance is tracked by PR #6 below.
+- Merged M1 PR: https://github.com/sre0089/TechnoNichi/pull/3.
+- Merged writing-controls PR: https://github.com/sre0089/TechnoNichi/pull/5.
+- Tracking issues #2 and #4 closed after their changes reached `main`.
+- Implementation history is retained through merge commits; no force push,
+  shared-history rewrite, branch deletion or global Git setting change.
 - Both original prompt files remain local and untracked. Reference attachments
   are not in the application assets. Screenshots/traces are ignored local artifacts.
 - Setup history: `7e962e1`, `a1c2539`, merged through
@@ -386,7 +379,7 @@ those early failures.
   Chosen commit: `feat: add writing navigation and word formatting`.
   Published implementation: `700986f`, followed by the correction described below.
 
-## Keyboard and word-formatting publication — current status
+## Keyboard and word-formatting publication — historical checkpoint
 
 - Verified authenticated account `sre0089`, public HTTPS origin, commit identity
   and the existing open PR #3. Fetched the bases; `origin/feat/m1-daily-spread`
@@ -422,6 +415,45 @@ those early failures.
   [PR #5's Checks tab](https://github.com/sre0089/TechnoNichi/pull/5/checks).
   Subsequent correction/documentation commits run the same full workflow.
 
+## Approved merges — current status, 2026-10-06
+
+- User approved the outstanding work and both merges. Verified authenticated
+  account `sre0089`, public origin, clean tracked workspace and exact approved
+  heads before acting. Private original documents remained untracked.
+- PR #3 head `f5eb19b5a8cd03f106325faf390a08785768cc90` had successful CI:
+  https://github.com/sre0089/TechnoNichi/actions/runs/37406188769.
+  Merged with head matching as `5160a3e0258d70f3c6494e0a0c8da65f7820b620`.
+- Retargeted PR #5 to `main` after PR #3 merged. Its approved head
+  `7ae15d345b7602c70deb7184c65627b9039e5ac9` remained unchanged, mergeable and
+  checked successfully in
+  https://github.com/sre0089/TechnoNichi/actions/runs/37427991591:
+  clean install, format, lint, strict types, 22 unit tests, production build,
+  52 browser tests and two intentional screenshot skips.
+- Merged PR #5 with head matching as
+  `eb54eba1d92a86785f50574e6600b5484f40851a`. GitHub closed both tracking issues.
+  Fetched origin and fast-forwarded local `main`; comparison against `7ae15d3`
+  showed no tree differences. No application changes or repeated local tests
+  were needed for the merges.
+- Merge-record documentation uses a separate `docs/approved-merge-state` branch.
+  Main's post-merge workflow runs at
+  https://github.com/sre0089/TechnoNichi/actions/runs/37429040322;
+  its run page reports its current outcome. The first post-merge run and the
+  first merge-record run exposed a Chromium test-fixture failure: synthetic
+  empty contenteditable fill sometimes left the text unchanged. All other
+  51 browser tests passed, with two intentional screenshot skips.
+- Updated the occupied-hour regression to use the real Cmd/Ctrl+A, Backspace
+  interaction and explicitly assert empty writing before checking the line split.
+  All 15 repeated clearing journeys passed across Chromium, Firefox and WebKit.
+  Application source is unchanged. The merge-record PR includes this test
+  correction and runs the full CI workflow. No deployment occurred.
+- Merge-record/test follow-up:
+  [PR #6](https://github.com/sre0089/TechnoNichi/pull/6), tracked by
+  [issue #7](https://github.com/sre0089/TechnoNichi/issues/7).
+- Final merge-record/test correction passed `npm run check` (format, lint,
+  strict types, 22 unit tests and production build) and `npm run test:browser`
+  (52 passed, two intentional screenshot skips). PR #6's Checks tab records
+  the published head's workflow result.
+
 ## Files and scope
 
 - App/editor and shared UI: `src/app/`, `src/editor/`, `src/components/ui/`.
@@ -447,9 +479,9 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Exact next action: review PR #3 and the stacked keyboard/word-formatting PR #5;
-merge approval is separate. Retarget PR #5 to main after PR #3 merges.
+Exact next bounded proposal: versioned JSON export/import with validated,
+transactional restoration into an empty store, including formatting ranges.
+Confirm that feature's scope before beginning M2; the approved merges are complete.
 Physical device checks remain pending as described above.
-Merge requires separate approval.
-Stop before merge approval or M2. Recommend branch protections only
+Stop before beginning M2. Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.

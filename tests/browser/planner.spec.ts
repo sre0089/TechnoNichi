@@ -539,7 +539,10 @@ test('consecutive occupied hours share the requested line and clearing splits it
     name: 'Timed writing 13:00',
     exact: true,
   });
-  await middle.fill('');
+  await middle.focus();
+  await middle.press('ControlOrMeta+A');
+  await middle.press('Backspace');
+  await expect(middle).toHaveWriting('');
   await expect(run).toHaveCount(0);
   await expect(day.locator('.schedule-line')).toHaveCount(3);
   await middle.fill('Project work');
