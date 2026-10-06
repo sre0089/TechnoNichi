@@ -213,3 +213,55 @@ The integrated implementation was published as `55c7344` on
 `feat/m1-daily-spread`, with PR #3 left open for review. Original private inputs and
 screenshots remain excluded. Publication-record documentation follows separately;
 no source changes or later milestone work are included in that follow-up.
+
+## 2026-10-06 — Requested writing keyboard controls
+
+The user requested arrow-key navigation between time tasks and Cmd/Ctrl+U/I/B
+formatting. This authorizes a bounded editor addition, leaving the remainder of
+M2 deferred. Implement on local `feat/writing-keyboard-controls` based on the
+published M1 head `f5eb19b`; new commit/push requires approval under AGENTS.
+The user granted publication approval on 2026-10-06. The follow-up PR targets the
+still-open M1 branch for a focused diff; merge M1 first and retarget this follow-up
+to main before its separately approved merge. Issue #4 tracks this addition.
+
+Unmodified Up/Down moves through the same page's hourly fields, including empty
+hours, without wrapping or turning the book. Left/Right and modified arrows keep
+their native meaning. Text selection, composition and read-only fields block row
+switching. Multiline or overflowing writing uses native caret movement except at
+the start/end endpoints, so the shortcut cannot skip its hidden text.
+
+The first pass used whole-entry formatting while an optional scope question awaited
+an answer. The user then explicitly requested per-word granularity. This supersedes
+that default: shortcuts and buttons format selected words, or set pending marks
+for subsequent typing at a collapsed caret.
+
+Use MIT-licensed Tiptap 3.31.4/ProseMirror in bounded entry fields, enabling only
+plain paragraphs, hard breaks, bold, italic, underline and field-local undo/redo.
+Native textareas cannot render mixed styles in one line. This explicitly requested
+change replaces those page/enlarged writing fields; it does not make the book a
+single contenteditable or start the remainder of M2. Pin all packages and preserve
+Next.js client rendering with `immediatelyRender: false` per official guidance.
+
+Keep plaintext `text` and optional validated `formatRuns` (UTF-16 offsets, sorted,
+nonoverlapping, controlled boolean marks) in the document model rather than HTML.
+Old whole-entry flags become equivalent ranges during rendering, without rewriting
+records. New text/format edits persist both together through the existing revision
+checks and recovery buffer. Plain clipboard text is inserted as text nodes; no
+links, lists, images, HTML markup, input rules or automatic markdown are enabled.
+Reading, outline and checkbox width measurement render the same safe segments.
+Formatting participates in field-local undo while that editor remains mounted;
+book-wide history, deletion recovery and full editor undo remain later work.
+
+Official references: [Next.js integration](https://tiptap.dev/docs/editor/getting-started/install/nextjs),
+[editor API](https://tiptap.dev/docs/editor/api/editor),
+[undo/redo](https://tiptap.dev/docs/editor/extensions/functionality/undo-redo).
+Versions, React peer compatibility and MIT package licenses were verified via npm
+metadata before installation. The production-only audit reports zero vulnerabilities
+on 2026-10-06; the existing development braces chain remains recorded in UI_SYSTEM.
+
+The first published CI run exposed a Firefox rapid-replacement formatting failure.
+Avoid repeated editability/view updates during typing, and distinguish the editor's
+own React write echoes from external changes before replacing live content.
+Strengthen repeated replacement coverage and wait for observed editor selection
+instead of a fixed test delay; repeated WebKit runs exposed selection settling
+after undo/redo. PR #5 remains stacked on PR #3, with neither merged.

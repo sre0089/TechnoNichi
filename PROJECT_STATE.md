@@ -13,7 +13,17 @@ explicitly authorized committing/pushing the reviewed local refinements on
 section below and PR Checks tab record validation. Earlier local-review sections
 are historical checkpoints rather than the current publication status.
 
-No merge, M2 work, cloud services or public deployment is authorized or begun.
+Current task (2026-10-06): arrow-key hourly navigation and word-level
+bold/italic/underline shortcuts and controls, on `feat/writing-keyboard-controls`
+based on published `f5eb19b`. The user authorized this bounded editor addition,
+then commit/push and a follow-up PR on 2026-10-06. Implementation `700986f` is
+pushed in [PR #5](https://github.com/sre0089/TechnoNichi/pull/5), based on the
+still-open M1 branch and tracked by
+[issue #4](https://github.com/sre0089/TechnoNichi/issues/4). The first GitHub run
+found a Firefox formatting failure; the publication section records its correction.
+Use PR #5's Checks tab for the current published head's CI result.
+
+No merge, remainder of M2, cloud services or public deployment is authorized or begun.
 
 ## Completed work
 
@@ -37,7 +47,7 @@ No merge, M2 work, cloud services or public deployment is authorized or begun.
 
 ## Git status and publication
 
-- Active branch: `feat/m1-daily-spread`, based on main at
+- Published M1 branch: `feat/m1-daily-spread`, based on main at
   `49c3176a9d1ba1d82fab18cb85150881d0bfac5f`.
 - M1 implementation commit: `e2c7da7`; pushed to the branch's origin upstream.
 - Open, unmerged PR: https://github.com/sre0089/TechnoNichi/pull/3.
@@ -299,6 +309,119 @@ those early failures.
   runtime data remain excluded. The only untracked workspace files after the
   implementation commit are the two original private prompt documents.
 
+## Writing keyboard controls — initial whole-entry review, 2026-10-06
+
+- Implemented the user's bounded keyboard request on `feat/writing-keyboard-controls`,
+  based on published `f5eb19b`. No new commit, push, PR or GitHub CI run yet.
+  Existing PR #3 remains the published M1 baseline.
+- Unmodified Up/Down moves through hourly rows on the same page, including empty
+  rows and midnight. First/last rows do not wrap or turn pages. Left/Right,
+  modified arrows, selections, IME composition and read-only fields retain native
+  behavior. Multiline/overflowing text leaves only at its start/end endpoints.
+  The caret column is retained where possible and clamped to the next text length.
+- Cmd/Ctrl+B/I/U toggles whole-entry bold/italic/underline, with matching pressed
+  buttons in contextual controls and enlarged editing. Whole-entry scope is the
+  stated default at this initial checkpoint; it is superseded by the requested
+  word-level correction below. Notes and top checklist tasks share the formatting commands.
+- Optional validated boolean flags keep old records plain without migrations or
+  rewrites. The same revision-checked save and recovery path persists formatting.
+  Completion combines strike-through with underline, and checkbox text measurement
+  uses the entry's font weight/style. Paper size, font size and baselines are unchanged.
+- Changed `src/domain/model.ts`, `src/editor/Planner.tsx`, new
+  `src/editor/writing-keys.ts`, three test files, README, architecture, template,
+  interface system, decisions and this state. No dependencies added.
+- `npm run check` passed: formatting, lint, strict types, 18 unit tests and optimized
+  default production build. `npm run test:browser` passed: 49 tests, 2 intentional
+  screenshot skips, across Chromium, Firefox and WebKit. The two new journeys
+  exercise navigation boundaries, selections, caret editing, composition,
+  combined styles/completion, both modifier families, buttons, reload/page turns,
+  reading and enlarged editing.
+- Compiled production smoke passed in six fresh synthetic contexts: desktop and
+  phone viewports in Chromium, Firefox and WebKit. Inspected synthetic captures
+  `artifacts/keyboard-controls-desktop.png` and `keyboard-controls-phone.png`;
+  the controls fit, and formatted writing/checkmarks remain within the paper grid.
+  These artifacts are ignored and private planner data was not read or captured.
+- Physical tablet, touch keyboard, real IME and assistive-technology checks remain
+  unverified. Formatting changes are not part of native text undo; full style undo
+  remains later editor work. New publication requires approval under AGENTS.
+- Suggested commit: `feat: add writing navigation and formatting shortcuts`.
+
+## Word-level formatting correction — approved review, 2026-10-06
+
+- The user clarified that formatting must have per-word granularity. Cmd/Ctrl+B/I/U
+  now applies to selected words; without a selection, it styles subsequent typing.
+  Contextual buttons preserve the range and report active styles. Notes, checklist
+  tasks and enlarged writing use the same commands; Up/Down navigation is retained.
+- Added exact-pinned Tiptap 3.31.4 with a constrained document/paragraph/text schema,
+  hard breaks, bold/italic/underline and field-local undo/redo. Existing paper font
+  size, baseline, geometry, line grouping and completion remain intact. New fonts,
+  notebook-wide contenteditable, HTML storage and broader editor features were not added.
+- The document keeps plain text plus optional validated, sorted nonoverlapping
+  formatting ranges. Older plain and whole-entry styled records remain readable,
+  without migrations or record rewrites. Revision checks and recovery persist the
+  full entry. Reading and checkbox measurement use the same styled segments.
+- Source: model, formatted-text helpers, RichWriting, rich-document adapter,
+  Planner, keyboard helper, paper CSS, exact package/lockfile pins. Updated browser,
+  document/persistence and formatted-text unit tests, README and affected docs.
+- Source checks passed: `npm run check` (format, lint, strict types, 22 unit tests,
+  production build). `npm run test:browser` passed: 52 tests and 2 intentional
+  screenshot skips across Chromium, Firefox and WebKit after the IME correction.
+  All 17 functional journeys pass in each engine; Chromium also captures fixtures.
+- Compiled production word-formatting/navigation/reload smoke passed in six fresh
+  synthetic contexts: desktop and phone widths in all three engines. Inspected
+  `artifacts/word-formatting-desktop.png`, `word-formatting-phone.png` and
+  `word-formatting-editor.png`; words keep their independent marks, and paper
+  layout, completion placement and focused editing remain usable. Captures are
+  ignored and contain only synthetic writing.
+- Added journeys verify independent marks, selected-word toolbar actions, combined
+  completion, typed marks, insertion/deletion range tracking, field-local undo/redo,
+  and plain-text paste containing HTML-like literal text. Clipboard tests use a
+  synthetic boundary; physical clipboard/IME/device behavior remains unverified.
+- Formatting history stays within the mounted entry editor. Book-wide history and
+  the rest of M2 remain deferred. Runtime audit reported zero vulnerabilities on
+  2026-10-06. Existing development-only audit findings remain documented.
+- The user authorized publication on 2026-10-06. The work is on
+  `feat/writing-keyboard-controls`, based on `f5eb19b`. Tracking issue:
+  https://github.com/sre0089/TechnoNichi/issues/4. PR #3 is unchanged.
+  Chosen commit: `feat: add writing navigation and word formatting`.
+  Published implementation: `700986f`, followed by the correction described below.
+
+## Keyboard and word-formatting publication — current status
+
+- Verified authenticated account `sre0089`, public HTTPS origin, commit identity
+  and the existing open PR #3. Fetched the bases; `origin/feat/m1-daily-spread`
+  matches local base `f5eb19b`, and `origin/main` remains `49c3176`.
+- User authorization covers committing, pushing and opening the follow-up PR.
+  [PR #5](https://github.com/sre0089/TechnoNichi/pull/5) targets `feat/m1-daily-spread` so its diff contains only this bounded
+  addition. Review/merge PR #3 first, then retarget the follow-up to `main` before
+  merging; each merge requires separate approval.
+- Source, dependency, unit/browser and documentation changes were reviewed.
+  Final source passed the local checks recorded above; publication edits only
+  update documentation. Private originals, references, planner data and synthetic
+  screenshots remain excluded.
+- Committed and pushed implementation `700986f869c61edc6027cd3ddc172b7692479bd2`.
+  Opened tracking issue #4 and PR #5; both remain open, and PR #3 remains unchanged.
+  Reviewed all 19 staged paths, whitespace and credential patterns before publication.
+- Initial GitHub CI run
+  https://github.com/sre0089/TechnoNichi/actions/runs/37426754719 passed installation,
+  formatting, lint, strict types, 22 unit tests and production build, but a Firefox
+  word-replacement assertion failed (51 browser tests passed, 2 intentional skips).
+- Corrected editor synchronization: update editability only when it changes, and
+  ignore React echoes of the editor's own writes so they cannot replace newer live
+  content. External/enlarged-editor changes still synchronize through the same path.
+  Strengthened rapid word-replacement assertions and replaced the fixed selection
+  delay with observed readiness; repeated runs exposed asynchronous selection
+  settling after undo/redo in WebKit. Final checks are recorded below.
+- Corrected final source passed `npm run check` (format, lint, strict types,
+  22 unit tests and production build), and `npm run test:browser` (52 passed,
+  2 intentional screenshot skips). Repeated word-formatting journeys passed
+  24/24 across all three engines. The production smoke passed all six fresh
+  desktop/phone contexts with no page errors. Its temporary port 3002 preview
+  was stopped afterward; the existing development server was preserved.
+- Current published CI status is available in
+  [PR #5's Checks tab](https://github.com/sre0089/TechnoNichi/pull/5/checks).
+  Subsequent correction/documentation commits run the same full workflow.
+
 ## Files and scope
 
 - App/editor and shared UI: `src/app/`, `src/editor/`, `src/components/ui/`.
@@ -315,7 +438,7 @@ those early failures.
 The visual template is independently drawn and estimated, not an exact measured
 copy. The initial book is 2026, opening on October 6–7; navigation stays within
 that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
-There are no duration blocks, dragging/resizing, styles, undo/soft deletion,
+There are no duration blocks, dragging/resizing, full rich text, book-wide undo/soft deletion,
 export/import, cached offline reopening, search, accounts, sync, or deployment.
 
 Stale writes are blocked rather than silently overwriting; rich conflict resolution,
@@ -324,7 +447,8 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Exact next action: review PR #3 for merge readiness. UI/writing implementation and the authorized push are complete.
+Exact next action: review PR #3 and the stacked keyboard/word-formatting PR #5;
+merge approval is separate. Retarget PR #5 to main after PR #3 merges.
 Physical device checks remain pending as described above.
 Merge requires separate approval.
 Stop before merge approval or M2. Recommend branch protections only

@@ -5,7 +5,6 @@ import {
   useRef,
   useState,
   type CSSProperties,
-  type KeyboardEvent,
   type MouseEvent,
 } from 'react';
 import {
@@ -40,6 +39,9 @@ import {
   PanelLeft,
   PanelRight,
   NotebookPen,
+  Bold,
+  Italic,
+  Underline,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input, InkCheckbox, Textarea } from '../components/ui/field';
@@ -57,6 +59,54 @@ import {
 import { Hint, TooltipProvider } from '../components/ui/tooltip';
 import { SaveStatus } from '../components/ui/save-status';
 import { PageSizeSelect, ViewSettings } from './ViewSettings';
+import {
+  RichWriting,
+  WritingProvider,
+  useWritingFormat,
+  FormattedText,
+  focusWriting,
+} from './RichWriting';
+
+function FormattingControls({
+  entry,
+  disabled = false,
+}: {
+  entry: Entry;
+  disabled?: boolean;
+}) {
+  const { state, toggle } = useWritingFormat(entry.id);
+  return (
+    <div
+      className="flex items-center gap-1"
+      role="group"
+      aria-label="Writing format"
+    >
+      {(
+        [
+          ['bold', 'Bold', Bold, 'B'],
+          ['italic', 'Italic', Italic, 'I'],
+          ['underline', 'Underline', Underline, 'U'],
+        ] as const
+      ).map(([format, label, Icon, key]) => (
+        <Hint key={format} label={`${label} · Cmd/Ctrl+${key}`}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={label}
+            aria-pressed={state?.[format] ?? false}
+            aria-keyshortcuts={`Meta+${key} Control+${key}`}
+            className="aria-pressed:bg-wash aria-pressed:text-ink"
+            disabled={disabled}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => toggle(format)}
+          >
+            <Icon size={16} aria-hidden="true" />
+          </Button>
+        </Hint>
+      ))}
+    </div>
+  );
+}
 
 function box(
   x: number,
@@ -70,14 +120,6 @@ function box(
     ...(width === undefined ? {} : { width: `${(width / 148) * 100}%` }),
     ...(height === undefined ? {} : { height: `${(height / 210) * 100}%` }),
   };
-}
-
-function finishShort(event: KeyboardEvent<HTMLTextAreaElement>) {
-  if (event.nativeEvent.isComposing) return;
-  if (event.key === 'Escape' || (event.key === 'Enter' && !event.shiftKey)) {
-    event.preventDefault();
-    event.currentTarget.blur();
-  }
 }
 
 function finishTimed(entry: Entry, edit: (entry: Entry) => void) {
@@ -94,7 +136,7 @@ function FocusedEditor({
   edit: (entry: Entry) => void;
   close: () => void;
 }) {
-  const writing = useRef<HTMLTextAreaElement>(null);
+  const writing = useRef<HTMLElement>(null);
   return (
     <Dialog
       open
@@ -123,23 +165,16 @@ function FocusedEditor({
         >
           Your writing
         </label>
-        <Textarea
-          ref={writing}
-          id="focused-writing"
-          value={entry.text}
-          className="block max-h-[50dvh] min-h-60 w-full resize-y rounded-control border border-solid border-line bg-paper/50 p-3 text-lg leading-relaxed text-ink"
-          style={{ fontFamily: "'Kalam', cursive" }}
-          onChange={(event) =>
-            edit({
-              ...entry,
-              text: event.target.value,
-              ...(entry.type === 'scheduled-line' && !event.target.value.trim()
-                ? { submitted: false, completed: false }
-                : {}),
-            })
-          }
+        <RichWriting
+          entry={entry}
+          edit={edit}
+          label="Your writing"
+          fieldRef={writing}
+          mode="enlarged"
+          enlarged
         />
-        <div className="mt-5 flex justify-end">
+        <div className="mt-5 flex items-center justify-between">
+          <FormattingControls entry={entry} />
           <DialogClose asChild>
             <Button
               variant="primary"
@@ -162,14 +197,16 @@ function TaskRow({
   edit,
   select,
   moving,
+  selected,
 }: {
   task: Extract<Entry, { type: 'task' }>;
   isNew: boolean;
   edit: (entry: Entry) => void;
   select: (id: string) => void;
   moving: boolean;
+  selected: boolean;
 }) {
-  const input = useRef<HTMLTextAreaElement>(null);
+  const input = useRef<HTMLElement>(null);
   const [overflow, setOverflow] = useState(false);
   useEffect(() => {
     const node = input.current;
@@ -189,29 +226,19 @@ function TaskRow({
         disabled={moving}
         onChange={(e) => edit({ ...task, completed: e.target.checked })}
       />
-      <textarea
-        ref={input}
-        id={task.id}
-        aria-label={`Task ${task.slot + 1} on ${date}`}
-        value={task.text}
+      <RichWriting
+        key={task.id}
+        entry={task}
+        edit={edit}
+        label={`Task ${task.slot + 1} on ${date}`}
+        fieldRef={input}
         readOnly={moving}
-        spellCheck={false}
-        rows={1}
+        selected={selected}
         onFocus={() => {
           if (isNew) edit(task);
           select(task.id);
         }}
-        onChange={(event) => {
-          edit({ ...task, text: event.target.value });
-          const node = event.target;
-          requestAnimationFrame(() =>
-            setOverflow(node.scrollHeight > node.clientHeight + 2),
-          );
-        }}
-        onBlur={(event) => {
-          event.currentTarget.scrollTop = 0;
-        }}
-        onKeyDown={finishShort}
+        onOverflow={setOverflow}
       />
       {overflow && (
         <Button
@@ -234,6 +261,8 @@ function Writing({
   moving,
   isNew = false,
   otherWriting = [],
+  moveRow,
+  selected,
 }: {
   entry: Entry;
   edit: (e: Entry) => void;
@@ -241,8 +270,10 @@ function Writing({
   moving: boolean;
   isNew?: boolean;
   otherWriting?: Entry[];
+  moveRow?: (direction: -1 | 1, caret: number) => boolean;
+  selected: boolean;
 }) {
-  const input = useRef<HTMLTextAreaElement>(null);
+  const input = useRef<HTMLElement>(null);
   const [overflow, setOverflow] = useState(false);
   useEffect(() => {
     const node = input.current;
@@ -279,56 +310,28 @@ function Writing({
       className={`writing-item ${isNote ? 'note' : 'timed'}${submitted ? ' submitted' : ''}${entry.type === 'scheduled-line' && entry.completed ? ' completed' : ''}${overflow ? ' has-overflow' : ''}`}
       style={style}
     >
-      <textarea
-        ref={input}
-        id={entry.id}
-        aria-label={label}
-        value={entry.text}
+      <RichWriting
+        key={entry.id}
+        entry={entry}
+        edit={edit}
+        label={label}
+        fieldRef={input}
         readOnly={moving}
-        spellCheck={false}
-        placeholder={isNote ? 'Your note…' : undefined}
+        selected={selected}
+        mode={isNote ? 'note' : 'short'}
+        onOverflow={setOverflow}
+        moveRow={moveRow}
         onFocus={() => {
           if (moving) return;
           if (isNew) edit(entry);
           select(entry.id);
         }}
-        onChange={(event) => {
-          edit({
-            ...entry,
-            text: event.target.value,
-            ...(entry.type === 'scheduled-line' && !event.target.value.trim()
-              ? { submitted: false, completed: false }
-              : {}),
-          });
-          const node = event.target;
-          requestAnimationFrame(() =>
-            setOverflow(node.scrollHeight > node.clientHeight + 2),
-          );
-        }}
-        onBlur={(event) => {
-          event.currentTarget.scrollTop = 0;
-        }}
-        onKeyDown={(event) => {
-          if (isNote) {
-            if (event.key === 'Escape' && !event.nativeEvent.isComposing) {
-              event.preventDefault();
-              event.currentTarget.blur();
-            }
-          } else {
-            if (
-              event.key === 'Enter' &&
-              !event.shiftKey &&
-              !event.nativeEvent.isComposing
-            )
-              finishTimed(entry, edit);
-            finishShort(event);
-          }
-        }}
+        onFinish={() => finishTimed(entry, edit)}
       />
       {submitted && entry.type === 'scheduled-line' && (
         <div className="timed-completion">
           <span className="completion-measure" aria-hidden="true">
-            {entry.text.split('\n')[0]}
+            <FormattedText entry={entry} text={entry.text.split('\n')[0]} />
           </span>
           <InkCheckbox
             aria-label={`Complete timed task ${timeLabel(entry.minute, entry.dayOffset)} on ${entry.pageId.split(':').at(-1)}`}
@@ -418,8 +421,10 @@ function DailyPage({
     );
     create(newEntry(page.id, { type: 'note', ...snapNote(point.x, point.y) }));
   };
+  const paper = useRef<HTMLElement>(null);
   return (
     <section
+      ref={paper}
       className={`paper ${side === 0 ? 'left-page' : 'right-page'}`}
       aria-label={labelDate(page.date)}
     >
@@ -466,6 +471,7 @@ function DailyPage({
             <TaskRow
               key={slot}
               task={task}
+              selected={task.id === selectedId}
               isNew={!existing}
               edit={edit}
               select={select}
@@ -494,7 +500,7 @@ function DailyPage({
           aria-hidden="true"
         />
       ))}
-      {hourlyRows.map((row) => {
+      {hourlyRows.map((row, index) => {
         const existing = entries
           .filter(
             (e) =>
@@ -510,11 +516,28 @@ function DailyPage({
           <Writing
             key={row.absolute}
             entry={entry}
+            selected={entry.id === selectedId}
             isNew={!existing.length}
             otherWriting={existing}
             edit={edit}
             select={select}
             moving={moving}
+            moveRow={(direction, caret) => {
+              if (moving) return false;
+              const next = paper.current?.querySelectorAll<HTMLElement>(
+                '.timed .writing-input',
+              )[index + direction];
+              if (!next) return false;
+              focusWriting(next, caret);
+              // The selected-entry effect can focus the new field again. Restore
+              // the column after React updates without stealing later focus.
+              requestAnimationFrame(() => {
+                if (document.activeElement === next) {
+                  focusWriting(next, caret);
+                }
+              });
+              return true;
+            }}
           />
         );
       })}
@@ -535,6 +558,7 @@ function DailyPage({
           <Writing
             key={entry.id}
             entry={entry}
+            selected={entry.id === selectedId}
             edit={edit}
             select={select}
             moving={moving}
@@ -608,7 +632,7 @@ function MiniCalendar({
   );
 }
 
-export function Planner() {
+function PlannerEditor() {
   const {
     view,
     entries,
@@ -848,6 +872,7 @@ export function Planner() {
                   ? 'Free note'
                   : 'Checklist task'}
             </span>
+            <FormattingControls entry={selected} disabled={moving} />
             {selected.type === 'scheduled-line' && (
               <>
                 <label className="flex items-center gap-2 text-ui-muted">
@@ -866,7 +891,11 @@ export function Planner() {
                         Number.isFinite(total) &&
                         (total >= 360 || total <= 180)
                       )
-                        edit({ ...selected, minute: total, dayOffset: offset });
+                        edit({
+                          ...selected,
+                          minute: total,
+                          dayOffset: offset,
+                        });
                     }}
                   />
                 </label>
@@ -886,7 +915,11 @@ export function Planner() {
                 </PopoverTrigger>
                 <PopoverContent aria-label="Full writing" align="end">
                   <p className="m-0 whitespace-pre-wrap break-words leading-relaxed">
-                    {selected.text || 'Nothing written yet.'}
+                    {selected.text ? (
+                      <FormattedText entry={selected} />
+                    ) : (
+                      'Nothing written yet.'
+                    )}
                   </p>
                 </PopoverContent>
               </Popover>
@@ -957,7 +990,7 @@ export function Planner() {
                           : entry.type === 'task'
                             ? `${entry.completed ? '✓' : '□'} `
                             : 'Note · '}
-                        {entry.text}
+                        <FormattedText entry={entry} />
                       </Button>
                     </li>
                   ))}
@@ -967,5 +1000,13 @@ export function Planner() {
         </details>
       </main>
     </TooltipProvider>
+  );
+}
+
+export function Planner() {
+  return (
+    <WritingProvider>
+      <PlannerEditor />
+    </WritingProvider>
   );
 }

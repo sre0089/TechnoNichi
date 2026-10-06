@@ -1,4 +1,111 @@
-import { expect, test, type Page } from '@playwright/test';
+import {
+  expect as baseExpect,
+  test,
+  type Page,
+  type Locator,
+} from '@playwright/test';
+import type { Editor } from '@tiptap/core';
+
+// Assert visible text for rich writing and native value for interface fields.
+const expect = baseExpect.extend({
+  async toHaveWriting(locator: Locator, expected: string | RegExp) {
+    const value = () =>
+      locator.evaluate((node) => {
+        if (
+          node instanceof HTMLInputElement ||
+          node instanceof HTMLTextAreaElement ||
+          node instanceof HTMLSelectElement
+        )
+          return node.value;
+        const read = (part: Node): string => {
+          if (part.nodeType === Node.TEXT_NODE) return part.textContent ?? '';
+          if (part instanceof HTMLBRElement)
+            return part.classList.contains('ProseMirror-trailingBreak')
+              ? ''
+              : '\n';
+          const children = [...part.childNodes];
+          return children
+            .map(
+              (child, index) =>
+                (child instanceof HTMLParagraphElement && index > 0
+                  ? '\n'
+                  : '') + read(child),
+            )
+            .join('');
+        };
+        return read(node);
+      });
+    try {
+      if (expected instanceof RegExp)
+        await baseExpect.poll(value).toMatch(expected);
+      else await baseExpect.poll(value).toBe(expected);
+      return {
+        pass: true,
+        message: () => `Expected writing to differ from ${String(expected)}`,
+      };
+    } catch (error) {
+      return { pass: false, message: () => String(error) };
+    }
+  },
+});
+async function selectWriting(locator: Locator, from: number, to: number) {
+  await locator.focus();
+  await expect(async () => {
+    await locator.evaluate(
+      (node, { from, to }) => {
+        const point = (offset: number): [Node, number] => {
+          const walk = document.createTreeWalker(
+            node,
+            NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+          );
+          let part: Node | null;
+          while ((part = walk.nextNode())) {
+            if (part.nodeType === Node.TEXT_NODE) {
+              if (offset <= (part.textContent?.length ?? 0))
+                return [part, offset];
+              offset -= part.textContent?.length ?? 0;
+            } else if (
+              part instanceof HTMLBRElement &&
+              !part.classList.contains('ProseMirror-trailingBreak')
+            ) {
+              const parent = part.parentNode!;
+              const index = [...parent.childNodes].indexOf(part as ChildNode);
+              if (!offset) return [parent, index];
+              offset--;
+            }
+          }
+          return [node, node.childNodes.length];
+        };
+        const start = point(from),
+          end = point(to);
+        window
+          .getSelection()!
+          .setBaseAndExtent(start[0], start[1], end[0], end[1]);
+        document.dispatchEvent(new Event('selectionchange'));
+      },
+      { from, to },
+    );
+    // Browser/editor selection can settle asynchronously after undo/redo.
+    // Reapply the synthetic selection until it is observed, without a fixed sleep.
+    const observed = await locator.evaluate((node) => {
+      const editor = (node as HTMLElement & { editor: Editor }).editor;
+      const { doc, selection } = editor.state;
+      return [selection.from, selection.to].map(
+        (position) => doc.textBetween(0, position, '\n', '\n').length,
+      );
+    });
+    expect(observed).toEqual([from, to]);
+  }).toPass({ timeout: 5_000, intervals: [10, 20, 50] });
+}
+async function caretOffset(locator: Locator) {
+  return locator.evaluate((node) => {
+    const selection = window.getSelection()!;
+    const range = document.createRange();
+    range.setStart(node, 0);
+    range.setEnd(selection.anchorNode!, selection.anchorOffset);
+    return range.toString().length;
+  });
+}
 
 async function ready(page: Page) {
   await page.goto('/');
@@ -9,6 +116,225 @@ async function saved(page: Page) {
 }
 const leftDay = (page: Page) =>
   page.getByRole('region', { name: 'Tuesday, October 6', exact: true });
+
+test('arrow keys move between hourly rows without taking over selection, multiline editing or page turns', async ({
+  page,
+}) => {
+  await ready(page);
+  const day = leftDay(page);
+  const row = (time: string) =>
+    day.getByRole('textbox', { name: `Timed writing ${time}`, exact: true });
+  const noon = row('12:00');
+  await noon.fill('Lunch');
+  await selectWriting(noon, 2, 2);
+  await noon.press('ArrowDown');
+  await expect(row('13:00')).toBeFocused();
+  await expect(row('13:00')).toHaveWriting('');
+  await row('13:00').fill('Project');
+  await selectWriting(row('13:00'), 2, 2);
+  await row('13:00').press('ArrowUp');
+  await expect(noon).toBeFocused();
+  await expect.poll(() => caretOffset(noon)).toBe(2);
+  await noon.press('ArrowLeft');
+  await expect(noon).toBeFocused();
+  await expect.poll(() => caretOffset(noon)).toBe(1);
+  await noon.press('Shift+ArrowDown');
+  await expect(noon).toBeFocused();
+  await noon.dispatchEvent('keydown', { key: 'ArrowDown', isComposing: true });
+  await expect(noon).toBeFocused();
+  await selectWriting(noon, 0, 3);
+  await noon.press('ArrowDown');
+  await expect(noon).toBeFocused();
+  await noon.fill('First line\nSecond line');
+  await selectWriting(noon, 0, 0);
+  await noon.press('ArrowDown');
+  await expect(noon).toBeFocused();
+  await selectWriting(noon, 22, 22);
+  await noon.press('ArrowDown');
+  await expect(row('13:00')).toBeFocused();
+  await row('23:00').focus();
+  await row('23:00').press('ArrowDown');
+  await expect(row('00:00 +1')).toBeFocused();
+  await row('06:00').focus();
+  await row('06:00').press('ArrowUp');
+  await expect(row('06:00')).toBeFocused();
+  await row('03:00 +1').focus();
+  await row('03:00 +1').press('ArrowDown');
+  await expect(row('03:00 +1')).toBeFocused();
+  await saved(page);
+  await page.reload();
+  await expect(noon).toHaveWriting('First line\nSecond line');
+  await expect(row('13:00')).toHaveWriting('Project');
+  await expect(day).toBeVisible();
+});
+
+test('word formatting preserves independent marks, selected-word buttons, typed styles and reload', async ({
+  page,
+}) => {
+  await ready(page);
+  const day = leftDay(page);
+  const noon = day.getByRole('textbox', {
+    name: 'Timed writing 12:00',
+    exact: true,
+  });
+  await noon.fill('Lunch with friends');
+  await selectWriting(noon, 0, 5);
+  await noon.press('Meta+b');
+  await expect(noon.locator('strong')).toHaveText('Lunch');
+  await expect(noon.locator('strong')).toHaveCSS('font-weight', '700');
+  await selectWriting(noon, 6, 10);
+  await noon.press('Control+i');
+  await expect(noon.locator('em')).toHaveText('with');
+  await selectWriting(noon, 11, 18);
+  await noon.press('Meta+u');
+  await expect(noon.locator('u')).toHaveText('friends');
+  await expect(noon.locator('strong')).toHaveText('Lunch');
+  await expect(
+    page.getByRole('button', { name: 'Underline', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await noon.dispatchEvent('keydown', {
+    key: 'u',
+    ctrlKey: true,
+    isComposing: true,
+  });
+  await expect(noon.locator('u')).toHaveText('friends');
+  await selectWriting(noon, 0, 5);
+  await page.getByRole('button', { name: 'Bold', exact: true }).click();
+  await expect(noon.locator('strong')).toHaveCount(0);
+  await expect(noon).toBeFocused();
+  await noon.press('Control+b');
+  await expect(noon.locator('strong')).toHaveText('Lunch');
+  // Toggle new typing without changing any existing word.
+  await selectWriting(noon, 18, 18);
+  await noon.press('Control+u');
+  await noon.press('Meta+b');
+  await noon.pressSequentially(' later');
+  await expect(noon.locator('strong')).toHaveText(['Lunch', ' later']);
+  await expect(noon.locator('u')).toHaveText('friends');
+  await noon.press('Enter');
+  await day
+    .getByRole('checkbox', { name: 'Complete timed task 12:00 on 2026-10-06' })
+    .check();
+  await expect(noon).toHaveCSS('text-decoration-line', 'line-through');
+  await expect(noon.locator('u')).toHaveText('friends');
+  await page.getByRole('button', { name: 'Next spread', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Previous spread', exact: true })
+    .click();
+  await page.reload();
+  await expect(noon).toHaveWriting('Lunch with friends later');
+  await expect(noon.locator('strong')).toHaveText(['Lunch', ' later']);
+  await expect(noon.locator('em')).toHaveText('with');
+  await expect(noon.locator('u')).toHaveText('friends');
+  await noon.focus();
+  await page.getByRole('button', { name: 'Edit writing', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'A little more room' });
+  const writing = dialog.getByLabel('Your writing');
+  await expect(writing).toBeFocused();
+  await expect(writing.locator('strong')).toHaveText(['Lunch', ' later']);
+  await selectWriting(writing, 11, 18);
+  await writing.press('Control+b');
+  await expect(writing.locator('u strong, strong u')).toHaveText('friends');
+  await writing.press('Escape');
+  await expect(noon).toBeFocused();
+  await expect(noon.locator('u strong, strong u')).toHaveText('friends');
+  await page
+    .getByRole('button', { name: 'Read full writing', exact: true })
+    .click();
+  await expect(
+    page.getByRole('dialog', { name: 'Full writing' }),
+  ).toHaveWriting('Lunch with friends later');
+  await page.getByRole('dialog', { name: 'Full writing' }).press('Escape');
+  const task = day.getByRole('textbox', {
+    name: 'Task 1 on 2026-10-06',
+    exact: true,
+  });
+  await task.fill('Top checklist');
+  await selectWriting(task, 4, 13);
+  await task.press('Control+u');
+  await day
+    .getByRole('checkbox', { name: 'Complete task 1 on 2026-10-06' })
+    .check();
+  await expect(task.locator('u')).toHaveText('checklist');
+  await saved(page);
+  await page.reload();
+  await expect(task.locator('u')).toHaveText('checklist');
+});
+
+test('word formatting follows edits, supports local undo and pastes plain text safely', async ({
+  page,
+}) => {
+  await ready(page);
+  const day = leftDay(page);
+  const row = day.getByRole('textbox', {
+    name: 'Timed writing 12:00',
+    exact: true,
+  });
+  await row.fill('Plan quiet reading');
+  await selectWriting(row, 5, 10);
+  await row.press('Control+b');
+  await expect(row.locator('strong')).toHaveText('quiet');
+  await row.press('ControlOrMeta+z');
+  await expect(row.locator('strong')).toHaveCount(0);
+  await row.press('ControlOrMeta+Shift+z');
+  await expect(row.locator('strong')).toHaveText('quiet');
+  await selectWriting(row, 0, 0);
+  await row.pressSequentially('Today: ');
+  await expect(row.locator('strong')).toHaveText('quiet');
+  await selectWriting(row, 7, 12);
+  await row.press('Backspace');
+  await expect(row).toHaveWriting('Today: quiet reading');
+  await selectWriting(row, 7, 12);
+  await row.pressSequentially('calm');
+  await expect(row.locator('strong')).toHaveText('calm');
+  // Repeated rapid replacements must keep every typed character in the mark,
+  // even while React acknowledges earlier edits and local saves are queued.
+  for (const word of ['steady', 'clear', 'peaceful', 'calm']) {
+    const previous = await row.locator('strong').textContent();
+    await selectWriting(row, 7, 7 + previous!.length);
+    await row.pressSequentially(word);
+    await expect(row).toHaveWriting(`Today: ${word} reading`);
+    await expect(row.locator('strong')).toHaveText(word);
+  }
+  await row.press('Enter');
+  await day.getByRole('button', { name: '+ Note', exact: true }).click();
+  const note = day.getByRole('textbox', { name: 'Note on 2026-10-06' });
+  await note.fill('Keep words\nand spaces');
+  await selectWriting(note, 5, 10);
+  await page.getByRole('button', { name: 'Italic', exact: true }).click();
+  await expect(note.locator('em')).toHaveText('words');
+  await selectWriting(note, 21, 21);
+  await note.evaluate((node) => {
+    const event = new ClipboardEvent('paste', {
+      bubbles: true,
+      cancelable: true,
+    });
+    // Synthetic Firefox DataTransfer hides clipboard payloads. Supply a stable
+    // clipboard boundary here; physical clipboard behavior remains a device check.
+    Object.defineProperty(event, 'clipboardData', {
+      value: {
+        types: ['text/plain', 'text/html'],
+        getData: (type: string) =>
+          type === 'text/plain'
+            ? '\n<script>literal</script>'
+            : '<img src="invalid" onerror="window.unsafePaste=true">',
+      },
+    });
+    node.dispatchEvent(event);
+  });
+  await expect(note).toHaveWriting(
+    'Keep words\nand spaces\n<script>literal</script>',
+  );
+  await expect(note.locator('img, script')).toHaveCount(0);
+  await saved(page);
+  await page.reload();
+  await expect(row).toHaveWriting('Today: calm reading');
+  await expect(row.locator('strong')).toHaveText('calm');
+  await expect(note.locator('em')).toHaveText('words');
+  await expect(note).toHaveWriting(
+    'Keep words\nand spaces\n<script>literal</script>',
+  );
+});
 
 test('timed writing, note geometry, task text and completion survive turns and reload', async ({
   page,
@@ -42,18 +368,24 @@ test('timed writing, note geometry, task text and completion survive turns and r
     .click();
   await expect(
     page.getByRole('textbox', { name: 'Timed writing 14:15', exact: true }),
-  ).toHaveValue('Read chapter four');
+  ).toHaveWriting('Read chapter four');
   const note = page.getByRole('textbox', { name: 'Note on 2026-10-06' });
-  const geometry = await note.locator('..').getAttribute('style');
+  const geometry = await note
+    .locator('xpath=ancestor::div[contains(@class, "writing-item")][1]')
+    .getAttribute('style');
   await page.reload();
   await saved(page);
-  await expect(note).toHaveValue(
+  await expect(note).toHaveWriting(
     'A quiet afternoon\nRemember the small things.',
   );
-  expect(await note.locator('..').getAttribute('style')).toBe(geometry);
+  expect(
+    await note
+      .locator('xpath=ancestor::div[contains(@class, "writing-item")][1]')
+      .getAttribute('style'),
+  ).toBe(geometry);
   await expect(
     day.getByRole('textbox', { name: 'Task 1 on 2026-10-06', exact: true }),
-  ).toHaveValue('Review notes');
+  ).toHaveWriting('Review notes');
   await expect(
     day.getByRole('checkbox', { name: 'Complete task 1 on 2026-10-06' }),
   ).toBeChecked();
@@ -62,7 +394,7 @@ test('timed writing, note geometry, task text and completion survive turns and r
   ).toHaveCount(1);
   await expect(
     day.getByRole('textbox', { name: 'Timed writing 09:00', exact: true }),
-  ).toHaveValue('Another morning line');
+  ).toHaveWriting('Another morning line');
 });
 
 test('timed task completion appears on Enter and survives turns and reload', async ({
@@ -118,7 +450,7 @@ test('timed task completion appears on Enter and survives turns and reload', asy
     (node) => getComputedStyle(node).textDecorationColor,
   );
   expect(lineColor).toMatch(/0\.4|40%/);
-  await expect(row).toHaveValue('Lunch with a friend');
+  await expect(row).toHaveWriting('Lunch with a friend');
   await page.getByRole('button', { name: 'Next spread', exact: true }).click();
   await page
     .getByRole('button', { name: 'Previous spread', exact: true })
@@ -229,7 +561,7 @@ test('hourly text fields, printed intersections and page-only font stay aligned'
 }) => {
   await ready(page);
   const day = leftDay(page);
-  await expect(day.locator('.timed textarea')).toHaveCount(22);
+  await expect(day.locator('.timed .writing-input')).toHaveCount(22);
   await expect(
     day.getByRole('button', { name: '+ Timed line', exact: true }),
   ).toHaveCount(0);
@@ -272,22 +604,22 @@ test('hourly text fields, printed intersections and page-only font stay aligned'
   await expect(row).not.toBeFocused();
   await expect(
     day.getByRole('textbox', { name: 'Timed writing 01:00 +1', exact: true }),
-  ).toHaveValue('');
+  ).toHaveWriting('');
   const font = (selector: string) =>
     day
       .locator(selector)
       .first()
       .evaluate((element) => getComputedStyle(element).fontFamily);
-  expect(await font('.timed textarea')).toContain('monospace');
-  expect(await font('.task-row textarea')).toContain('monospace');
+  expect(await font('.timed .writing-input')).toContain('monospace');
+  expect(await font('.task-row .writing-input')).toContain('monospace');
   expect(await font('.time-marker')).not.toContain('monospace');
   expect(await font('.date-number')).toContain('Georgia');
   await day.getByRole('button', { name: '+ Note', exact: true }).click();
-  expect(await font('.note textarea')).toContain('monospace');
+  expect(await font('.note .writing-input')).toContain('monospace');
   await saved(page);
   await page.reload();
   await saved(page);
-  await expect(row).toHaveValue('Midnight row');
+  await expect(row).toHaveWriting('Midnight row');
 });
 
 test('old exact times, duplicate-hour writing and upper notes retain their data', async ({
@@ -347,12 +679,14 @@ test('old exact times, duplicate-hour writing and upper notes retain their data'
     name: 'Timed writing 14:15',
     exact: true,
   });
-  await expect(first).toHaveValue('Original exact-time writing');
+  await expect(first).toHaveWriting('Original exact-time writing');
   await first.click();
-  await expect(page.getByLabel('Exact time')).toHaveValue('14:15');
+  await expect(page.getByLabel('Exact time')).toHaveWriting('14:15');
   const note = day.getByRole('textbox', { name: 'Note on 2026-10-06' });
-  await expect(note).toHaveValue('Keep my original note position');
-  const style = await note.locator('..').getAttribute('style');
+  await expect(note).toHaveWriting('Keep my original note position');
+  const style = await note
+    .locator('xpath=ancestor::div[contains(@class, "writing-item")][1]')
+    .getAttribute('style');
   await day
     .getByRole('button', {
       name: 'Other writing in this hour (2 entries)',
@@ -363,13 +697,13 @@ test('old exact times, duplicate-hour writing and upper notes retain their data'
     name: 'Timed writing 14:45',
     exact: true,
   });
-  await expect(second).toHaveValue(
+  await expect(second).toHaveWriting(
     'Second entry in the same hour. '.repeat(30),
   );
   await expect(
     day.getByRole('button', { name: 'Read overflowing writing', exact: true }),
   ).toBeVisible();
-  await expect(page.getByLabel('Exact time')).toHaveValue('14:45');
+  await expect(page.getByLabel('Exact time')).toHaveWriting('14:45');
   await second.fill('Second entry updated');
   await expect(
     day.getByRole('button', { name: 'Read overflowing writing', exact: true }),
@@ -377,15 +711,19 @@ test('old exact times, duplicate-hour writing and upper notes retain their data'
   await saved(page);
   await page.reload();
   await saved(page);
-  expect(await note.locator('..').getAttribute('style')).toBe(style);
-  await expect(first).toHaveValue('Original exact-time writing');
+  expect(
+    await note
+      .locator('xpath=ancestor::div[contains(@class, "writing-item")][1]')
+      .getAttribute('style'),
+  ).toBe(style);
+  await expect(first).toHaveWriting('Original exact-time writing');
   await day
     .getByRole('button', {
       name: 'Other writing in this hour (2 entries)',
       exact: true,
     })
     .click();
-  await expect(second).toHaveValue('Second entry updated');
+  await expect(second).toHaveWriting('Second entry updated');
 });
 
 test('two tabs editing the same initially empty hourly row reject a stale write', async ({
@@ -405,7 +743,7 @@ test('two tabs editing the same initially empty hourly row reject a stale write'
   });
   await stale.fill('Retain the second tab draft');
   await expect(other.getByRole('status')).toHaveText('Storage problem');
-  await expect(stale).toHaveValue('Retain the second tab draft');
+  await expect(stale).toHaveWriting('Retain the second tab draft');
   await expect(
     other.getByRole('alert').filter({ hasText: 'Another tab changed' }),
   ).toContainText('Your draft is retained');
@@ -439,13 +777,13 @@ test('clicking across an hourly row edits it and the lower grid creates notes', 
   await note.fill('Placed directly on the page');
   expect(
     await note
-      .locator('..')
+      .locator('xpath=ancestor::div[contains(@class, "writing-item")][1]')
       .evaluate((element) => parseFloat((element as HTMLElement).style.left)),
   ).toBeCloseTo((65.5 / 148) * 100);
   await saved(page);
   await page.reload();
   await saved(page);
-  await expect(note).toHaveValue('Placed directly on the page');
+  await expect(note).toHaveWriting('Placed directly on the page');
 });
 
 test('native text editing, IME and geometry survive resizing and focused phone layout', async ({
@@ -460,22 +798,28 @@ test('native text editing, IME and geometry survive resizing and focused phone l
   await note.press('End');
   await note.press('Enter');
   await note.press('A');
-  await expect(note).toHaveValue('First line\nA');
-  const style = await note.locator('..').getAttribute('style');
+  await expect(note).toHaveWriting('First line\nA');
+  const style = await note
+    .locator('xpath=ancestor::div[contains(@class, "writing-item")][1]')
+    .getAttribute('style');
   await note.press('ControlOrMeta+A');
   await expect(leftDay(page)).toBeVisible();
   await note.dispatchEvent('compositionstart');
   await note.dispatchEvent('keydown', { key: 'Enter', isComposing: true });
   await note.dispatchEvent('compositionend');
   await note.press('Escape');
-  await expect(note).toHaveValue('First line\nA');
+  await expect(note).toHaveWriting('First line\nA');
   await page.getByLabel('Page size').selectOption('1.15');
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(leftDay(page)).toBeVisible();
   await expect(
     page.getByRole('region', { name: 'Wednesday, October 7', exact: true }),
   ).toBeHidden();
-  expect(await note.locator('..').getAttribute('style')).toBe(style);
+  expect(
+    await note
+      .locator('xpath=ancestor::div[contains(@class, "writing-item")][1]')
+      .getAttribute('style'),
+  ).toBe(style);
   await page
     .getByRole('button', { name: 'Wednesday, October 7', exact: true })
     .click();
@@ -506,11 +850,11 @@ test('focused editor preserves long text and native Escape keeps its draft', asy
     );
   await dialog.getByLabel('Your writing').press('Escape');
   await expect(dialog).toHaveCount(0);
-  await expect(note).toHaveValue(/^A readable phone draft/);
+  await expect(note).toHaveWriting(/^A readable phone draft/);
   await saved(page);
   await page.reload();
   await saved(page);
-  await expect(note).toHaveValue(/^A readable phone draft/);
+  await expect(note).toHaveWriting(/^A readable phone draft/);
 });
 
 test('view settings trap focus, retain preferences and leave writing intact at desktop and phone sizes', async ({
@@ -590,11 +934,11 @@ test('view settings trap focus, retain preferences and leave writing intact at d
       .toEqual({ zoom: Number(zoom), toolbarSide: side });
     await page.reload();
     await saved(page);
-    await expect(page.getByLabel('Page size')).toHaveValue(zoom);
+    await expect(page.getByLabel('Page size')).toHaveWriting(zoom);
     await expect(page.locator('main')).toHaveClass(
       new RegExp(`toolbar-${side}`),
     );
-    await expect(row).toHaveValue('Keep my lunchtime plan');
+    await expect(row).toHaveWriting('Keep my lunchtime plan');
     await expect(row).toHaveAttribute('id', id!);
     await expect(
       leftDay(page).getByRole('checkbox', {
@@ -648,11 +992,11 @@ test('full-writing popovers fit the phone and the enlarged editor restores row f
   await dialog.press('Escape');
   await expect(dialog).toHaveCount(0);
   await expect(row).toBeFocused();
-  await expect(row).toHaveValue(text + '\nKept on Escape.');
+  await expect(row).toHaveWriting(text + '\nKept on Escape.');
   await saved(page);
   await page.reload();
   await saved(page);
-  await expect(row).toHaveValue(text + '\nKept on Escape.');
+  await expect(row).toHaveWriting(text + '\nKept on Escape.');
   await expect(
     leftDay(page).getByRole('checkbox', {
       name: 'Complete timed task 12:00 on 2026-10-06',
@@ -712,11 +1056,11 @@ test('a failed write retains the editor and blocks navigation until retry succee
   await expect(page.getByRole('status')).toHaveText('Storage problem');
   await page.getByRole('button', { name: 'Next spread', exact: true }).click();
   await expect(leftDay(page)).toBeVisible();
-  await expect(task).toHaveValue('Keep this draft');
+  await expect(task).toHaveWriting('Keep this draft');
   await page
     .getByRole('button', { name: 'Recover writing', exact: true })
     .click();
-  await expect(page.getByLabel('Recoverable writing')).toHaveValue(
+  await expect(page.getByLabel('Recoverable writing')).toHaveWriting(
     /Keep this draft/,
   );
   await page.evaluate(() => {
@@ -731,7 +1075,7 @@ test('a failed write retains the editor and blocks navigation until retry succee
   await saved(page);
   await page.reload();
   await saved(page);
-  await expect(task).toHaveValue('Keep this draft');
+  await expect(task).toHaveWriting('Keep this draft');
 });
 
 test('a second tab cannot silently overwrite a stale checklist entry', async ({
@@ -760,7 +1104,7 @@ test('a second tab cannot silently overwrite a stale checklist entry', async ({
       name: 'Task 1 on 2026-10-06',
       exact: true,
     }),
-  ).toHaveValue('Second tab draft');
+  ).toHaveWriting('Second tab draft');
 });
 
 test('synthetic blank, normal, dense and focused visual fixtures', async ({

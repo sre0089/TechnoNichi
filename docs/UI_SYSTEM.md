@@ -7,21 +7,23 @@ services stay in their original milestones.
 
 ## Rendering boundaries
 
-| Responsibility                    | Implementation                                                                    |
-| --------------------------------- | --------------------------------------------------------------------------------- |
-| Routes and client editor          | Next.js 16.3.8, React 19.3.0, TypeScript 6.0.3                                    |
-| Interface theme and layout        | Tailwind 4.3.3 through `@tailwindcss/postcss`; tokens in `src/app/globals.css`    |
-| Buttons and fields                | Local components in `src/components/ui/`, native browser elements                 |
-| Dialogs, popovers, keyboard hints | Radix Dialog 1.2.0, Popover 1.2.0, Tooltip 1.3.0                                  |
-| Icons                             | Named imports from Lucide React 1.52.0; decorative SVGs hidden from accessibility |
-| Conditional classes               | `clsx` 2.1.1 and `tailwind-merge` 3.7.0 through `cn()`                            |
-| Paper, grid and entered writing   | Existing template coordinates, custom CSS, container units and native textareas   |
-| Persistence                       | Existing Dexie 4.4.6/IndexedDB and serialized revision-checked writes             |
-| Validation                        | Prettier, ESLint, TypeScript, Vitest and Playwright                               |
+| Responsibility                    | Implementation                                                                      |
+| --------------------------------- | ----------------------------------------------------------------------------------- |
+| Routes and client editor          | Next.js 16.3.8, React 19.3.0, TypeScript 6.0.3                                      |
+| Interface theme and layout        | Tailwind 4.3.3 through `@tailwindcss/postcss`; tokens in `src/app/globals.css`      |
+| Buttons and fields                | Local components in `src/components/ui/`, native browser elements                   |
+| Dialogs, popovers, keyboard hints | Radix Dialog 1.2.0, Popover 1.2.0, Tooltip 1.3.0                                    |
+| Icons                             | Named imports from Lucide React 1.52.0; decorative SVGs hidden from accessibility   |
+| Conditional classes               | `clsx` 2.1.1 and `tailwind-merge` 3.7.0 through `cn()`                              |
+| Paper, grid and entered writing   | Existing template coordinates, custom CSS, container units and scoped Tiptap fields |
+| Persistence                       | Existing Dexie 4.4.6/IndexedDB and serialized revision-checked writes               |
+| Validation                        | Prettier, ESLint, TypeScript, Vitest and Playwright                                 |
 
 All dependencies are exact-pinned in `package.json` and the npm lockfile. No
-shadcn CLI/generated component pack, Base UI, rich-text engine, or direct Floating
-UI dependency was added. Radix provides the needed floating placement behavior.
+shadcn CLI/generated component pack, Base UI or direct Floating
+UI dependency was added. Word formatting now uses exact-pinned Tiptap 3.31.4
+(core, React, ProseMirror adapter, document/paragraph/text, bold/italic/underline,
+hard-break and undo/redo packages), under MIT licenses. Radix provides the needed floating placement behavior.
 
 ## Theme and component contracts
 
@@ -62,6 +64,33 @@ the same persistence path as the quick toolbar controls. Choices apply immediate
 The app's controls, contextual writing panel, enlarged editor, day outline,
 opening retry, storage recovery and small paper actions use the shared components.
 
+Writing fields own their keyboard handlers; there is no global shortcut listener.
+Unmodified Up/Down switches hourly rows within the current page. Selection,
+composition, read-only fields and modified arrows retain native behavior. Multiline
+or overflowing fields leave only at their text endpoints. No arrow turns pages.
+Cmd/Ctrl+B/I/U formats selected words; with a collapsed selection it sets stored
+marks for subsequent typing. Contextual buttons expose pressed states and shortcut
+hints, preserve the selected range, and use the same commands in enlarged editing.
+Each bounded entry editor uses Tiptap/ProseMirror with only plain paragraphs,
+line breaks, bold, italic, underline and field-local undo/redo. No headings, lists,
+links, images, HTML storage or editor-wide notebook contenteditable is introduced.
+Input/paste rules are disabled; paste inserts plain clipboard text as text nodes.
+
+The saved model retains plaintext `text` plus optional sorted, nonoverlapping
+`formatRuns`, using UTF-16 offsets and controlled boolean styles. Old plain records
+remain plain. Old whole-entry flags are rendered as equivalent ranges without a
+record rewrite; the first edit saves explicit ranges. Both text and ranges follow
+the existing revision-checked save and draft recovery path. Tiptap's Next.js client
+boundary uses `immediatelyRender: false`. Semantic comparisons avoid resetting
+content, selection, pending marks or undo on every React draft update. Editors are
+re-created when their entry identity changes, preventing history crossing entries.
+React echoes of a field's own writes cannot replace newer live content. Editability
+updates only when it changes, avoiding repeated view updates during native typing.
+
+The checkbox text measurement renders the same styled segments as the field.
+Underline combines with completion's translucent strike-through. The reading
+popover and day outline render controlled React spans from the same ranges.
+
 ## Verification and limits
 
 Browser journeys cover preference persistence at desktop and phone widths,
@@ -92,6 +121,9 @@ The production-only audit returned zero reported vulnerabilities on that date.
 - [Radix Dialog](https://www.radix-ui.com/primitives/docs/components/dialog)
 - [Radix Popover](https://www.radix-ui.com/primitives/docs/components/popover)
 - [Radix Tooltip](https://www.radix-ui.com/primitives/docs/components/tooltip)
+- [Tiptap Next.js integration](https://tiptap.dev/docs/editor/getting-started/install/nextjs)
+- [Tiptap editor API](https://tiptap.dev/docs/editor/api/editor)
+- [Tiptap undo/redo](https://tiptap.dev/docs/editor/extensions/functionality/undo-redo)
 - [Lucide React](https://lucide.dev/guide/packages/lucide-react)
 
 The installed Next.js CSS, client-boundary and CLI guides were also consulted.

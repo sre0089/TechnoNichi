@@ -260,6 +260,41 @@
   align-items: center;
   gap: 1.1cqw;
 }
+.writing-field {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+}
+.writing-input {
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  tab-size: 8;
+}
+.writing-input p {
+  margin: 0;
+}
+.writing-input strong {
+  font-weight: 700;
+}
+.writing-input em {
+  font-style: italic;
+}
+.writing-input u {
+  text-decoration: underline;
+}
+.enlarged-writing {
+  min-height: 15rem;
+  max-height: 50dvh;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: rgb(247 242 230 / 50%);
+  padding: 0.75rem;
+  font-family: 'Kalam', cursive;
+  font-size: 1.125rem;
+  line-height: 1.625;
+}
 .task-overflow {
   position: absolute;
   right: 0;
@@ -294,7 +329,7 @@
   top: -0.6cqw;
   color: #564261;
 }
-.task-row textarea {
+.task-row .writing-input {
   width: 100%;
   height: 2.5cqw;
   background: transparent;
@@ -307,12 +342,12 @@
   line-height: 2.5cqw;
   overflow: hidden;
 }
-.task-row textarea:focus {
+.task-row .writing-input:focus {
   outline: 1px dashed #8a729977;
   outline-offset: 1px;
   background: #fffc;
 }
-.task-row.completed textarea {
+.task-row.completed .writing-input {
   color: #85758c;
   text-decoration: line-through;
   text-decoration-thickness: 1px;
@@ -351,7 +386,7 @@
   display: flex;
   align-items: flex-start;
 }
-.writing-item textarea {
+.writing-item .writing-input {
   height: 100%;
   width: 100%;
   color: var(--ink);
@@ -365,15 +400,15 @@
   resize: none;
   overflow: hidden;
 }
-.timed textarea {
+.timed .writing-input {
   font-size: 1.7cqw;
   line-height: 2.05cqw;
   padding-top: 0.45cqw;
 }
-.timed.submitted textarea {
+.timed.submitted .writing-input {
   padding-right: 9cqw;
 }
-.timed.completed textarea {
+.timed.completed .writing-input {
   text-decoration-line: line-through;
   text-decoration-color: rgb(81 69 96 / 40%);
   text-decoration-thickness: 0.08em;
@@ -407,18 +442,18 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
-.writing-item textarea::placeholder {
+.writing-item .writing-input::placeholder {
   color: transparent;
 }
-.writing-item textarea:focus {
+.writing-item .writing-input:focus {
   outline: 1px dashed #8a729970;
   outline-offset: -1px;
   background: #fff6;
 }
-.writing-item textarea:focus::placeholder {
+.writing-item .writing-input:focus::placeholder {
   color: #95869b;
 }
-.writing-item:hover textarea {
+.writing-item:hover .writing-input {
   background: #fff3;
 }
 .row-alternatives {

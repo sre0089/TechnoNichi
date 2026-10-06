@@ -37,7 +37,7 @@ container units, not physical CSS millimetres.
 | Tasks           | Five anchors starting (63, 8), vertical pitch 3.7                                                                        |
 | Timeline labels | x 13.7 on a vertical grid line; 6 at y 34.8, 9 at 45.9, 12 at 57, 15 at 68.1                                             |
 | Midnight wrap   | 18 at 79.2, 21 at 90.3, 0 (+1 day) at 101.4, 3 (+1 day) at 112.5                                                         |
-| Schedule text   | Starts x 22.025; 22 native hourly fields spanning one row each, ending at its time line                                  |
+| Schedule text   | Starts x 22.025; 22 editable hourly fields spanning one row each, ending at its time line                                |
 | Occupied line   | x 21.1, two grid columns right of the timestamps; writing starts one quarter-square to its right, within the same column |
 | Hour marks      | Numbers centered on every third horizontal line; dots at the other hourly intersections; no extra vertical divider       |
 | Memo area       | Below the final 03:00 line at y 112.5; new notes start here or farther down                                              |
@@ -65,6 +65,10 @@ The timed checkbox is centered in the clear band between horizontal grid strokes
 its checked mark is centered within the checkbox. The top checklist keeps its
 existing printed placement.
 
+Word-level bold/italic/underline uses the current writing font and geometry;
+font size and baseline stay fixed. The checkbox's text-width measurement applies
+the same per-word bold/italic styling. Underline and completion strike-through can coexist.
+
 Every occupied hour contributes to a derived bold vertical line at x 21.1, even
 while typing or after completion. Adjacent hours share a line from one grid row
 above the first time marker to the last marker, encompassing the first entry's
@@ -91,7 +95,7 @@ Liberation Mono, monospace). Notes/checklist text stays about 3.1 logical mm wit
 3.03 mm line box and 0.67 mm top inset inside the unchanged 3.7 mm row. The smaller
 glyphs sit lower, just above the grid line; descenders retain a little clearance.
 This approximates the user's sample without claiming its exact font identity.
-The native text controls preserve ordinary editing, selection, and IME behavior.
+Scoped writing editors preserve ordinary editing, selection, and IME behavior.
 Printed labels use system sans-serif; large dates use system Georgia.
 
 Kalam remains in the existing checkmark and enlarged editor, whose fonts were not
@@ -109,7 +113,7 @@ and excluded from accessibility/input hit testing. Navigation follows manifest
 order, not odd/even date numbers.
 
 Small screens focus one page. Browser zoom is preserved; page-size controls keep
-stored coordinates fixed. The enlarged Radix dialog with a native textarea offers readable writing at
+stored coordinates fixed. The enlarged Radix dialog with a scoped writing field offers readable writing at
 18 px without changing the note's stored box or font geometry. Overflow text is
 preserved, with explicit reading/editing affordances. A linear day outline uses
 the same entries. The toolbar can sit on either side. Shared Tailwind controls and

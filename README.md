@@ -45,8 +45,22 @@ Existing notes keep their positions, including older notes in the timetable area
 
 Short lines/tasks finish with Enter; Shift+Enter inserts a newline. Notes use Enter
 for newlines. Escape exits while retaining writing; **Done** exits the contextual
-editor. **Edit writing** opens a larger native text editor without changing layout.
+editor. **Edit writing** opens a larger writing editor without changing layout.
 Overflow writing stays intact and has explicit reading/editing affordances.
+
+Use **Up/Down** to move between hourly writing rows on the same page, including
+empty rows. Left/Right, modified arrows and text selections retain native editing.
+For multiline/overflowing writing, Up leaves at the start of the text and Down
+leaves at the end; arrows otherwise move within the text. The first/last row does
+not wrap or turn the page.
+
+**Cmd/Ctrl+B**, **Cmd/Ctrl+I** and **Cmd/Ctrl+U** toggle bold, italic and underline
+for selected words. With no selection, they set the style for new typing. Matching
+buttons appear in the writing controls and enlarged editor, preserve the selection,
+and show its active styles. Styles combine, save with the entry, and also work on
+notes and top checklist tasks. Cmd/Ctrl+Z and Shift+Cmd/Ctrl+Z undo/redo edits in
+the current writing field. Pasted text keeps its wording and line breaks; imported
+HTML styling is not retained.
 
 **View settings** opens the toolbar's settings dialog. Page size and controls
 position apply immediately and remain saved in this browser. Quick size/side

@@ -62,6 +62,32 @@ describe('civil calendar and stable pages', () => {
 });
 
 describe('time and document geometry', () => {
+  it('accepts old plain writing and boolean formats while rejecting invalid styles', () => {
+    const entry = newEntry('page', {
+      type: 'scheduled-line',
+      minute: 720,
+      dayOffset: 0,
+    });
+    expect(() => assertEntry(entry)).not.toThrow();
+    expect(() =>
+      assertEntry({
+        ...entry,
+        style: {
+          ...entry.style,
+          bold: true,
+          italic: false,
+          underline: true,
+        },
+      }),
+    ).not.toThrow();
+    for (const key of ['bold', 'italic', 'underline']) {
+      for (const invalid of ['true', 1, null, {}]) {
+        expect(() =>
+          assertEntry({ ...entry, style: { ...entry.style, [key]: invalid } }),
+        ).toThrow('Invalid writing format');
+      }
+    }
+  });
   it('does not reuse a row ID after its writing moves to another hour', () => {
     const first = newHourlyEntry('page', 540, 0, []);
     const moved = { ...first, minute: 855, text: 'Keep this writing' };
