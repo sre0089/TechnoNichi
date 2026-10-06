@@ -59,6 +59,7 @@ import {
 import { Hint, TooltipProvider } from '../components/ui/tooltip';
 import { SaveStatus } from '../components/ui/save-status';
 import { PageSizeSelect, ViewSettings } from './ViewSettings';
+import { BackupsDialog } from './BackupsDialog';
 import {
   RichWriting,
   WritingProvider,
@@ -644,6 +645,8 @@ function PlannerEditor() {
     updatePreferences,
     retry,
     unsaved,
+    exportBackup,
+    restoreBackup,
   } = usePlanner();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showRecovery, setShowRecovery] = useState(false);
@@ -733,7 +736,16 @@ function PlannerEditor() {
               </Button>
             </Hint>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <BackupsDialog
+              disabled={moving}
+              exportBackup={exportBackup}
+              restoreBackup={async (archive) => {
+                await restoreBackup(archive);
+                setSelectedId(null);
+                setFocusedEditor(false);
+              }}
+            />
             <PageSizeSelect
               zoom={preferences.zoom}
               onChange={(zoom) => void updatePreferences({ zoom })}
@@ -952,7 +964,7 @@ function PlannerEditor() {
           <p>
             Write directly in an hourly row. Use the lower grid for free notes.
           </p>
-          <span>2026 · local book</span>
+          <span>{view.book.year} · local book</span>
         </footer>
         <details className="day-outline">
           <summary>Day outline</summary>

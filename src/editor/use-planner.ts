@@ -10,8 +10,9 @@ import {
   type Preferences,
 } from '../domain/model';
 import { spreadIndex } from '../domain/calendar';
-import { PlannerDB } from '../local/repository';
+import { PlannerDB, RestoreRefused } from '../local/repository';
 import { readRecovery, SaveQueue, type SaveState } from '../local/save-queue';
+import { serializeBackup, type PlannerBackup } from '../local/backup';
 
 interface View {
   book: Book;
@@ -174,6 +175,66 @@ export function usePlanner() {
     }
   };
 
+  const withBackupLock = async <T>(
+    operation: (database: PlannerDB, queue: SaveQueue) => Promise<T>,
+  ): Promise<T> => {
+    if (!db.current || !writer.current || moveLock.current)
+      throw new Error('Please finish the current operation and try again.');
+    moveLock.current = true;
+    setMoving(true);
+    try {
+      if (!(await writer.current.flush()))
+        throw new Error(
+          'Your latest writing could not save. Retry saving before making a backup or restoring.',
+        );
+      return await operation(db.current, writer.current);
+    } finally {
+      moveLock.current = false;
+      setMoving(false);
+    }
+  };
+
+  const exportBackup = () =>
+    withBackupLock(async (database) => {
+      if (!view) throw new Error('Please wait for the book to open.');
+      let archive: PlannerBackup;
+      try {
+        archive = await database.exportBackup(view.book.id);
+      } catch {
+        throw new Error(
+          'The complete book could not be read. No backup was created.',
+        );
+      }
+      return { text: serializeBackup(archive), year: archive.book.year };
+    });
+
+  const restoreBackup = (archive: PlannerBackup) =>
+    withBackupLock(async (database, queue) => {
+      let restored: PlannerBackup;
+      try {
+        restored = await database.restoreBackup(archive);
+      } catch (error) {
+        if (error instanceof RestoreRefused) throw error;
+        throw new Error(
+          'Restore could not finish. Your existing planner has not been changed.',
+          { cause: error },
+        );
+      }
+      const { book, pages, preferences } = restored;
+      const visibleIds = new Set(
+        pages
+          .slice(preferences.pageIndex, preferences.pageIndex + 2)
+          .map((page) => page.id),
+      );
+      const loaded = restored.entries.filter(
+        (entry) => !entry.deletedAt && visibleIds.has(entry.pageId),
+      );
+      queue.seed(loaded);
+      setEntries(loaded);
+      setView({ book, pages, preferences });
+      setSaveState({ kind: 'saved' });
+    });
+
   return {
     view,
     entries,
@@ -183,6 +244,8 @@ export function usePlanner() {
     edit,
     navigate,
     updatePreferences,
+    exportBackup,
+    restoreBackup,
     retry: () => writer.current?.flush(),
     unsaved: () => writer.current?.unsaved() ?? [],
   };

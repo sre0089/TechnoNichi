@@ -15,6 +15,11 @@ intentional screenshot skips. The merged application tree is identical to that
 checked head. Exact run links and merge details appear below.
 Earlier local-review/publication sections are historical checkpoints.
 
+The user accepted the next bounded proposal on 2026-10-06: versioned local JSON
+export/import, including word formatting. Implementation is on `feat/planner-backups`,
+based on merged main `619945a` (PR #6). The user approved committing, pushing and
+opening a PR on 2026-10-06. Publication is in progress, tracked by
+[issue #8](https://github.com/sre0089/TechnoNichi/issues/8).
 The remainder of M2, cloud services and public deployment are not authorized or begun.
 
 ## Completed work
@@ -36,10 +41,15 @@ The remainder of M2, cloud services and public deployment are not authorized or 
 - Generated and visually inspected synthetic blank, normal, dense, and phone fixtures.
 - Added shared UI components and view settings; exact stack and component contracts
   are documented in `docs/UI_SYSTEM.md`.
+- Added toolbar Backups controls, complete-book JSON export after saving drafts,
+  file validation/preview and transactional restore into a fresh planner. Word
+  formatting, completion, note geometry, exact times, revisions, legacy flags,
+  deletion markers and preferences are retained. Restored books reopen correctly.
 
 ## Git status and publication
 
-- Integrated branch: `main`; application merge: `eb54eba`.
+- Integrated base: `main` at `619945a`; current work: `feat/planner-backups`.
+  Application merge: `eb54eba`.
   Merge-record/test maintenance is tracked by PR #6 below.
 - Merged M1 PR: https://github.com/sre0089/TechnoNichi/pull/3.
 - Merged writing-controls PR: https://github.com/sre0089/TechnoNichi/pull/5.
@@ -465,23 +475,63 @@ those early failures.
 - Docs: PRD, architecture, page template, decisions, README, contributing guide,
   interface system and AGENTS. Font license: `public/licenses/kalam-OFL.txt`.
 
+## Local backup slice — implementation, 2026-10-06
+
+- Strict version-1 `daily-book-backup` envelope; full ordered yearly manifest,
+  all entry records and local preferences. Unsupported versions/templates,
+  incomplete dates, broken references, duplicate IDs/active checklist slots,
+  unknown fields and invalid geometry/time/formatting/preferences are rejected.
+- Files are capped at 20 MiB, 50,000 records, one million UTF-16 text units and
+  20,000 formatting runs per entry. Supported daily-template-v1 years: 1900–2200.
+- Download locks local editing/navigation, flushes latest drafts and reads a
+  consistent snapshot. Failed saving prevents download and preserves recovery.
+- Choosing a file only validates/previews it. Explicit restoration atomically
+  checks the destination and writes all four stores. Only an empty database or
+  generated empty 2026 shell is eligible; any saved entry, including empty or
+  deleted records, prevents replacement. Unrelated empty books are preserved.
+- No merge/replace flow, server upload, encryption or automatic backup is added.
+  Successful restore activates the imported book/preferences immediately and on
+  reload. Concurrent restores serialize; revision checks remain active afterward.
+- Uses existing shared UI/dependencies. Changes are in `src/local/backup.ts`,
+  repository initialization/transactions, the planner hook, `BackupsDialog.tsx`,
+  toolbar and shared dialog dismissal. New unit/browser tests cover round trips,
+  leap years, formatting, legacy/deleted records, duplicates/invalid inputs,
+  existing-writing refusal, rollback/retry, queue failure and phone keyboard UI.
+- Final `npm run check`: pass (format, lint, strict types, 43 unit tests and optimized
+  production build). Full `npm run test:browser -- --workers=3`: 64 passed, two
+  intentional screenshot skips, across Chromium/Firefox/WebKit.
+- Synthetic desktop/320px phone captures were inspected. Corrected an unintended
+  border around the restore section caused by omitted Tailwind Preflight; the final
+  source passed `npm run check` and all 12 backup browser journeys again. Captures
+  are ignored `artifacts/backups-desktop.png` and `artifacts/backups-phone.png`.
+- Production preview on port 3002 passed hydration, complete-year JSON download,
+  empty-book restoration and reload with no page errors, using an isolated synthetic
+  browser profile. Temporary preview was stopped; the user's port-3000 development
+  server was preserved. Physical device/assistive-technology checks remain pending.
+- `git diff --check`: pass. Source, tests and affected documentation were reviewed;
+  private originals remain untracked and captures are ignored. No dependencies,
+  credentials, personal planner data or private references are included.
+- Branch `feat/planner-backups` is based on `619945a`. The user approved
+  commit/push/PR publication on 2026-10-06; issue #8 tracks this slice. Publication
+  and GitHub CI verification are in progress. Merge requires separate approval.
+
 ## Limits and next action
 
 The visual template is independently drawn and estimated, not an exact measured
 copy. The initial book is 2026, opening on October 6–7; navigation stays within
 that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
 There are no duration blocks, dragging/resizing, full rich text, book-wide undo/soft deletion,
-export/import, cached offline reopening, search, accounts, sync, or deployment.
+cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
+are available on the current branch; they do not merge/replace a populated planner.
 
 Stale writes are blocked rather than silently overwriting; rich conflict resolution,
-cross-tab change notifications, and full recovery/archives are M2. Browser eviction
+cross-tab change notifications, and richer recovery/archives remain deferred. Browser eviction
 can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Exact next bounded proposal: versioned JSON export/import with validated,
-transactional restoration into an empty store, including formatting ranges.
-Confirm that feature's scope before beginning M2; the approved merges are complete.
+Next action: complete the approved commit/push/PR publication and verify GitHub CI.
+Do not begin another M2 slice.
 Physical device checks remain pending as described above.
-Stop before beginning M2. Recommend branch protections only
+Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.

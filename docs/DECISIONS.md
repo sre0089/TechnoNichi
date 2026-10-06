@@ -281,3 +281,45 @@ contenteditable fill that left the writing unchanged. Test clearing through the
 real Cmd/Ctrl+A, Backspace interaction, asserting empty writing before the existing
 line-splitting/reload checks. All 15 repeated keyboard journeys passed across the
 three engines. This changes the test fixture, not application behavior.
+
+## 2026-10-06 — Authorized local backup slice
+
+The user's “ok go ahead” accepts the proposed versioned JSON export/import feature,
+including word formatting. Implement that bounded first M2 slice; other M2 features,
+cloud provisioning and deployment remain deferred. Publication/merge approval is
+separate under AGENTS.
+
+Use a strict `daily-book-backup` version-1 envelope containing one full yearly
+daily-template-v1 book, ordered civil-date pages, all entry records, preferences
+and an ISO UTC export timestamp. Preserve IDs, revisions, exact overnight times,
+note geometry, completion, deletion markers, UTF-16 formatting ranges and missing
+legacy optional flags. Reject duplicate IDs/active task slots, unknown fields,
+invalid references/records, unsupported templates/versions and incomplete manifests.
+Version 1 supports years 1900–2200 with a 20 MiB file limit, 50,000 entries, one
+million UTF-16 text units and 20,000 formatting runs per entry. No dependencies or
+IndexedDB schema changes are needed.
+
+Export flushes the queue before a consistent read transaction. A failed flush keeps
+the recovery draft and prevents download. Restore reviews a selected file first,
+then uses one write transaction for destination checks and all four tables. Permit
+an empty store or the app's generated empty 2026 shell, since startup initializes
+that shell automatically. Refuse any saved entry (even empty/deleted) or unrelated
+book; avoid a destructive replacement or ambiguous merge flow. Do not catch a
+bulk/request failure inside the transaction. Successful restoration activates the
+imported book and its preferences; startup must honor that book on reload.
+
+The file is plain JSON stored locally, not encrypted, synced or uploaded. Reuse the
+shared Radix dialog, native file input, Tailwind tokens and Lucide icons. Lock local
+editing/navigation during database operations; keep the dialog open until its
+operation settles. Other tabs are not refreshed automatically; richer cross-tab
+notifications and conflict handling remain deferred.
+
+Official references: [Dexie transaction commit/abort behavior](<https://dexie.org/docs/Dexie/Dexie.transaction()>),
+[bulkAdd failure behavior](<https://dexie.org/docs/Table/Table.bulkAdd()>), and
+[Blob/File text reading](https://developer.mozilla.org/en-US/docs/Web/API/Blob/text).
+File parsing stays outside the transaction to avoid transaction inactivity while
+awaiting non-database work.
+
+The user approved committing, pushing and opening the backup PR on 2026-10-06.
+Track this slice with issue #8 and verify CI on the published head. This approval
+does not include merging the PR or starting another feature slice.

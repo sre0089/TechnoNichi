@@ -7,12 +7,15 @@ import {
   type PageRecord,
   type Preferences,
 } from '../domain/model';
+import { validateBackup, type PlannerBackup } from './backup';
 
 export class RevisionConflict extends Error {
   constructor() {
     super('Another tab changed this item. Your draft is retained.');
   }
 }
+
+export class RestoreRefused extends Error {}
 
 export class PlannerDB extends Dexie {
   books!: Table<Book, string>;
@@ -37,7 +40,8 @@ export class PlannerDB extends Dexie {
       this.pages,
       this.preferences,
       async () => {
-        const id = 'personal-2026';
+        let preferences = await this.preferences.get('local');
+        const id = preferences?.bookId ?? 'personal-2026';
         let book = await this.books.get(id);
         if (!book) {
           book = {
@@ -53,7 +57,6 @@ export class PlannerDB extends Dexie {
           await this.books.add(book);
           await this.pages.bulkAdd(manifest(book));
         }
-        let preferences = await this.preferences.get('local');
         if (!preferences) {
           preferences = {
             id: 'local',
@@ -74,6 +77,91 @@ export class PlannerDB extends Dexie {
     const entries = await this.entries.where('pageId').anyOf(pageIds).toArray();
     entries.forEach(assertEntry);
     return entries.filter((e) => !e.deletedAt);
+  }
+
+  async exportBackup(bookId: string): Promise<PlannerBackup> {
+    return this.transaction(
+      'r',
+      [this.books, this.pages, this.entries, this.preferences],
+      async () => {
+        const book = await this.books.get(bookId);
+        const pages = await this.pages
+          .where('bookId')
+          .equals(bookId)
+          .sortBy('order');
+        const pageIds = new Set(pages.map((page) => page.id));
+        const entries = (await this.entries.toArray()).filter((entry) =>
+          pageIds.has(entry.pageId),
+        );
+        const preferences = await this.preferences.get('local');
+        return validateBackup({
+          format: 'daily-book-backup',
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          book,
+          pages,
+          entries,
+          preferences,
+        });
+      },
+    );
+  }
+
+  async restoreBackup(value: unknown): Promise<PlannerBackup> {
+    // Copy before awaiting, so callers cannot mutate the validated payload mid-transaction.
+    const backup = validateBackup(structuredClone(value));
+    await this.transaction(
+      'rw',
+      [this.books, this.pages, this.entries, this.preferences],
+      async () => {
+        if (await this.entries.count())
+          throw new RestoreRefused(
+            'This planner has saved entries. Restore in a fresh browser profile to keep your current writing safe.',
+          );
+        // Only discard an empty bootstrap book, never unrelated metadata/books.
+        const books = await this.books.toArray();
+        const preferences = await this.preferences.get('local');
+        const pages = await this.pages.orderBy('id').toArray();
+        const expectedPages = books.length === 1 ? manifest(books[0]) : [];
+        const bootstrap =
+          books.length === 1 &&
+          books[0].id === 'personal-2026' &&
+          books[0].year === 2026 &&
+          books[0].title === 'Daily Book' &&
+          books[0].startDate === '2026-01-01' &&
+          books[0].endDate === '2026-12-31' &&
+          books[0].templateVersion === 1 &&
+          preferences?.bookId === books[0].id &&
+          (await this.preferences.count()) === 1 &&
+          pages.length === 365 &&
+          pages.every((page, index) => {
+            const expected = expectedPages[index];
+            return (
+              page.id === expected.id &&
+              page.bookId === expected.bookId &&
+              page.date === expected.date &&
+              page.kind === expected.kind &&
+              page.order === expected.order
+            );
+          });
+        if (
+          (books.length || pages.length || (await this.preferences.count())) &&
+          !bootstrap
+        )
+          throw new RestoreRefused(
+            'This planner already contains a book. Restore in a fresh browser profile.',
+          );
+        await this.books.clear();
+        await this.pages.clear();
+        await this.preferences.clear();
+        await this.books.add(backup.book);
+        await this.pages.bulkAdd(backup.pages);
+        await this.entries.bulkAdd(backup.entries);
+        await this.preferences.add(backup.preferences);
+        // Do not catch a request failure here: it must abort the complete restore.
+      },
+    );
+    return backup;
   }
 
   async save(entry: Entry, expectedRevision: number): Promise<Entry> {

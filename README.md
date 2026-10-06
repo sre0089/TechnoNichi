@@ -81,8 +81,24 @@ still count as occupied. This is a visual grouping of writing, not a duration bl
 
 Save status is **Saving locally**, **Saved on this device**, or **Storage problem**.
 A failed write keeps the draft, prevents the page turn, and exposes retry/recovery.
-Storage is browser-local: it is not cloud synchronization or a backup. Export/import
-and cached offline reopening are later milestones.
+Storage is browser-local. Use **Backups** in the toolbar to download a versioned
+JSON copy of the complete yearly book, including entries outside the current spread,
+word formatting, completion and view preferences. Download waits for current drafts
+to save; a failed save keeps the draft and prevents a misleading backup.
+
+To restore, open **Backups**, choose a JSON file, review its book/year/counts, then
+select **Restore backup**. Choosing a file alone changes nothing. Restore requires
+an empty planner: even an empty saved task slot counts as an entry. Use a fresh
+browser profile to restore while keeping your current book. Invalid or unsupported
+files and failed writes leave the existing planner unchanged; successful restore
+opens the imported book and resumes its saved spread after reload.
+
+The backup contains your writing in plain text and is not encrypted or uploaded.
+Version 1 supports one full yearly daily-template-v1 book (1900–2200), files up to
+20 MiB, 50,000 records, one million UTF-16 text units per entry and 20,000 formatting
+ranges per entry. Duplicate IDs/active checklist slots are rejected. Restore does
+not merge or replace a populated book. Cloud synchronization, automatic backups
+and cached offline reopening remain later work.
 
 ## Development checks
 
@@ -107,11 +123,14 @@ ignored `artifacts/`; they do not photograph personal planner content.
 Read [AGENTS](AGENTS.md), [project state](PROJECT_STATE.md), [PRD](docs/PRD.md), then
 [architecture and roadmap](docs/ARCHITECTURE.md) and
 [template measurements](docs/PAGE_TEMPLATE_SPEC.md). The full PRD is the baseline;
-the implementation currently stops at M1.
+M1 is merged; the authorized first M2 slice adds local JSON export/import.
 
 Public repository: https://github.com/sre0089/TechnoNichi. M1 is tracked in
-[issue #2](https://github.com/sre0089/TechnoNichi/issues/2) and available for review in
-[PR #3](https://github.com/sre0089/TechnoNichi/pull/3) on `feat/m1-daily-spread`.
+[issue #2](https://github.com/sre0089/TechnoNichi/issues/2) and merged through
+[PR #3](https://github.com/sre0089/TechnoNichi/pull/3). Writing controls merged through
+[PR #5](https://github.com/sre0089/TechnoNichi/pull/5); backup work is on
+`feat/planner-backups`, with approved publication tracked by
+[issue #8](https://github.com/sre0089/TechnoNichi/issues/8).
 The original prompt files and private photo remain outside the public repository.
 
 Kalam font assets are locally bundled under SIL OFL 1.1; the complete font copyright
@@ -128,8 +147,4 @@ git clone https://github.com/sre0089/TechnoNichi.git
 cd TechnoNichi
 ```
 
-To review M1 before its PR is merged, also run:
-
-```sh
-git switch --track origin/feat/m1-daily-spread
-```
+The merged baseline is on `main`. Check project state for the current feature branch.
