@@ -39,7 +39,8 @@ The remainder of M2, cloud services and public deployment are not authorized or 
 
 ## Git status and publication
 
-- Integrated branch: `main`, fast-forwarded locally to merged `eb54eba`.
+- Integrated branch: `main`; application merge: `eb54eba`.
+  Merge-record/test maintenance is tracked by PR #6 below.
 - Merged M1 PR: https://github.com/sre0089/TechnoNichi/pull/3.
 - Merged writing-controls PR: https://github.com/sre0089/TechnoNichi/pull/5.
 - Tracking issues #2 and #4 closed after their changes reached `main`.
@@ -436,7 +437,22 @@ those early failures.
 - Merge-record documentation uses a separate `docs/approved-merge-state` branch.
   Main's post-merge workflow runs at
   https://github.com/sre0089/TechnoNichi/actions/runs/37429040322;
-  its run page reports its current outcome. No deployment occurred.
+  its run page reports its current outcome. The first post-merge run and the
+  first merge-record run exposed a Chromium test-fixture failure: synthetic
+  empty contenteditable fill sometimes left the text unchanged. All other
+  51 browser tests passed, with two intentional screenshot skips.
+- Updated the occupied-hour regression to use the real Cmd/Ctrl+A, Backspace
+  interaction and explicitly assert empty writing before checking the line split.
+  All 15 repeated clearing journeys passed across Chromium, Firefox and WebKit.
+  Application source is unchanged. The merge-record PR includes this test
+  correction and runs the full CI workflow. No deployment occurred.
+- Merge-record/test follow-up:
+  [PR #6](https://github.com/sre0089/TechnoNichi/pull/6), tracked by
+  [issue #7](https://github.com/sre0089/TechnoNichi/issues/7).
+- Final merge-record/test correction passed `npm run check` (format, lint,
+  strict types, 22 unit tests and production build) and `npm run test:browser`
+  (52 passed, two intentional screenshot skips). PR #6's Checks tab records
+  the published head's workflow result.
 
 ## Files and scope
 

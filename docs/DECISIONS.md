@@ -275,3 +275,9 @@ matches the reviewed writing head and fast-forward local main without rewriting
 shared history or removing private untracked files. Record completed merges in
 PROJECT_STATE on a focused documentation branch. This approval completes the
 current implementation; it does not start later milestones or authorize deployment.
+
+Post-merge CI and repeated Chromium runs exposed an intermittent synthetic empty
+contenteditable fill that left the writing unchanged. Test clearing through the
+real Cmd/Ctrl+A, Backspace interaction, asserting empty writing before the existing
+line-splitting/reload checks. All 15 repeated keyboard journeys passed across the
+three engines. This changes the test fixture, not application behavior.
