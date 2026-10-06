@@ -4,6 +4,9 @@
 
 M1 is committed and pushed on `feat/m1-daily-spread`; PR #3 is open for review.
 The user approved commit/push/PR publication on 2026-10-05. Visual review remains pending.
+The user approved publishing the reviewed grid, hourly editing, memo-area, and
+page-text font corrections on the same M1 branch on 2026-10-05. The PR's commit
+list and Checks tab provide the latest publication and validation status.
 No M2 work, cloud services, or public deployment has begun.
 
 ## Completed work
@@ -39,7 +42,7 @@ No M2 work, cloud services, or public deployment has begun.
 - GitHub identity/authentication and origin were verified during setup. Repository-local
   commits use the verified account's no-reply email; global Git settings were preserved.
 
-## Runtime and checks actually run
+## Published M1 baseline — runtime and checks
 
 Named environment: this macOS arm64 workspace, temporary project-specific Node
 24.21.0 and npm 11.8.0, Playwright-managed desktop Chromium, Firefox, and WebKit.
@@ -78,6 +81,33 @@ compatible standalone plugins); a browser alert selector also matched Next's rou
 announcer (selector scoped to the real application alert). Final outcomes supersede
 those early failures.
 
+## M1 review corrections — approved publication
+
+- Removed the extra dashed divider; aligned time numbers to every third grid line
+  and added dots at the intermediate hourly intersections.
+- Made all 22 hourly writing rows directly editable, removed the timed-line creation
+  control and repeated on-page timestamps, and limited new notes to the lower grid.
+- Applied a system monospace font only to entered writing on the page. Existing
+  printed and interface fonts remain unchanged.
+- Preserved old note geometry, exact times, and entry IDs, with access to multiple
+  entries in an hour. Added collision-safe row IDs and regression coverage for time
+  moves and stale edits in two tabs.
+- Updated README, architecture, template specification, decisions, and this state.
+- `npm run check`: pass after the final source changes (format, lint, strict types,
+  14 unit tests, production build).
+- `npm run test:browser`: pass after the final source changes; 28 passed, 2 skipped.
+  All nine functional journeys passed in Chromium, Firefox, and WebKit. The two
+  skipped cases are the intentionally Chromium-only screenshot fixture.
+- Regenerated synthetic blank, normal, dense, phone, and enlarged-editor fixtures
+  in ignored `artifacts/`; inspected grid alignment, the monospace writing, and
+  overflow behavior. Real tablet/touch/IME checks remain pending.
+- `git diff --check`: pass. Source, test, and documentation diffs reviewed.
+- Existing workspace dev server serves the revisions at http://127.0.0.1:3000;
+  HTTP verification returned 200 during local review.
+- Publication to the existing PR #3 is authorized. The CI workflow validates
+  the same checks and browser journeys; see the PR's Checks tab for the latest
+  head's result.
+
 ## Files and scope
 
 - App/editor: `src/app/`, `src/editor/`.
@@ -103,6 +133,8 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Exact next action: review the runnable M1 and screenshots for visual feedback.
+Exact next action: review the updated M1 and screenshots for visual feedback.
+The user authorized the `fix: align timetable and edit hourly rows directly`
+commit and push to the existing PR #3. Merge requires separate approval.
 Stop before merge approval or M2. Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.

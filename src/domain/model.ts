@@ -91,6 +91,24 @@ export function newEntry(
   return { ...base, ...variant };
 }
 
+export function newHourlyEntry(
+  pageId: string,
+  minute: number,
+  dayOffset: number,
+  existing: Entry[],
+): Extract<Entry, { type: 'scheduled-line' }> {
+  const baseId = `${pageId}:hour:${minute + dayOffset * 1440}`;
+  let id = baseId;
+  let suffix = 2;
+  // Moving an entry's time must not make its original ID available for reuse.
+  while (existing.some((entry) => entry.id === id))
+    id = `${baseId}:${suffix++}`;
+  return {
+    ...newEntry(pageId, { type: 'scheduled-line', minute, dayOffset }),
+    id,
+  };
+}
+
 export function assertEntry(value: unknown): asserts value is Entry {
   if (!value || typeof value !== 'object') throw new Error('Invalid entry');
   const e = value as Record<string, unknown>;

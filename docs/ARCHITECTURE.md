@@ -30,8 +30,13 @@ attachments, handwriting, and a curl adapter are later milestone work.
   Page dates are civil `YYYY-MM-DD` strings with stable IDs, independent of order.
 - Scheduled-line entries store authoritative wall-clock time and an explicit
   day offset for midnight wrap. Their page placement derives from the template.
+  The M1 review correction renders one native field per hour, without a timed-item
+  creation control. Exact minutes and existing IDs remain stored; multiple entries
+  within an hour are individually accessible. New rows share deterministic IDs
+  across tabs, reserving IDs already used by entries moved to other hours.
 - Notes store document/grid position and box dimensions; viewport resizing never
   changes stored geometry. Tasks retain text and completion independently.
+  New notes are limited to the grid below 03:00; older notes retain their positions.
 - Use local unique IDs, schema versions, revision fields, validated records, and
   deletion markers. Add later entry kinds only when implemented.
 - React holds immediate drafts; IndexedDB holds durable content. Preserve a draft

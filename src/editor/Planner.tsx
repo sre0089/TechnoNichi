@@ -14,14 +14,19 @@ import {
   labelDate,
   parseDate,
 } from '../domain/calendar';
-import { newEntry, type Entry, type PageRecord } from '../domain/model';
+import {
+  newEntry,
+  newHourlyEntry,
+  type Entry,
+  type PageRecord,
+} from '../domain/model';
 import {
   dailyTemplate as template,
+  hourlyRows,
+  hourForTime,
   screenToDocument,
   snapNote,
   timeLabel,
-  timeToY,
-  yToTime,
 } from '../templates/daily-v1';
 import { usePlanner } from './use-planner';
 
@@ -158,11 +163,15 @@ function Writing({
   edit,
   select,
   moving,
+  isNew = false,
+  otherWriting = [],
 }: {
   entry: Entry;
   edit: (e: Entry) => void;
   select: (id: string) => void;
   moving: boolean;
+  isNew?: boolean;
+  otherWriting?: Entry[];
 }) {
   const input = useRef<HTMLTextAreaElement>(null);
   const [overflow, setOverflow] = useState(false);
@@ -174,16 +183,19 @@ function Writing({
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, []);
+  }, [entry.text]);
   const isNote = entry.type === 'note';
   const style = isNote
     ? box(entry.x, entry.y, entry.width, entry.height)
     : entry.type === 'scheduled-line'
       ? box(
           template.scheduleX,
-          timeToY(entry.minute, entry.dayOffset) - 2.5,
-          114,
-          7.4,
+          hourlyRows.find(
+            (row) =>
+              row.absolute === hourForTime(entry.minute, entry.dayOffset),
+          )!.y - template.grid.pitch,
+          template.grid.x + template.grid.width - template.scheduleX,
+          template.grid.pitch,
         )
       : {};
   const label = isNote
@@ -196,11 +208,6 @@ function Writing({
       className={`writing-item ${isNote ? 'note' : 'timed'}${overflow ? ' has-overflow' : ''}`}
       style={style}
     >
-      {entry.type === 'scheduled-line' && (
-        <span className="entry-time" aria-hidden="true">
-          {timeLabel(entry.minute, entry.dayOffset)}
-        </span>
-      )}
       <textarea
         ref={input}
         id={entry.id}
@@ -208,8 +215,12 @@ function Writing({
         value={entry.text}
         readOnly={moving}
         spellCheck={false}
-        placeholder={isNote ? 'Your note…' : 'Write beside the time…'}
-        onFocus={() => select(entry.id)}
+        placeholder={isNote ? 'Your note…' : undefined}
+        onFocus={() => {
+          if (moving) return;
+          if (isNew) edit(entry);
+          select(entry.id);
+        }}
         onChange={(event) => {
           edit({ ...entry, text: event.target.value });
           const node = event.target;
@@ -229,6 +240,20 @@ function Writing({
           } else finishShort(event);
         }}
       />
+      {otherWriting.length > 1 && (
+        <button
+          className="row-alternatives"
+          disabled={moving}
+          aria-label={`Other writing in this hour (${otherWriting.length} entries)`}
+          title="Cycle through existing writing in this hour"
+          onClick={() => {
+            const index = otherWriting.findIndex((e) => e.id === entry.id);
+            select(otherWriting[(index + 1) % otherWriting.length].id);
+          }}
+        >
+          +{otherWriting.length - 1}
+        </button>
+      )}
       {overflow && (
         <button
           className="overflow-mark"
@@ -252,6 +277,7 @@ function DailyPage({
   edit,
   select,
   moving,
+  selectedId,
 }: {
   page: PageRecord;
   side: 0 | 1;
@@ -259,6 +285,7 @@ function DailyPage({
   edit: (e: Entry) => void;
   select: (id: string) => void;
   moving: boolean;
+  selectedId: string | null;
 }) {
   const parts = parseDate(page.date);
   const object = dateObject(page.date);
@@ -287,14 +314,7 @@ function DailyPage({
       event.clientY,
       paper.getBoundingClientRect(),
     );
-    if (point.x < template.scheduleX && point.y <= 113)
-      create(
-        newEntry(page.id, { type: 'scheduled-line', ...yToTime(point.y) }),
-      );
-    else
-      create(
-        newEntry(page.id, { type: 'note', ...snapNote(point.x, point.y) }),
-      );
+    create(newEntry(page.id, { type: 'note', ...snapNote(point.x, point.y) }));
   };
   return (
     <section
@@ -352,34 +372,53 @@ function DailyPage({
           );
         })}
       </div>
-      <div
-        className="memo-divider"
-        style={box(template.dividerX, template.grid.y, 0, 88.8)}
-        aria-hidden="true"
-      />
-      {template.timeline.map((anchor) => (
+      {hourlyRows.map((row) => (
         <span
-          className="time-marker"
-          style={box(template.timelineX - 1, anchor.y - 1.7, 3.7, 3.7)}
-          key={anchor.label}
+          className={row.label === null ? 'time-dot' : 'time-marker'}
+          style={box(template.timelineX, row.y)}
+          key={row.absolute}
           aria-hidden="true"
         >
-          {anchor.label}
+          {row.label}
         </span>
       ))}
+      {hourlyRows.map((row) => {
+        const existing = entries
+          .filter(
+            (e) =>
+              e.type === 'scheduled-line' &&
+              hourForTime(e.minute, e.dayOffset) === row.absolute,
+          )
+          .sort((a, b) => a.id.localeCompare(b.id));
+        const entry =
+          existing.find((e) => e.id === selectedId) ??
+          existing[0] ??
+          newHourlyEntry(page.id, row.minute, row.dayOffset, entries);
+        return (
+          <Writing
+            key={row.absolute}
+            entry={entry}
+            isNew={!existing.length}
+            otherWriting={existing}
+            edit={edit}
+            select={select}
+            moving={moving}
+          />
+        );
+      })}
       <div
         className="writing-surface"
         style={box(
           template.grid.x,
-          template.grid.y,
+          template.memoY,
           template.grid.width,
-          template.grid.height,
+          template.grid.y + template.grid.height - template.memoY,
         )}
         onClick={positionClick}
-        title="Click beside a time to write; click elsewhere on the grid for a note."
+        title="Click the lower grid to write a free note."
       />
       {entries
-        .filter((e) => e.type !== 'task')
+        .filter((e) => e.type === 'note')
         .map((entry) => (
           <Writing
             key={entry.id}
@@ -393,20 +432,6 @@ function DailyPage({
         {parts.month}
       </span>
       <div className="page-tools">
-        <button
-          disabled={moving}
-          onClick={() =>
-            create(
-              newEntry(page.id, {
-                type: 'scheduled-line',
-                minute: 540,
-                dayOffset: 0,
-              }),
-            )
-          }
-        >
-          + Timed line
-        </button>
         <button
           disabled={moving}
           onClick={() => {
@@ -651,6 +676,7 @@ export function Planner() {
             edit={edit}
             select={setSelectedId}
             moving={moving || focusedEditor}
+            selectedId={selectedId}
           />
         ))}
         {visible.length === 1 && (
@@ -670,7 +696,7 @@ export function Planner() {
         <aside className="context-controls" aria-label="Writing controls">
           <span>
             {selected.type === 'scheduled-line'
-              ? 'Timed line'
+              ? 'Hourly writing'
               : selected.type === 'note'
                 ? 'Free note'
                 : 'Checklist task'}
@@ -730,7 +756,9 @@ export function Planner() {
         />
       )}
       <footer className="workspace-footer">
-        <p>Click beside a time to write. Click the grid for a note.</p>
+        <p>
+          Write directly in an hourly row. Use the lower grid for free notes.
+        </p>
         <span>2026 · local book</span>
       </footer>
       <details className="day-outline">

@@ -310,8 +310,8 @@ button:hover:not(:disabled) {
   border-radius: 0;
   padding: 0;
   resize: none;
-  font-family: 'Kalam', cursive;
-  font-size: 2.3cqw;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 2.1cqw;
   line-height: 2.5cqw;
   overflow: hidden;
 }
@@ -325,17 +325,22 @@ button:hover:not(:disabled) {
   text-decoration: line-through;
   text-decoration-thickness: 1px;
 }
-.memo-divider {
-  position: absolute;
-  border-left: 1px dashed #8b749349;
-  pointer-events: none;
-}
 .time-marker {
   position: absolute;
   font-size: 1.6cqw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  background: var(--paper);
+  padding: 0 0.25cqw;
+  pointer-events: none;
+}
+.time-dot {
+  position: absolute;
+  width: 0.4cqw;
+  height: 0.4cqw;
+  border-radius: 50%;
+  background: #776580a6;
+  transform: translate(-50%, -50%);
   pointer-events: none;
 }
 .writing-surface {
@@ -351,12 +356,12 @@ button:hover:not(:disabled) {
   height: 100%;
   width: 100%;
   color: var(--ink);
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 0;
   background: transparent;
   padding: 0;
-  font-family: 'Kalam', cursive;
-  font-size: 2.3cqw;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 2.1cqw;
   line-height: 2.5cqw;
   resize: none;
   overflow: hidden;
@@ -365,37 +370,38 @@ button:hover:not(:disabled) {
   color: transparent;
 }
 .writing-item textarea:focus {
-  border: 1px dashed #8a729970;
+  outline: 1px dashed #8a729970;
+  outline-offset: -1px;
   background: #fff6;
-  outline: none;
 }
 .writing-item textarea:focus::placeholder {
   color: #95869b;
 }
 .writing-item:hover textarea {
-  border-color: #8a729927;
+  background: #fff3;
 }
-.entry-time {
-  font-family: 'Kalam', cursive;
-  font-size: 1.9cqw;
+.row-alternatives {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 1.6cqw;
   line-height: 2.5cqw;
-  width: 9.2cqw;
-  flex-shrink: 0;
-  padding-right: 1cqw;
-}
-.timed {
-  border-left: 1px solid #826e8c90;
-  padding-left: 1.6cqw;
+  padding: 0 0.5cqw;
+  border: 0;
+  background: var(--paper);
 }
 .overflow-mark {
   position: absolute;
   right: 0;
-  bottom: -1.2cqw;
+  bottom: 0;
   padding: 0 0.5cqw;
   font-size: 2cqw;
   border: 0;
   background: #f7f2e7;
   color: var(--ink);
+}
+.row-alternatives + .overflow-mark {
+  right: 3cqw;
 }
 .month-tab {
   position: absolute;

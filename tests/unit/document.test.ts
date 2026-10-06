@@ -9,10 +9,13 @@ import {
   assertEntry,
   manifest,
   newEntry,
+  newHourlyEntry,
   type Book,
 } from '../../src/domain/model';
 import {
   dailyTemplate,
+  hourlyRows,
+  hourForTime,
   screenToDocument,
   snapNote,
   timeToY,
@@ -59,6 +62,14 @@ describe('civil calendar and stable pages', () => {
 });
 
 describe('time and document geometry', () => {
+  it('does not reuse a row ID after its writing moves to another hour', () => {
+    const first = newHourlyEntry('page', 540, 0, []);
+    const moved = { ...first, minute: 855, text: 'Keep this writing' };
+    const second = newHourlyEntry('page', 540, 0, [moved]);
+    expect(second.id).not.toBe(first.id);
+    expect(newHourlyEntry('page', 540, 0, [moved]).id).toBe(second.id);
+    expect(moved.text).toBe('Keep this writing');
+  });
   it('maps every measured anchor including midnight to explicit offsets', () => {
     for (const anchor of dailyTemplate.timeline) {
       expect(timeToY(anchor.minute, anchor.dayOffset)).toBeCloseTo(anchor.y);
@@ -67,8 +78,34 @@ describe('time and document geometry', () => {
         dayOffset: anchor.dayOffset,
       });
     }
-    expect(timeToY(90, 1)).toBeCloseTo(105.45);
+    expect(timeToY(90, 1)).toBeCloseTo(106.95);
     expect(() => timeToY(90, 0)).toThrow();
+  });
+  it('aligns hourly intersections to the grid and preserves exact-time row membership', () => {
+    expect(hourlyRows).toHaveLength(22);
+    expect(
+      hourlyRows.filter((row) => row.label !== null).map((row) => row.label),
+    ).toEqual(['6', '9', '12', '15', '18', '21', '0', '3']);
+    for (const row of hourlyRows) {
+      expect(
+        (row.y - dailyTemplate.grid.y) / dailyTemplate.grid.pitch,
+      ).toBeCloseTo(
+        Math.round((row.y - dailyTemplate.grid.y) / dailyTemplate.grid.pitch),
+      );
+      expect(yToTime(row.y)).toEqual({
+        minute: row.minute,
+        dayOffset: row.dayOffset,
+      });
+    }
+    expect(hourForTime(14 * 60 + 15, 0)).toBe(14 * 60);
+    expect(hourForTime(45, 1)).toBe(1440);
+    expect(dailyTemplate.memoY).toBe(hourlyRows.at(-1)!.y);
+    expect(snapNote(40, 30).y).toBe(dailyTemplate.memoY);
+    expect(snapNote(10, 113).x).toBe(dailyTemplate.grid.x);
+    // Stored notes from the original template remain valid in the timetable area.
+    expect(() =>
+      assertEntry(newEntry('page', { type: 'note', x: 32.2, y: 44.4 })),
+    ).not.toThrow();
   });
   it('preserves a grid point under translations and nonuniform screen scaling', () => {
     const point = { x: 54.4, y: 138.4 };

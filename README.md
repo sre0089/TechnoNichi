@@ -31,9 +31,17 @@ own Node 24 runtime. No cloud credentials or account are required.
 
 ## Use the book
 
-Click beside a timetable mark for a line, or elsewhere on the grid for a note.
-The page's quiet **+ Timed line**, **+ Note**, and **+ Task** controls also work with
+Click or tab into any hourly writing row, from 06:00 through 03:00 the following
+day. Write across that row; its time is set automatically. The numbered times sit
+on every third grid line, with dots for the intervening hours. Click the grid below
+03:00 for a free note. The quiet **+ Note** and **+ Task** controls also work with
 the keyboard. Type beside a top checkbox and toggle it without removing the text.
+
+Entered page text uses a system monospace font. Printed labels and interface fonts
+retain their existing typography. The selected row's time control still accepts
+exact minutes. Earlier writing keeps its original IDs and times; multiple entries
+within one hour are accessible through that row's small **+N** control or Day outline.
+Existing notes keep their positions, including older notes in the timetable area.
 
 Short lines/tasks finish with Enter; Shift+Enter inserts a newline. Notes use Enter
 for newlines. Escape exits while retaining writing; **Done** exits the contextual

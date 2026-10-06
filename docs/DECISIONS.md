@@ -80,3 +80,25 @@ Generate route/environment declarations with `next typegen` before strict type
 checks and ignore the generated `next-env.d.ts`, following the
 [official Next.js CLI documentation](https://nextjs.org/docs/app/api-reference/cli/next).
 This keeps type checks usable in a fresh clone before a dev server or build exists.
+
+## 2026-10-05 — M1 grid and row editing correction
+
+Status: user approved implementation and subsequently approved committing/pushing
+the reviewed revisions to PR #3 on 2026-10-05. PR merge remains unapproved.
+
+The user's latest upright spread clarifies that time numbers sit on every third
+horizontal line, with dots at intervening hourly intersections. Remove the extra
+dashed divider and align the time column with the grid. Use one native field across
+each hourly writing row from 06:00 to 03:00 (+1); remove the timed-line creation
+button and repeated inline timestamps. Create free notes only below the last time row.
+
+Keep all persisted IDs, exact minutes, and note geometry. Multiple old entries in
+one hour can be cycled and opened through the day outline. Empty rows use shared,
+collision-safe IDs so two tabs still detect stale writes and moving an entry leaves
+its old row available without reusing the moved entry's ID. This corrects the
+unmerged M1 template v1; no storage migration or deletion is required.
+
+Use a system monospace stack close to the user's sample for entered page writing
+only: hourly text, free-note text, and checklist text. Preserve printed labels and
+interface typography, including the enlarged editor. This adds no dependency or
+remote font request. The sample's exact font identity is not claimed.

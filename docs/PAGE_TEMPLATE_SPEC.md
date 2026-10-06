@@ -1,8 +1,10 @@
 # Daily page template specification
 
 Status: version 1 implemented with estimates from the two attachments received on
-2026-10-05. Visual approval remains pending. The real spread is the primary geometry
-reference; the mockup informs the filled-page feel. Neither attachment is bundled
+2026-10-05, revised following the user's grid/row/font review. Visual approval
+remains pending. The real spread is the primary geometry reference; the latest
+upright empty-spread image clarifies line/intersection alignment and the monospace
+sample informs entered text only. The mockup informs the filled-page feel. No reference is bundled
 as an application asset or published. They are available in this conversation;
 there is no local reference file to reproduce the measurement process automatically.
 
@@ -27,35 +29,49 @@ Source of truth: `src/templates/daily-v1.ts`, template ID `daily-a5`, version 1.
 Coordinates use logical millimetres; rendering converts them to percentages and
 container units, not physical CSS millimetres.
 
-| Region          | Estimated version 1 geometry                                                   |
-| --------------- | ------------------------------------------------------------------------------ |
-| Page            | Width 148, height 210                                                          |
-| Grid            | Origin (10, 27.4), pitch 3.7, extent 132 × 159.1                               |
-| Header          | (10, 8), 48 × 14.8; month, large date, English weekday, quiet ordinal metadata |
-| Tasks           | Five anchors starting (63, 8), vertical pitch 3.7                              |
-| Timeline labels | x ≈ 14; 6 at y 33.3, 9 at 44.4, 12 at 55.5, 15 at 66.6                         |
-| Midnight wrap   | 18 at 77.7, 21 at 88.8, 0 (+1 day) at 99.9, 3 (+1 day) at 111                  |
-| Schedule text   | Starts x 24; interpolation between explicit timetable anchors                  |
-| Divider         | x 18.3, y 27.4 through 116.2; does not stretch timetable through memo area     |
-| Note default    | 62.9 × 14.8; position snaps to the writing grid and remains inside the page    |
-| Footer          | Reserved at y 190, height 14; no copied quotations                             |
-| Month marker    | Outer edge near y 139, width 7.8, height 10.8                                  |
-| Mini calendar   | Spread-owned, rendered once at the right page footer; decorative in M1         |
+| Region          | Estimated version 1 geometry                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Page            | Width 148, height 210                                                                                              |
+| Grid            | Origin (10, 27.4), pitch 3.7, extent 132 × 159.1                                                                   |
+| Header          | (10, 8), 48 × 14.8; month, large date, English weekday, quiet ordinal metadata                                     |
+| Tasks           | Five anchors starting (63, 8), vertical pitch 3.7                                                                  |
+| Timeline labels | x 13.7 on a vertical grid line; 6 at y 34.8, 9 at 45.9, 12 at 57, 15 at 68.1                                       |
+| Midnight wrap   | 18 at 79.2, 21 at 90.3, 0 (+1 day) at 101.4, 3 (+1 day) at 112.5                                                   |
+| Schedule text   | Starts x 21.1; 22 native hourly fields spanning one row each, ending at its time line                              |
+| Hour marks      | Numbers centered on every third horizontal line; dots at the other hourly intersections; no extra vertical divider |
+| Memo area       | Below the final 03:00 line at y 112.5; new notes start here or farther down                                        |
+| Note default    | 62.9 × 14.8; position snaps to the writing grid and remains inside the page                                        |
+| Footer          | Reserved at y 190, height 14; no copied quotations                                                                 |
+| Month marker    | Outer edge near y 139, width 7.8, height 10.8                                                                      |
+| Mini calendar   | Spread-owned, rendered once at the right page footer; decorative in M1                                             |
 
-Civil time is authoritative for scheduled entries. Pointer creation snaps to 15
-minutes, and the contextual time control accepts exact minutes from 06:00 to 03:00
-on the following day. Free notes use document geometry and never acquire a time
-implicitly. Bounds restrict new notes without resizing paper or moving other entries.
+Civil time is authoritative for scheduled entries. Each hourly row is directly
+editable across its writing width; focusing/typing uses that hour without a creation
+button or event form. The contextual time control still accepts exact minutes from
+06:00 to 03:00 on the following day. Exact-time entries render in their containing
+hour's row without changing the stored time. Multiple existing entries within one
+hour are accessible through a small cycling control and the day outline; none are
+merged or discarded. New rows use deterministic IDs with collision-safe suffixes,
+so moving an entry does not make its old ID available for reuse and two tabs cannot
+silently overwrite an initially empty row.
+
+Free notes use document geometry and never acquire a time implicitly. New notes
+snap within the lower memo area, including its left margin. Existing note positions
+remain unchanged, even when above the new memo boundary. These are corrections to
+the unmerged M1 template v1, with no database schema migration or record rewrites.
 
 ## Typography and themes
 
 Paper `#f7f2e7`, writing `#514560`, October accent `#897293`, faint grid
 `rgba(99, 82, 71, 0.105)`. These are original approximations, not sampled print colors.
-Writing uses locally bundled Kalam Regular, 3.4 logical mm with 3.7 mm line height.
+Entered page writing uses a system monospace stack (SFMono-Regular, Consolas,
+Liberation Mono, monospace), about 3.1 logical mm with 3.7 mm line height. This
+approximates the user's sample without claiming its exact font identity.
 The native text controls preserve ordinary editing, selection, and IME behavior.
 Printed labels use system sans-serif; large dates use system Georgia.
 
-Kalam is licensed under SIL OFL 1.1; its complete copyright/license is served at
+Kalam remains in the existing checkmark and enlarged editor, whose fonts were not
+part of the requested page-text change. It is licensed under SIL OFL 1.1; its complete copyright/license is served at
 `public/licenses/kalam-OFL.txt`. No repository-wide open-source license was selected.
 The moon-like header mark is an original decorative glyph, not a computed lunar phase.
 Other month colors remain provisional; October purple is the M1 sample theme.
@@ -76,7 +92,7 @@ the same entries. The toolbar can sit on either side.
 
 ## Visual fixtures and remaining approval
 
-Chromium at 1440 × 1120 with the bundled font captures blank, normally filled,
+Chromium on macOS at 1440 × 1120 with local/system fonts captures blank, normally filled,
 and dense spreads. A 390 × 844 viewport captures focused-page and enlarged-editor
 views. All use synthetic text and isolated test stores. Screenshots are generated
 into ignored `artifacts/` and manually inspected; no changed baseline is auto-approved.

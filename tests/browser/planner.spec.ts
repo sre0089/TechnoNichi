@@ -15,11 +15,13 @@ test('timed writing, note geometry, task text and completion survive turns and r
 }) => {
   await ready(page);
   const day = leftDay(page);
-  await day.getByRole('button', { name: '+ Timed line', exact: true }).click();
-  await page
+  await leftDay(page)
     .getByRole('textbox', { name: 'Timed writing 09:00', exact: true })
     .fill('Read chapter four');
   await page.getByLabel('Exact time').fill('14:15');
+  await day
+    .getByRole('textbox', { name: 'Timed writing 09:00', exact: true })
+    .fill('Another morning line');
   await day.getByRole('button', { name: '+ Note', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'Note on 2026-10-06' })
@@ -58,24 +60,217 @@ test('timed writing, note geometry, task text and completion survive turns and r
   await expect(
     page.getByRole('textbox', { name: 'Timed writing 14:15', exact: true }),
   ).toHaveCount(1);
+  await expect(
+    day.getByRole('textbox', { name: 'Timed writing 09:00', exact: true }),
+  ).toHaveValue('Another morning line');
 });
 
-test('clicking the timetable and memo grid creates writing at document coordinates', async ({
+test('hourly text fields, printed intersections and page-only font stay aligned', async ({
+  page,
+}) => {
+  await ready(page);
+  const day = leftDay(page);
+  await expect(day.locator('.timed textarea')).toHaveCount(22);
+  await expect(
+    day.getByRole('button', { name: '+ Timed line', exact: true }),
+  ).toHaveCount(0);
+  await expect(day.locator('.memo-divider')).toHaveCount(0);
+  await expect(day.locator('.time-dot')).toHaveCount(14);
+  expect(await day.locator('.time-marker').allTextContents()).toEqual([
+    '6',
+    '9',
+    '12',
+    '15',
+    '18',
+    '21',
+    '0',
+    '3',
+  ]);
+  const geometry = await day.evaluate((paper) => {
+    const bounds = paper.getBoundingClientRect();
+    const grid = paper.querySelector('.paper-grid')!.getBoundingClientRect();
+    return [...paper.querySelectorAll('.time-marker, .time-dot')].map(
+      (element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          x: ((rect.x + rect.width / 2 - grid.x) / bounds.width) * 148,
+          row:
+            (((rect.y + rect.height / 2 - grid.y) / bounds.height) * 210) / 3.7,
+        };
+      },
+    );
+  });
+  for (const mark of geometry) {
+    expect(mark.x).toBeCloseTo(3.7, 1);
+    expect(mark.row).toBeCloseTo(Math.round(mark.row), 1);
+  }
+  const row = day.getByRole('textbox', {
+    name: 'Timed writing 00:00 +1',
+    exact: true,
+  });
+  await row.fill('Midnight row');
+  await row.press('Enter');
+  await expect(row).not.toBeFocused();
+  await expect(
+    day.getByRole('textbox', { name: 'Timed writing 01:00 +1', exact: true }),
+  ).toHaveValue('');
+  const font = (selector: string) =>
+    day
+      .locator(selector)
+      .first()
+      .evaluate((element) => getComputedStyle(element).fontFamily);
+  expect(await font('.timed textarea')).toContain('monospace');
+  expect(await font('.task-row textarea')).toContain('monospace');
+  expect(await font('.time-marker')).not.toContain('monospace');
+  expect(await font('.date-number')).toContain('Georgia');
+  await day.getByRole('button', { name: '+ Note', exact: true }).click();
+  expect(await font('.note textarea')).toContain('monospace');
+  await saved(page);
+  await page.reload();
+  await saved(page);
+  await expect(row).toHaveValue('Midnight row');
+});
+
+test('old exact times, duplicate-hour writing and upper notes retain their data', async ({
+  page,
+}) => {
+  await ready(page);
+  await page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('daily-book-v1');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const transaction = db.transaction('entries', 'readwrite');
+    const base = {
+      pageId: 'personal-2026:daily:2026-10-06',
+      revision: 1,
+      deletedAt: null,
+      style: { ink: 'purple', emphasis: false },
+    };
+    const store = transaction.objectStore('entries');
+    store.put({
+      ...base,
+      id: 'legacy-a',
+      type: 'scheduled-line',
+      minute: 855,
+      dayOffset: 0,
+      text: 'Original exact-time writing',
+    });
+    store.put({
+      ...base,
+      id: 'legacy-b',
+      type: 'scheduled-line',
+      minute: 885,
+      dayOffset: 0,
+      text: 'Second entry in the same hour. '.repeat(30),
+    });
+    store.put({
+      ...base,
+      id: 'legacy-note',
+      type: 'note',
+      x: 32.2,
+      y: 44.4,
+      width: 62.9,
+      height: 14.8,
+      text: 'Keep my original note position',
+    });
+    await new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+    db.close();
+  });
+  await page.reload();
+  await saved(page);
+  const day = leftDay(page);
+  const first = day.getByRole('textbox', {
+    name: 'Timed writing 14:15',
+    exact: true,
+  });
+  await expect(first).toHaveValue('Original exact-time writing');
+  await first.click();
+  await expect(page.getByLabel('Exact time')).toHaveValue('14:15');
+  const note = day.getByRole('textbox', { name: 'Note on 2026-10-06' });
+  await expect(note).toHaveValue('Keep my original note position');
+  const style = await note.locator('..').getAttribute('style');
+  await day
+    .getByRole('button', {
+      name: 'Other writing in this hour (2 entries)',
+      exact: true,
+    })
+    .click();
+  const second = day.getByRole('textbox', {
+    name: 'Timed writing 14:45',
+    exact: true,
+  });
+  await expect(second).toHaveValue(
+    'Second entry in the same hour. '.repeat(30),
+  );
+  await expect(
+    day.getByRole('button', { name: 'Read overflowing writing', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel('Exact time')).toHaveValue('14:45');
+  await second.fill('Second entry updated');
+  await expect(
+    day.getByRole('button', { name: 'Read overflowing writing', exact: true }),
+  ).toHaveCount(0);
+  await saved(page);
+  await page.reload();
+  await saved(page);
+  expect(await note.locator('..').getAttribute('style')).toBe(style);
+  await expect(first).toHaveValue('Original exact-time writing');
+  await day
+    .getByRole('button', {
+      name: 'Other writing in this hour (2 entries)',
+      exact: true,
+    })
+    .click();
+  await expect(second).toHaveValue('Second entry updated');
+});
+
+test('two tabs editing the same initially empty hourly row reject a stale write', async ({
+  page,
+  context,
+}) => {
+  await ready(page);
+  const other = await context.newPage();
+  await ready(other);
+  await leftDay(page)
+    .getByRole('textbox', { name: 'Timed writing 10:00', exact: true })
+    .fill('First tab hourly writing');
+  await saved(page);
+  const stale = leftDay(other).getByRole('textbox', {
+    name: 'Timed writing 10:00',
+    exact: true,
+  });
+  await stale.fill('Retain the second tab draft');
+  await expect(other.getByRole('status')).toHaveText('Storage problem');
+  await expect(stale).toHaveValue('Retain the second tab draft');
+  await expect(
+    other.getByRole('alert').filter({ hasText: 'Another tab changed' }),
+  ).toContainText('Your draft is retained');
+});
+
+test('clicking across an hourly row edits it and the lower grid creates notes', async ({
   page,
 }) => {
   await ready(page);
   const bounds = await leftDay(page).boundingBox();
   if (!bounds) throw new Error('Page has no layout');
   await page.mouse.click(
-    bounds.x + (21 / 148) * bounds.width,
-    bounds.y + (44.4 / 210) * bounds.height,
+    bounds.x + (115 / 148) * bounds.width,
+    bounds.y + (44 / 210) * bounds.height,
   );
   await expect(
-    page.getByRole('textbox', { name: 'Timed writing 09:00', exact: true }),
+    leftDay(page).getByRole('textbox', {
+      name: 'Timed writing 09:00',
+      exact: true,
+    }),
   ).toBeFocused();
-  await page
+  await leftDay(page)
     .getByRole('textbox', { name: 'Timed writing 09:00', exact: true })
-    .fill('Writing by the printed time');
+    .fill('Writing directly in the row');
   await page.mouse.click(
     bounds.x + (65 / 148) * bounds.width,
     bounds.y + (140 / 210) * bounds.height,
@@ -263,8 +458,7 @@ test('synthetic blank, normal, dense and focused visual fixtures', async ({
   await day
     .getByRole('checkbox', { name: 'Complete task 1 on 2026-10-06' })
     .check();
-  await day.getByRole('button', { name: '+ Timed line', exact: true }).click();
-  await page
+  await leftDay(page)
     .getByRole('textbox', { name: 'Timed writing 09:00', exact: true })
     .fill('Morning reading · a little time to think');
   await day.getByRole('button', { name: '+ Note', exact: true }).click();
@@ -279,9 +473,6 @@ test('synthetic blank, normal, dense and focused visual fixtures', async ({
   await right
     .getByRole('textbox', { name: 'Task 1 on 2026-10-07', exact: true })
     .fill('Finish reading');
-  await right
-    .getByRole('button', { name: '+ Timed line', exact: true })
-    .click();
   await right
     .getByRole('textbox', { name: 'Timed writing 09:00', exact: true })
     .fill('A walk before the day begins');
@@ -298,15 +489,11 @@ test('synthetic blank, normal, dense and focused visual fixtures', async ({
     'Late-night notes',
   ].entries()) {
     await day
-      .getByRole('button', { name: '+ Timed line', exact: true })
-      .click();
-    await day
-      .getByRole('textbox', { name: 'Timed writing 09:00', exact: true })
-      .last()
+      .getByRole('textbox', {
+        name: `Timed writing ${String(11 + index * 2).padStart(2, '0')}:00`,
+        exact: true,
+      })
       .fill(text);
-    await page
-      .getByLabel('Exact time')
-      .fill(`${String(11 + index * 2).padStart(2, '0')}:00`);
     await page.getByRole('button', { name: 'Done', exact: true }).click();
   }
   for (const [index, text] of [
