@@ -323,3 +323,14 @@ awaiting non-database work.
 The user approved committing, pushing and opening the backup PR on 2026-10-06.
 Track this slice with issue #8 and verify CI on the published head. This approval
 does not include merging the PR or starting another feature slice.
+
+The first published CI runs exposed a 30-second timeout in the combined WebKit
+backup round trip on Linux. Browser logs show the second profile opening 21–25
+seconds after the source profile, leaving little time to restore and reload.
+Give only this long journey a 60-second test budget, retain normal five-second
+assertions and other tests' 30-second budget, and name its three phases. Manage the
+restore profile as a test fixture so teardown uses its separate budget and cannot
+replace the original failure location. The application source is unchanged.
+Nine repeated round trips passed locally across the three engines.
+Official guidance: [Playwright test/teardown timeouts](https://playwright.dev/docs/test-timeouts)
+and [test fixtures](https://playwright.dev/docs/test-fixtures).

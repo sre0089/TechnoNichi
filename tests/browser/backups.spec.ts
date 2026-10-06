@@ -1,8 +1,25 @@
 import { readFile } from 'node:fs/promises';
-import { expect, test, type Page } from '@playwright/test';
+import {
+  expect,
+  test as base,
+  type BrowserContext,
+  type Page,
+} from '@playwright/test';
 import type { Editor } from '@tiptap/core';
 import { manifest, newEntry, type Book } from '../../src/domain/model';
 import type { PlannerBackup } from '../../src/local/backup';
+
+const test = base.extend<{ restoredContext: BrowserContext }>({
+  restoredContext: async ({ browser }, provide) => {
+    const context = await browser.newContext();
+    try {
+      await provide(context);
+    } finally {
+      // Fixture teardown has its own timeout and cannot mask the failing action.
+      await context.close();
+    }
+  },
+});
 
 async function ready(page: Page) {
   await page.goto('/');
@@ -93,68 +110,76 @@ function fixture(): PlannerBackup {
 
 test('download and restore a complete book with word formatting, completion, notes and off-spread entries', async ({
   page,
-  browser,
+  restoredContext,
 }, testInfo) => {
-  await ready(page);
-  const day = page.getByRole('region', {
-    name: 'Tuesday, October 6',
-    exact: true,
-  });
-  const writing = day.getByRole('textbox', {
-    name: 'Timed writing 12:00',
-    exact: true,
-  });
-  await writing.fill('Read notes');
-  // Set the fixture's word selection through the mounted editor, then exercise
-  // the real format shortcut. Native Home varies across desktop platforms.
-  await writing.evaluate((node) => {
-    (node as HTMLElement & { editor: Editor }).editor.commands.setTextSelection(
-      { from: 1, to: 5 },
-    );
-  });
-  await writing.press('ControlOrMeta+B');
-  await expect(writing.locator('strong')).toHaveText('Read');
-  await writing.press('Enter');
-  await day
-    .getByRole('checkbox', {
-      name: 'Complete timed task 12:00 on 2026-10-06',
-      exact: true,
-    })
-    .check();
-  await day
-    .getByRole('textbox', { name: 'Task 1 on 2026-10-06', exact: true })
-    .fill('Review project');
-  await day.getByRole('button', { name: '+ Note', exact: true }).click();
-  await day
-    .getByRole('textbox', { name: 'Note on 2026-10-06', exact: true })
-    .fill('Free note\nSecond line');
-  await page.getByRole('button', { name: 'Next spread', exact: true }).click();
-  await page
-    .getByRole('region', { name: 'Thursday, October 8', exact: true })
-    .getByRole('textbox', { name: 'Timed writing 10:00', exact: true })
-    .fill('Later writing');
-  await page
-    .getByRole('button', { name: 'Previous spread', exact: true })
-    .click();
-  await page.getByRole('button', { name: 'Backups', exact: true }).click();
-  const downloading = page.waitForEvent('download');
-  await page
-    .getByRole('button', { name: 'Download backup', exact: true })
-    .click();
-  const download = await downloading;
-  expect(download.suggestedFilename()).toMatch(
-    /^daily-book-2026-\d{4}-\d{2}-\d{2}\.json$/,
-  );
-  const backupText = await readFile((await download.path())!, 'utf8');
-  const backup = JSON.parse(backupText) as PlannerBackup;
-  expect(backup.pages).toHaveLength(365);
-  expect(backup.entries.some((entry) => entry.text === 'Later writing')).toBe(
-    true,
-  );
-  const before = await snapshot(page);
-
-  const restoredContext = await browser.newContext();
-  try {
+  // This journey writes a book, opens another full editor, restores, reloads and
+  // verifies refusal in the source profile. Linux WebKit exhausts 30s doing both.
+  // Keep the usual 5s assertions and the 30s default for every other journey.
+  test.setTimeout(60_000);
+  const { backup, before } =
+    await test.step('Write entries and download the complete year', async () => {
+      await ready(page);
+      const day = page.getByRole('region', {
+        name: 'Tuesday, October 6',
+        exact: true,
+      });
+      const writing = day.getByRole('textbox', {
+        name: 'Timed writing 12:00',
+        exact: true,
+      });
+      await writing.fill('Read notes');
+      // Set the fixture's word selection through the mounted editor, then exercise
+      // the real format shortcut. Native Home varies across desktop platforms.
+      await writing.evaluate((node) => {
+        (
+          node as HTMLElement & { editor: Editor }
+        ).editor.commands.setTextSelection({ from: 1, to: 5 });
+      });
+      await writing.press('ControlOrMeta+B');
+      await expect(writing.locator('strong')).toHaveText('Read');
+      await writing.press('Enter');
+      await day
+        .getByRole('checkbox', {
+          name: 'Complete timed task 12:00 on 2026-10-06',
+          exact: true,
+        })
+        .check();
+      await day
+        .getByRole('textbox', { name: 'Task 1 on 2026-10-06', exact: true })
+        .fill('Review project');
+      await day.getByRole('button', { name: '+ Note', exact: true }).click();
+      await day
+        .getByRole('textbox', { name: 'Note on 2026-10-06', exact: true })
+        .fill('Free note\nSecond line');
+      await page
+        .getByRole('button', { name: 'Next spread', exact: true })
+        .click();
+      await page
+        .getByRole('region', { name: 'Thursday, October 8', exact: true })
+        .getByRole('textbox', { name: 'Timed writing 10:00', exact: true })
+        .fill('Later writing');
+      await page
+        .getByRole('button', { name: 'Previous spread', exact: true })
+        .click();
+      await page.getByRole('button', { name: 'Backups', exact: true }).click();
+      const downloading = page.waitForEvent('download');
+      await page
+        .getByRole('button', { name: 'Download backup', exact: true })
+        .click();
+      const download = await downloading;
+      expect(download.suggestedFilename()).toMatch(
+        /^daily-book-2026-\d{4}-\d{2}-\d{2}\.json$/,
+      );
+      const backupText = await readFile((await download.path())!, 'utf8');
+      const backup = JSON.parse(backupText) as PlannerBackup;
+      expect(backup.pages).toHaveLength(365);
+      expect(
+        backup.entries.some((entry) => entry.text === 'Later writing'),
+      ).toBe(true);
+      const before = await snapshot(page);
+      return { backup, before };
+    });
+  await test.step('Restore the downloaded book in a fresh profile and reopen it', async () => {
     const target = await restoredContext.newPage();
     await ready(target);
     await target.getByRole('button', { name: 'Backups', exact: true }).click();
@@ -201,18 +226,17 @@ test('download and restore a complete book with word formatting, completion, not
         .getByRole('region', { name: 'Thursday, October 8', exact: true })
         .getByRole('textbox', { name: 'Timed writing 10:00', exact: true }),
     ).toHaveText('Later writing');
-  } finally {
-    await restoredContext.close();
-  }
-
-  await page
-    .getByLabel('Backup file', { exact: true })
-    .setInputFiles(file(backup));
-  await page
-    .getByRole('button', { name: 'Restore backup', exact: true })
-    .click();
-  await expect(page.getByRole('alert')).toContainText('has saved entries');
-  expect(await snapshot(page)).toEqual(before);
+  });
+  await test.step('Refuse restoration into the source book without changing it', async () => {
+    await page
+      .getByLabel('Backup file', { exact: true })
+      .setInputFiles(file(backup));
+    await page
+      .getByRole('button', { name: 'Restore backup', exact: true })
+      .click();
+    await expect(page.getByRole('alert')).toContainText('has saved entries');
+    expect(await snapshot(page)).toEqual(before);
+  });
 });
 
 test('invalid imports leave data intact and the backup dialog works by keyboard at phone size', async ({

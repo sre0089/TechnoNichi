@@ -522,6 +522,16 @@ those early failures.
   merged. Publication records are included in a documentation follow-up commit.
   [PR #9's Checks tab](https://github.com/sre0089/TechnoNichi/pull/9/checks) records
   CI on each published head. Merge requires separate approval.
+- Initial GitHub CI runs on `a9ebb3b` and `7d82f63` passed all project checks and
+  63 browser tests, with two intentional skips, but the combined WebKit backup
+  round trip exceeded the 30-second test budget. The restore profile opened only
+  21–25 seconds after the source profile; inline cleanup masked the timed-out step.
+  Give only that multi-profile journey 60 seconds, add named phases and use fixture
+  teardown for the restore context. All assertions keep their normal five-second
+  timeout and other journeys keep 30 seconds. Nine repeated round trips passed
+  locally across all three engines; all 12 backup journeys and `npm run check`
+  passed again after the fixture correction. The test correction is included in PR #9;
+  its Checks tab reports CI for the corrected head. Application source is unchanged.
 
 ## Limits and next action
 
