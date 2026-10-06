@@ -258,3 +258,10 @@ Official references: [Next.js integration](https://tiptap.dev/docs/editor/gettin
 Versions, React peer compatibility and MIT package licenses were verified via npm
 metadata before installation. The production-only audit reports zero vulnerabilities
 on 2026-10-06; the existing development braces chain remains recorded in UI_SYSTEM.
+
+The first published CI run exposed a Firefox rapid-replacement formatting failure.
+Avoid repeated editability/view updates during typing, and distinguish the editor's
+own React write echoes from external changes before replacing live content.
+Strengthen repeated replacement coverage and wait for observed editor selection
+instead of a fixed test delay; repeated WebKit runs exposed selection settling
+after undo/redo. PR #5 remains stacked on PR #3, with neither merged.

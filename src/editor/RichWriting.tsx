@@ -157,6 +157,7 @@ export function RichWriting({
   selected?: boolean;
 }) {
   const context = useContext(WritingContext)!;
+  const emittedEntries = useRef(new WeakSet<Entry>());
   // Event handlers read the latest draft without re-creating the editor or its history.
   const latest = useRef({
     entry,
@@ -305,6 +306,7 @@ export function RichWriting({
             : {}),
         };
         current.entry = changed;
+        emittedEntries.current.add(changed);
         current.edit(changed);
         requestAnimationFrame(() => {
           if (!editor.isDestroyed)
@@ -333,8 +335,17 @@ export function RichWriting({
   }, [editor, fieldRef, onOverflow]);
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
-    editor.setEditable(!readOnly, false);
+    // Updating the view while the browser is typing can interrupt its pending
+    // DOM/selection changes. Only update editability when it actually changes.
+    if (editor.isEditable === readOnly) editor.setEditable(!readOnly, false);
     editor.view.dom.setAttribute('aria-readonly', String(readOnly));
+    editor.view.dom.setAttribute('aria-label', label);
+  }, [editor, readOnly, label]);
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    // React can acknowledge an earlier keystroke after the editor has moved on.
+    // An echo of this editor's own write must never replace newer live content.
+    if (emittedEntries.current.has(entry)) return;
     const content = documentFor(entry);
     if (JSON.stringify(editor.getJSON()) !== JSON.stringify(content)) {
       // ProseMirror omits empty marks/content arrays. Compare semantic ranges too
@@ -347,8 +358,7 @@ export function RichWriting({
       )
         editor.commands.setContent(content, { emitUpdate: false });
     }
-    editor.view.dom.setAttribute('aria-label', label);
-  }, [editor, entry, readOnly, label]);
+  }, [editor, entry]);
   useEffect(() => {
     if (
       editor &&

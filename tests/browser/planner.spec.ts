@@ -4,6 +4,7 @@ import {
   type Page,
   type Locator,
 } from '@playwright/test';
+import type { Editor } from '@tiptap/core';
 
 // Assert visible text for rich writing and native value for interface fields.
 const expect = baseExpect.extend({
@@ -49,42 +50,52 @@ const expect = baseExpect.extend({
 });
 async function selectWriting(locator: Locator, from: number, to: number) {
   await locator.focus();
-  await locator.evaluate(
-    (node, { from, to }) => {
-      const point = (offset: number): [Node, number] => {
-        const walk = document.createTreeWalker(
-          node,
-          NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
-        );
-        let part: Node | null;
-        while ((part = walk.nextNode())) {
-          if (part.nodeType === Node.TEXT_NODE) {
-            if (offset <= (part.textContent?.length ?? 0))
-              return [part, offset];
-            offset -= part.textContent?.length ?? 0;
-          } else if (
-            part instanceof HTMLBRElement &&
-            !part.classList.contains('ProseMirror-trailingBreak')
-          ) {
-            const parent = part.parentNode!;
-            const index = [...parent.childNodes].indexOf(part as ChildNode);
-            if (!offset) return [parent, index];
-            offset--;
+  await expect(async () => {
+    await locator.evaluate(
+      (node, { from, to }) => {
+        const point = (offset: number): [Node, number] => {
+          const walk = document.createTreeWalker(
+            node,
+            NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+          );
+          let part: Node | null;
+          while ((part = walk.nextNode())) {
+            if (part.nodeType === Node.TEXT_NODE) {
+              if (offset <= (part.textContent?.length ?? 0))
+                return [part, offset];
+              offset -= part.textContent?.length ?? 0;
+            } else if (
+              part instanceof HTMLBRElement &&
+              !part.classList.contains('ProseMirror-trailingBreak')
+            ) {
+              const parent = part.parentNode!;
+              const index = [...parent.childNodes].indexOf(part as ChildNode);
+              if (!offset) return [parent, index];
+              offset--;
+            }
           }
-        }
-        return [node, node.childNodes.length];
-      };
-      const start = point(from),
-        end = point(to);
-      window
-        .getSelection()!
-        .setBaseAndExtent(start[0], start[1], end[0], end[1]);
-      document.dispatchEvent(new Event('selectionchange'));
-    },
-    { from, to },
-  );
-  // ProseMirror observes the browser selection asynchronously.
-  await locator.page().waitForTimeout(30);
+          return [node, node.childNodes.length];
+        };
+        const start = point(from),
+          end = point(to);
+        window
+          .getSelection()!
+          .setBaseAndExtent(start[0], start[1], end[0], end[1]);
+        document.dispatchEvent(new Event('selectionchange'));
+      },
+      { from, to },
+    );
+    // Browser/editor selection can settle asynchronously after undo/redo.
+    // Reapply the synthetic selection until it is observed, without a fixed sleep.
+    const observed = await locator.evaluate((node) => {
+      const editor = (node as HTMLElement & { editor: Editor }).editor;
+      const { doc, selection } = editor.state;
+      return [selection.from, selection.to].map(
+        (position) => doc.textBetween(0, position, '\n', '\n').length,
+      );
+    });
+    expect(observed).toEqual([from, to]);
+  }).toPass({ timeout: 5_000, intervals: [10, 20, 50] });
 }
 async function caretOffset(locator: Locator) {
   return locator.evaluate((node) => {
@@ -276,6 +287,15 @@ test('word formatting follows edits, supports local undo and pastes plain text s
   await selectWriting(row, 7, 12);
   await row.pressSequentially('calm');
   await expect(row.locator('strong')).toHaveText('calm');
+  // Repeated rapid replacements must keep every typed character in the mark,
+  // even while React acknowledges earlier edits and local saves are queued.
+  for (const word of ['steady', 'clear', 'peaceful', 'calm']) {
+    const previous = await row.locator('strong').textContent();
+    await selectWriting(row, 7, 7 + previous!.length);
+    await row.pressSequentially(word);
+    await expect(row).toHaveWriting(`Today: ${word} reading`);
+    await expect(row.locator('strong')).toHaveText(word);
+  }
   await row.press('Enter');
   await day.getByRole('button', { name: '+ Note', exact: true }).click();
   const note = day.getByRole('textbox', { name: 'Note on 2026-10-06' });

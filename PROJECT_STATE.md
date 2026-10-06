@@ -13,13 +13,15 @@ explicitly authorized committing/pushing the reviewed local refinements on
 section below and PR Checks tab record validation. Earlier local-review sections
 are historical checkpoints rather than the current publication status.
 
-Current local task (2026-10-06): arrow-key hourly navigation and word-level
+Current task (2026-10-06): arrow-key hourly navigation and word-level
 bold/italic/underline shortcuts and controls, on `feat/writing-keyboard-controls`
 based on published `f5eb19b`. The user authorized this bounded editor addition,
-then commit/push and a follow-up PR on 2026-10-06. Publication is
-in progress under [issue #4](https://github.com/sre0089/TechnoNichi/issues/4),
-with a PR based on the still-open M1 branch. Local checks are recorded below;
-previous GitHub CI results cover the published baseline.
+then commit/push and a follow-up PR on 2026-10-06. Implementation `700986f` is
+pushed in [PR #5](https://github.com/sre0089/TechnoNichi/pull/5), based on the
+still-open M1 branch and tracked by
+[issue #4](https://github.com/sre0089/TechnoNichi/issues/4). The first GitHub run
+found a Firefox formatting failure; the publication section records its correction.
+Use PR #5's Checks tab for the current published head's CI result.
 
 No merge, remainder of M2, cloud services or public deployment is authorized or begun.
 
@@ -382,21 +384,43 @@ those early failures.
   `feat/writing-keyboard-controls`, based on `f5eb19b`. Tracking issue:
   https://github.com/sre0089/TechnoNichi/issues/4. PR #3 is unchanged.
   Chosen commit: `feat: add writing navigation and word formatting`.
-  Publication and GitHub CI results will be recorded after they complete.
+  Published implementation: `700986f`, followed by the correction described below.
 
-## Keyboard and word-formatting publication — in progress
+## Keyboard and word-formatting publication — current status
 
 - Verified authenticated account `sre0089`, public HTTPS origin, commit identity
   and the existing open PR #3. Fetched the bases; `origin/feat/m1-daily-spread`
   matches local base `f5eb19b`, and `origin/main` remains `49c3176`.
 - User authorization covers committing, pushing and opening the follow-up PR.
-  The PR will target `feat/m1-daily-spread` so its diff contains only this bounded
+  [PR #5](https://github.com/sre0089/TechnoNichi/pull/5) targets `feat/m1-daily-spread` so its diff contains only this bounded
   addition. Review/merge PR #3 first, then retarget the follow-up to `main` before
   merging; each merge requires separate approval.
 - Source, dependency, unit/browser and documentation changes were reviewed.
   Final source passed the local checks recorded above; publication edits only
   update documentation. Private originals, references, planner data and synthetic
   screenshots remain excluded.
+- Committed and pushed implementation `700986f869c61edc6027cd3ddc172b7692479bd2`.
+  Opened tracking issue #4 and PR #5; both remain open, and PR #3 remains unchanged.
+  Reviewed all 19 staged paths, whitespace and credential patterns before publication.
+- Initial GitHub CI run
+  https://github.com/sre0089/TechnoNichi/actions/runs/37426754719 passed installation,
+  formatting, lint, strict types, 22 unit tests and production build, but a Firefox
+  word-replacement assertion failed (51 browser tests passed, 2 intentional skips).
+- Corrected editor synchronization: update editability only when it changes, and
+  ignore React echoes of the editor's own writes so they cannot replace newer live
+  content. External/enlarged-editor changes still synchronize through the same path.
+  Strengthened rapid word-replacement assertions and replaced the fixed selection
+  delay with observed readiness; repeated runs exposed asynchronous selection
+  settling after undo/redo in WebKit. Final checks are recorded below.
+- Corrected final source passed `npm run check` (format, lint, strict types,
+  22 unit tests and production build), and `npm run test:browser` (52 passed,
+  2 intentional screenshot skips). Repeated word-formatting journeys passed
+  24/24 across all three engines. The production smoke passed all six fresh
+  desktop/phone contexts with no page errors. Its temporary port 3002 preview
+  was stopped afterward; the existing development server was preserved.
+- Current published CI status is available in
+  [PR #5's Checks tab](https://github.com/sre0089/TechnoNichi/pull/5/checks).
+  Subsequent correction/documentation commits run the same full workflow.
 
 ## Files and scope
 
@@ -423,8 +447,8 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Exact next action: complete the authorized keyboard/word-formatting publication
-and verify GitHub CI, then review the follow-up alongside PR #3.
+Exact next action: review PR #3 and the stacked keyboard/word-formatting PR #5;
+merge approval is separate. Retarget PR #5 to main after PR #3 merges.
 Physical device checks remain pending as described above.
 Merge requires separate approval.
 Stop before merge approval or M2. Recommend branch protections only

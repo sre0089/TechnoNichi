@@ -84,6 +84,8 @@ the existing revision-checked save and draft recovery path. Tiptap's Next.js cli
 boundary uses `immediatelyRender: false`. Semantic comparisons avoid resetting
 content, selection, pending marks or undo on every React draft update. Editors are
 re-created when their entry identity changes, preventing history crossing entries.
+React echoes of a field's own writes cannot replace newer live content. Editability
+updates only when it changes, avoiding repeated view updates during native typing.
 
 The checkbox text measurement renders the same styled segments as the field.
 Underline combines with completion's translucent strike-through. The reading
