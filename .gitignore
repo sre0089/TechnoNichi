@@ -40,5 +40,9 @@ __pycache__/
 .DS_Store
 Thumbs.db
 *.log
+/test-results/
+/playwright-report/
+/artifacts/
+/next-env.d.ts
 
 # Keep intentional assets, sanitized fixtures, lockfiles, and migrations tracked.

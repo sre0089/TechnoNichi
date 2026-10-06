@@ -1,7 +1,8 @@
 # Contributing
 
-Read `AGENTS.md` and `PROJECT_STATE.md` before starting. Product requirements,
-stack selection, and application commands are pending the PRD.
+Read `AGENTS.md`, `PROJECT_STATE.md`, and `docs/PRD.md` before starting.
+The PRD establishes the product and stack. Use Node 24 LTS and `npm ci`.
+See `docs/ARCHITECTURE.md` for the M1 checklist and the README for editing behavior.
 
 Inspect the working tree before a task and preserve unrelated changes. After
 bootstrap, use a short-lived branch for one coherent milestone. State scope and
@@ -24,7 +25,11 @@ references, exact check outcomes, limitations, and the next bounded action.
 ```sh
 git diff --check
 git diff --cached --check
+npm run check
+npm run test:browser
 ```
 
-Application build, formatting, lint, type-check, and test commands are pending.
+Install Playwright's Chromium, Firefox, and WebKit engines before the browser
+suite. CI runs real formatting, lint, type, unit, build, and browser checks;
+GitHub execution is unverified until the workflow is approved and pushed.
 No contribution license or open-source license has been selected.
