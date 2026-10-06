@@ -8,7 +8,8 @@ export const dailyTemplate = {
   header: { x: 10, y: 8, width: 48, height: 14.8 },
   checklist: { x: 63, y: 8, pitch: 3.7, count: 5 },
   timelineX: 13.7,
-  scheduleX: 21.1,
+  scheduleLineX: 21.1,
+  scheduleX: 22.025, // One quarter grid square right of the occupied-hour line.
   memoY: 112.5,
   timeline: [
     { label: '6', minute: 360, dayOffset: 0, y: 34.8 },
@@ -20,7 +21,14 @@ export const dailyTemplate = {
     { label: '0', minute: 0, dayOffset: 1, y: 101.4 },
     { label: '3', minute: 180, dayOffset: 1, y: 112.5 },
   ],
-  typography: { inkFont: 'system monospace', inkSize: 3.1, lineHeight: 3.7 },
+  typography: {
+    inkFont: 'system monospace',
+    inkSize: 3.1,
+    lineHeight: 3.7,
+    hourlyInkSize: 2.5,
+    hourlyLineHeight: 3.03,
+    hourlyTopInset: 0.67,
+  },
   footer: { y: 190, height: 14 },
   tokens: {
     paper: '#f7f2e7',

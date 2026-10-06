@@ -65,6 +65,165 @@ test('timed writing, note geometry, task text and completion survive turns and r
   ).toHaveValue('Another morning line');
 });
 
+test('timed task completion appears on Enter and survives turns and reload', async ({
+  page,
+}) => {
+  await ready(page);
+  const day = leftDay(page);
+  const row = day.getByRole('textbox', {
+    name: 'Timed writing 12:00',
+    exact: true,
+  });
+  const checkbox = day.getByRole('checkbox', {
+    name: 'Complete timed task 12:00 on 2026-10-06',
+    exact: true,
+  });
+  await row.fill('Lunch with a friend');
+  await expect(checkbox).toHaveCount(0);
+  await row.press('Shift+Enter');
+  await expect(checkbox).toHaveCount(0);
+  await row.fill('Lunch with a friend');
+  await row.dispatchEvent('keydown', { key: 'Enter', isComposing: true });
+  await expect(checkbox).toHaveCount(0);
+  await row.press('Enter');
+  await expect(checkbox).toBeVisible();
+  await expect(checkbox).not.toBeChecked();
+  for (const viewport of [
+    { width: 1440, height: 1120 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const centers = await checkbox.evaluate((node) => {
+      const box = node.getBoundingClientRect();
+      const row = node.closest('.timed')!.getBoundingClientRect();
+      const grid = node.closest('.paper')!.querySelector('.paper-grid')!;
+      const stroke = parseFloat(
+        getComputedStyle(grid).getPropertyValue('--grid-stroke'),
+      );
+      return {
+        checkbox: box.top + box.height / 2,
+        row: row.top + stroke + (row.height - stroke) / 2,
+      };
+    });
+    expect(Math.abs(centers.checkbox - centers.row)).toBeLessThan(0.1);
+  }
+  await page.setViewportSize({ width: 1440, height: 1120 });
+  await checkbox.focus();
+  await checkbox.press('Space');
+  await expect(checkbox).toBeChecked();
+  expect(
+    await row.evaluate((node) => getComputedStyle(node).textDecorationLine),
+  ).toBe('line-through');
+  const lineColor = await row.evaluate(
+    (node) => getComputedStyle(node).textDecorationColor,
+  );
+  expect(lineColor).toMatch(/0\.4|40%/);
+  await expect(row).toHaveValue('Lunch with a friend');
+  await page.getByRole('button', { name: 'Next spread', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Previous spread', exact: true })
+    .click();
+  await expect(checkbox).toBeChecked();
+  await page.reload();
+  await saved(page);
+  await expect(checkbox).toBeChecked();
+  await checkbox.uncheck();
+  expect(
+    await row.evaluate((node) => getComputedStyle(node).textDecorationLine),
+  ).toBe('none');
+  await row.fill('');
+  await expect(checkbox).toHaveCount(0);
+  await expect(day.locator('.schedule-line')).toHaveCount(0);
+  await saved(page);
+});
+
+test('consecutive occupied hours share the requested line and clearing splits it', async ({
+  page,
+}) => {
+  await ready(page);
+  const day = leftDay(page);
+  for (const [hour, text] of [
+    [12, 'Lunch'],
+    [13, 'Project work'],
+    [14, 'Reading'],
+    [16, 'A walk'],
+  ] as const) {
+    const row = day.getByRole('textbox', {
+      name: `Timed writing ${hour}:00`,
+      exact: true,
+    });
+    await row.fill(text);
+    await row.press('Enter');
+  }
+  const run = day.locator('.schedule-line[data-start="720"][data-end="840"]');
+  await expect(run).toHaveCount(1);
+  await expect(day.locator('.schedule-line')).toHaveCount(2);
+  for (const viewport of [
+    { width: 1440, height: 1120 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const geometry = await run.evaluate((node) => {
+      const line = node.getBoundingClientRect();
+      const paper = node.closest('.paper')!;
+      const paperBox = paper.getBoundingClientRect();
+      const grid = paper.querySelector('.paper-grid')!;
+      const gridBox = grid.getBoundingClientRect();
+      const pitch = parseFloat(getComputedStyle(grid).backgroundSize);
+      const stroke = parseFloat(
+        getComputedStyle(grid).getPropertyValue('--grid-stroke'),
+      );
+      const first = paper
+        .querySelector('[aria-label="Timed writing 12:00"]')!
+        .getBoundingClientRect();
+      const last = paper
+        .querySelector('[aria-label="Timed writing 14:00"]')!
+        .getBoundingClientRect();
+      return {
+        center: line.x + line.width / 2,
+        gridCenter: gridBox.x + 3 * pitch + stroke / 2,
+        width: line.width,
+        stroke,
+        top: line.top,
+        bottom: line.bottom,
+        firstTop: first.top,
+        textGap: first.left - line.right,
+        textInsetInSquares: (first.left - (gridBox.x + 3 * pitch)) / pitch,
+        lastBottom: last.bottom,
+        y: ((line.y - paperBox.y) / paperBox.height) * 210,
+        height: (line.height / paperBox.height) * 210,
+      };
+    });
+    expect(Math.abs(geometry.center - geometry.gridCenter)).toBeLessThan(0.1);
+    expect(geometry.width).toBeGreaterThan(geometry.stroke);
+    expect(geometry.textGap).toBeGreaterThan(0);
+    expect(geometry.textInsetInSquares).toBeCloseTo(0.25, 2);
+    expect(Math.abs(geometry.top - geometry.firstTop)).toBeLessThan(1);
+    expect(Math.abs(geometry.bottom - geometry.lastBottom)).toBeLessThan(1);
+    expect(geometry.y).toBeCloseTo(53.3, 1);
+    expect(geometry.height).toBeCloseTo(11.1, 1);
+  }
+  const middle = day.getByRole('textbox', {
+    name: 'Timed writing 13:00',
+    exact: true,
+  });
+  await middle.fill('');
+  await expect(run).toHaveCount(0);
+  await expect(day.locator('.schedule-line')).toHaveCount(3);
+  await middle.fill('Project work');
+  await middle.press('Enter');
+  await saved(page);
+  await page.reload();
+  await saved(page);
+  await expect(run).toHaveCount(1);
+  await expect(
+    day.getByRole('checkbox', {
+      name: 'Complete timed task 13:00 on 2026-10-06',
+      exact: true,
+    }),
+  ).not.toBeChecked();
+});
+
 test('hourly text fields, printed intersections and page-only font stay aligned', async ({
   page,
 }) => {
@@ -354,6 +513,179 @@ test('focused editor preserves long text and native Escape keeps its draft', asy
   await expect(note).toHaveValue(/^A readable phone draft/);
 });
 
+test('view settings trap focus, retain preferences and leave writing intact at desktop and phone sizes', async ({
+  page,
+}) => {
+  await ready(page);
+  const row = leftDay(page).getByRole('textbox', {
+    name: 'Timed writing 12:00',
+    exact: true,
+  });
+  await row.fill('Keep my lunchtime plan');
+  await row.press('Enter');
+  await saved(page);
+  const id = await row.getAttribute('id');
+  for (const [viewport, zoom, side] of [
+    [{ width: 1440, height: 1120 }, '1.15', 'left'],
+    [{ width: 390, height: 844 }, '0.85', 'right'],
+  ] as const) {
+    await page.setViewportSize(viewport);
+    const trigger = page.getByRole('button', {
+      name: 'View settings',
+      exact: true,
+    });
+    await trigger.focus();
+    await trigger.press('Enter');
+    const dialog = page.getByRole('dialog', { name: 'View settings' });
+    await expect(dialog).toBeVisible();
+    const select = dialog.getByLabel('Page size');
+    const close = dialog.getByRole('button', { name: 'Close dialog' });
+    await expect(select).toBeFocused();
+    await select.press('Shift+Tab');
+    await expect(close).toBeFocused();
+    await close.press('Tab');
+    await expect(select).toBeFocused();
+    await select.selectOption(zoom);
+    await dialog
+      .getByRole('button', {
+        name: side === 'left' ? 'Left side' : 'Right side',
+      })
+      .click();
+    await expect(
+      dialog.getByRole('button', {
+        name: side === 'left' ? 'Left side' : 'Right side',
+      }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    const bounds = await dialog.boundingBox();
+    expect(bounds!.x).toBeGreaterThanOrEqual(15);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport.width - 15);
+    expect(bounds!.height).toBeLessThanOrEqual(viewport.height * 0.85 + 1);
+    await dialog.press('Escape');
+    await expect(dialog).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+    // Await the actual preference transaction, rather than the entry save status.
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const db = await new Promise<IDBDatabase>((resolve, reject) => {
+            const request = indexedDB.open('daily-book-v1');
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+          });
+          const value = await new Promise<{
+            zoom: number;
+            toolbarSide: string;
+          }>((resolve, reject) => {
+            const request = db
+              .transaction('preferences')
+              .objectStore('preferences')
+              .get('local');
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+          });
+          db.close();
+          return { zoom: value.zoom, toolbarSide: value.toolbarSide };
+        }),
+      )
+      .toEqual({ zoom: Number(zoom), toolbarSide: side });
+    await page.reload();
+    await saved(page);
+    await expect(page.getByLabel('Page size')).toHaveValue(zoom);
+    await expect(page.locator('main')).toHaveClass(
+      new RegExp(`toolbar-${side}`),
+    );
+    await expect(row).toHaveValue('Keep my lunchtime plan');
+    await expect(row).toHaveAttribute('id', id!);
+    await expect(
+      leftDay(page).getByRole('checkbox', {
+        name: 'Complete timed task 12:00 on 2026-10-06',
+      }),
+    ).not.toBeChecked();
+  }
+});
+
+test('full-writing popovers fit the phone and the enlarged editor restores row focus without losing drafts', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await ready(page);
+  const row = leftDay(page).getByRole('textbox', {
+    name: 'Timed writing 12:00',
+    exact: true,
+  });
+  const text = 'A long plan with details. '.repeat(35) + '\nFinal detail.';
+  await row.fill(text);
+  const read = page.getByRole('button', { name: 'Read full writing' });
+  await read.focus();
+  await read.press('Enter');
+  const popover = page.getByRole('dialog', { name: 'Full writing' });
+  await expect(popover).toBeVisible();
+  await expect(popover).toHaveText(text);
+  const bounds = await popover.boundingBox();
+  expect(bounds!.x).toBeGreaterThanOrEqual(15);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(375);
+  expect(bounds!.height).toBeLessThanOrEqual(361);
+  await popover.press('Escape');
+  await expect(popover).toHaveCount(0);
+  await expect(read).toBeFocused();
+  await page.getByRole('button', { name: 'Edit writing', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'A little more room' });
+  const writing = dialog.getByLabel('Your writing');
+  await expect(writing).toBeFocused();
+  await writing.dispatchEvent('compositionstart');
+  await writing.dispatchEvent('keydown', { key: 'Escape', isComposing: true });
+  await expect(dialog).toBeVisible();
+  await expect(writing).toBeFocused();
+  await writing.dispatchEvent('compositionend');
+  await writing.fill(text + '\nKept on Escape.');
+  await writing.press('Tab');
+  // Native Safari tab order depends on its full keyboard access preference.
+  await expect
+    .poll(() =>
+      dialog.evaluate((node) => node.contains(document.activeElement)),
+    )
+    .toBe(true);
+  await dialog.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(row).toBeFocused();
+  await expect(row).toHaveValue(text + '\nKept on Escape.');
+  await saved(page);
+  await page.reload();
+  await saved(page);
+  await expect(row).toHaveValue(text + '\nKept on Escape.');
+  await expect(
+    leftDay(page).getByRole('checkbox', {
+      name: 'Complete timed task 12:00 on 2026-10-06',
+    }),
+  ).toHaveCount(0);
+  await row.focus();
+  await page.getByRole('button', { name: 'Edit writing', exact: true }).click();
+  const done = dialog.getByRole('button', { name: 'Done editing' });
+  await done.focus();
+  await done.press('Space');
+  await expect(dialog).toHaveCount(0);
+  await expect(row).toBeFocused();
+  await expect(
+    leftDay(page).getByRole('checkbox', {
+      name: 'Complete timed task 12:00 on 2026-10-06',
+    }),
+  ).not.toBeChecked();
+});
+
+test('icon controls expose keyboard hints without moving focus or navigating', async ({
+  page,
+}) => {
+  await ready(page);
+  const next = page.getByRole('button', { name: 'Next spread', exact: true });
+  await next.focus();
+  await expect(page.getByRole('tooltip')).toHaveText('Next two days');
+  await expect(next).toBeFocused();
+  await next.press('Escape');
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
+  await expect(leftDay(page)).toBeVisible();
+  await expect(next).toBeFocused();
+});
+
 test('a failed write retains the editor and blocks navigation until retry succeeds', async ({
   page,
 }) => {
@@ -480,6 +812,14 @@ test('synthetic blank, normal, dense and focused visual fixtures', async ({
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await saved(page);
   await page.screenshot({ path: 'artifacts/m1-normal.png', fullPage: true });
+  await page
+    .getByRole('button', { name: 'View settings', exact: true })
+    .click();
+  await page.screenshot({
+    path: 'artifacts/m1-ui-settings.png',
+    fullPage: true,
+  });
+  await page.getByRole('dialog', { name: 'View settings' }).press('Escape');
   for (const [index, text] of [
     'Lunch with a friend',
     'Project reading',
@@ -523,6 +863,22 @@ test('synthetic blank, normal, dense and focused visual fixtures', async ({
   await page.screenshot({ path: 'artifacts/m1-dense.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: 'artifacts/m1-phone.png', fullPage: true });
+  await page
+    .getByRole('button', { name: 'View settings', exact: true })
+    .click();
+  await page.screenshot({
+    path: 'artifacts/m1-ui-phone-settings.png',
+    fullPage: true,
+  });
+  await page.getByRole('dialog', { name: 'View settings' }).press('Escape');
+  await page
+    .getByRole('button', { name: 'Read full writing', exact: true })
+    .click();
+  await page.screenshot({
+    path: 'artifacts/m1-ui-phone-popover.png',
+    fullPage: true,
+  });
+  await page.getByRole('dialog', { name: 'Full writing' }).press('Escape');
   await page.getByRole('button', { name: 'Edit writing', exact: true }).click();
   await page.screenshot({
     path: 'artifacts/m1-phone-editor.png',

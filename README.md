@@ -48,12 +48,34 @@ for newlines. Escape exits while retaining writing; **Done** exits the contextua
 editor. **Edit writing** opens a larger native text editor without changing layout.
 Overflow writing stays intact and has explicit reading/editing affordances.
 
+**View settings** opens the toolbar's settings dialog. Page size and controls
+position apply immediately and remain saved in this browser. Quick size/side
+controls remain available. **Read full writing** opens a scrollable reading
+popover; Escape closes dialogs/popovers and retains drafts.
+
+Finish a timed task with Enter (or **Done**) to reveal an empty checkbox just after
+its text. Check it to add a translucent strike-through; uncheck it to remove the
+line. Completion saves with the writing. Clearing the row removes its checkbox.
+
+Occupied hours draw a bold vertical line two grid columns to the right of the
+timestamps, with writing starting a quarter-square to its right, inside that same
+grid column. Consecutive hours share a line
+that encompasses every writing row, starting one row above the first time marker
+and ending at the last. Its bold stroke aligns with and covers the faint grid line,
+including on phone pages. An isolated hour has a one-row marker. Empty hours split the line; completed tasks
+still count as occupied. This is a visual grouping of writing, not a duration block.
+
 Save status is **Saving locally**, **Saved on this device**, or **Storage problem**.
 A failed write keeps the draft, prevents the page turn, and exposes retry/recovery.
 Storage is browser-local: it is not cloud synchronization or a backup. Export/import
 and cached offline reopening are later milestones.
 
 ## Development checks
+
+The interface uses Tailwind CSS 4, shared theme tokens and reusable native
+controls, Radix dialogs/popovers/tooltips, and Lucide icons. Custom CSS retains
+the paper grid and writing geometry. The full stack and component contracts are
+documented in [the interface system](docs/UI_SYSTEM.md).
 
 ```sh
 npm run check

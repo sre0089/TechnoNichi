@@ -31,7 +31,14 @@ interface BaseEntry {
 
 export type Entry = BaseEntry &
   (
-    | { type: 'scheduled-line'; minute: number; dayOffset: number }
+    | {
+        type: 'scheduled-line';
+        minute: number;
+        dayOffset: number;
+        // Optional on earlier M1 records; missing flags mean unfinished/unchecked.
+        submitted?: boolean;
+        completed?: boolean;
+      }
     | { type: 'note'; x: number; y: number; width: number; height: number }
     | { type: 'task'; slot: number; completed: boolean }
   );
@@ -88,7 +95,7 @@ export function newEntry(
   if (variant.type === 'note')
     return { ...base, ...variant, width: 62.9, height: 14.8 };
   if (variant.type === 'task') return { ...base, ...variant, completed: false };
-  return { ...base, ...variant };
+  return { ...base, ...variant, submitted: false, completed: false };
 }
 
 export function newHourlyEntry(
@@ -144,6 +151,12 @@ export function assertEntry(value: unknown): asserts value is Entry {
     const absolute = Number(e.minute) + Number(e.dayOffset) * 1440;
     if (absolute < 360 || absolute > 1620)
       throw new Error('Time outside timetable');
+    if (
+      (e.submitted !== undefined && typeof e.submitted !== 'boolean') ||
+      (e.completed !== undefined && typeof e.completed !== 'boolean') ||
+      (e.completed === true && e.submitted !== true)
+    )
+      throw new Error('Invalid timed task completion');
   } else if (e.type === 'note') {
     const finite = ['x', 'y', 'width', 'height'].every(
       (key) => typeof e[key] === 'number' && Number.isFinite(e[key]),

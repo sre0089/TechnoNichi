@@ -12,14 +12,15 @@ composes routes and a browser-only planner editor. Pure calendar, manifest, and
 coordinate functions do not depend on React, the database, or an animation library.
 No server, account, cloud service, or deployment is required for M1.
 
-| Boundary    | M1 responsibility                                                            |
-| ----------- | ---------------------------------------------------------------------------- |
-| `app`       | Route, shell, client editor boundary, error handling                         |
-| `domain`    | Validated book/page/entry records; civil dates and grid transforms           |
-| `templates` | Versioned daily template; explicit timetable anchors; paper rendering        |
-| `book`      | Stable ordered pages, adjacent spread navigation, bounded live pages         |
-| `editor`    | Native text inputs, task completion, free-positioned notes, finish behavior  |
-| `local`     | Dexie schema, serialized writes, revisions, hydration, save failure recovery |
+| Boundary        | M1 responsibility                                                                 |
+| --------------- | --------------------------------------------------------------------------------- |
+| `app`           | Route, shell, client editor boundary, error handling                              |
+| `domain`        | Validated book/page/entry records; civil dates and grid transforms                |
+| `templates`     | Versioned daily template; explicit timetable anchors; paper rendering             |
+| `book`          | Stable ordered pages, adjacent spread navigation, bounded live pages              |
+| `editor`        | Native text inputs, task completion, free-positioned notes, finish behavior       |
+| `components/ui` | Shared native controls, Radix dialogs/popovers/tooltips, save-status presentation |
+| `local`         | Dexie schema, serialized writes, revisions, hydration, save failure recovery      |
 
 Create these modules only as implementation needs them. Search/export, sync,
 attachments, handwriting, and a curl adapter are later milestone work.
@@ -34,6 +35,12 @@ attachments, handwriting, and a curl adapter are later milestone work.
   creation control. Exact minutes and existing IDs remain stored; multiple entries
   within an hour are individually accessible. New rows share deterministic IDs
   across tabs, reserving IDs already used by entries moved to other hours.
+  Timed entries now have optional submitted/completed booleans, defaulting to false
+  when absent on old records. Enter or Done submits a nonblank timed task; checking
+  it preserves text and adds a translucent strike-through. Clearing resets the flags.
+  This additive data change needs no IndexedDB store/index migration or record rewrite.
+  Consecutive occupied-hour lines derive from the entries, including completed ones;
+  gaps split them and overnight offsets join them across midnight.
 - Notes store document/grid position and box dimensions; viewport resizing never
   changes stored geometry. Tasks retain text and completion independently.
   New notes are limited to the grid below 03:00; older notes retain their positions.
@@ -66,8 +73,12 @@ Package manager: npm, with one exact `package-lock.json`. M1 was built and teste
 with project-specific Node 24.21.0 and npm 11.8.0, without replacing global Node.
 Core versions: Next.js 16.3.8, React 19.3.0, Dexie 4.4.6, TypeScript 6.0.3.
 Tooling: Vitest 5.0.3, Playwright 1.63.0, ESLint 10.12.0 and Prettier 3.9.9.
-Plain CSS and native inputs handle the editor; no flipbook, component framework,
-rich-text engine, or service worker was added in M1.
+The app-wide UI now uses Tailwind 4.3.3, shared theme tokens and local native-control
+components, Radix dialogs/popovers/tooltips, and Lucide icons. Custom CSS retains
+the paper geometry and native page-writing fields. Tailwind Preflight is omitted
+to preserve reviewed metrics. See [the interface system](UI_SYSTEM.md) for exact
+versions, boundaries and interaction contracts. No flipbook, rich-text engine,
+or service worker was added in M1.
 
 ## M1 plan and acceptance checklist
 

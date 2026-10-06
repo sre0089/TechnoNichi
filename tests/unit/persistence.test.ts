@@ -41,6 +41,8 @@ describe('durable local writes', () => {
       {
         ...newEntry(page, { type: 'scheduled-line', minute: 45, dayOffset: 1 }),
         text: 'Overnight reading',
+        submitted: true,
+        completed: true,
       },
       {
         ...newEntry(page, { type: 'note', x: 28.5, y: 127.3 }),
