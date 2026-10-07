@@ -530,13 +530,6 @@ function DailyPage({
               )[index + direction];
               if (!next) return false;
               focusWriting(next, caret);
-              // The selected-entry effect can focus the new field again. Restore
-              // the column after React updates without stealing later focus.
-              requestAnimationFrame(() => {
-                if (document.activeElement === next) {
-                  focusWriting(next, caret);
-                }
-              });
               return true;
             }}
           />

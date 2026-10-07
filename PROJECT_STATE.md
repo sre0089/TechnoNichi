@@ -32,6 +32,14 @@ production build and all 12 backup browser journeys across Chromium, Firefox and
 WebKit. The first sandboxed build could not bind Turbopack's internal port; moving
 aside its generated cache and rebuilding with local process permissions passed.
 The PR Checks tab reports CI for the updated branch after publication.
+The first reconciliation CI run passed 63 browser journeys but failed the existing
+WebKit assertion for Left-arrow movement immediately after returning to a row.
+Removed the redundant animation-frame caret reset in `Planner.tsx`, which could
+overwrite the next keystroke. Tiptap's focus command already preserves selection;
+the existing test assertions and timeouts are unchanged. All 15 repeated arrow
+journeys passed across Chromium, Firefox and WebKit after this correction.
+`npm run check` passed again after the correction, including all 43 unit tests and
+the production build. The PR Checks tab reports full CI on the final pushed head.
 Backup PR merge approval is still pending.
 The remainder of M2, cloud services and public deployment are not authorized or begun.
 
