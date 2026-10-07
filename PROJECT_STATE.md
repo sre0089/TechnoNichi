@@ -50,9 +50,10 @@ The user authorized the next bounded M2 slice on 2026-10-07: deletion and recove
 for timed writing, free notes and checklist entries. Current local work is on
 `feat/deletion-recovery`, based on main `8029986`, tracked by
 [issue #12](https://github.com/sre0089/TechnoNichi/issues/12). The user approved
-committing, pushing and opening a PR on 2026-10-07. Publication is in progress;
-merge requires separate approval. Cloud services, deployment and the other M2
-features remain deferred.
+committing, pushing and opening a PR on 2026-10-07. Implementation `9f21f69` is
+published in [PR #13](https://github.com/sre0089/TechnoNichi/pull/13). GitHub CI
+must pass on the final published head; merge requires separate approval. Cloud
+services, deployment and the other M2 features remain deferred.
 
 ## Completed work
 
@@ -81,6 +82,8 @@ features remain deferred.
 ## Git status and publication
 
 - Integrated branch: `main` at `8029986`; local work: `feat/deletion-recovery`.
+  Deletion/recovery implementation: `9f21f69`, open PR #13, tracking issue #12.
+  Local validation is recorded below; the PR Checks tab reports final-head CI.
   Backup merge record reached main through PR #11.
   Application merge: `eb54eba`.
   Merge-record/test maintenance is tracked by PR #6 below.
@@ -586,8 +589,8 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Next action: publish the approved deletion/recovery slice and verify GitHub CI,
-then request separate merge approval. Manual backup and recovery checks on the actual device
+Next action: verify GitHub CI on PR #13's final head, then request separate merge
+approval. Manual backup and recovery checks on the actual device
 remain pending. Do not begin another M2 slice without defining its scope.
 Physical device checks remain pending as described above.
 Recommend branch protections only
