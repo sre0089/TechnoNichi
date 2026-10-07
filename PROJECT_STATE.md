@@ -22,6 +22,17 @@ opening a PR on 2026-10-06. Implementation commit `a9ebb3b` is pushed and publis
 in [PR #9](https://github.com/sre0089/TechnoNichi/pull/9), tracked by
 [issue #8](https://github.com/sre0089/TechnoNichi/issues/8). The PR is open;
 its [Checks tab](https://github.com/sre0089/TechnoNichi/pull/9/checks) reports GitHub CI.
+The short repository README merged through
+[PR #10](https://github.com/sre0089/TechnoNichi/pull/10) as `1ed7960`.
+The user authorized reconciling the backup PR with that main branch on 2026-10-06.
+The README conflict is resolved by retaining the exact short README from main;
+application source, dependencies and tests are unchanged by this reconciliation.
+Reconciliation validation passed: formatting, lint, strict types, all 43 unit tests,
+production build and all 12 backup browser journeys across Chromium, Firefox and
+WebKit. The first sandboxed build could not bind Turbopack's internal port; moving
+aside its generated cache and rebuilding with local process permissions passed.
+The PR Checks tab reports CI for the updated branch after publication.
+Backup PR merge approval is still pending.
 The remainder of M2, cloud services and public deployment are not authorized or begun.
 
 ## Completed work
@@ -50,7 +61,7 @@ The remainder of M2, cloud services and public deployment are not authorized or 
 
 ## Git status and publication
 
-- Integrated base: `main` at `619945a`; current work: `feat/planner-backups`.
+- Integrated base: `main` at `1ed7960`; current work: `feat/planner-backups`.
   Application merge: `eb54eba`.
   Merge-record/test maintenance is tracked by PR #6 below.
 - Merged M1 PR: https://github.com/sre0089/TechnoNichi/pull/3.
