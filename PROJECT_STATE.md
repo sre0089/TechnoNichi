@@ -46,7 +46,13 @@ the production build. Final head `3c7825f` passed
 43 unit tests, production build and 64 browser tests with two intentional skips.
 The merged application source, tests, dependencies and short README are identical
 to that checked head. This merge record is maintained on `docs/backup-merge-state`.
-The remainder of M2, cloud services and public deployment are not authorized or begun.
+The user authorized the next bounded M2 slice on 2026-10-07: deletion and recovery
+for timed writing, free notes and checklist entries. Current local work is on
+`feat/deletion-recovery`, based on main `8029986`, tracked by
+[issue #12](https://github.com/sre0089/TechnoNichi/issues/12). The user approved
+committing, pushing and opening a PR on 2026-10-07. Publication is in progress;
+merge requires separate approval. Cloud services, deployment and the other M2
+features remain deferred.
 
 ## Completed work
 
@@ -74,7 +80,8 @@ The remainder of M2, cloud services and public deployment are not authorized or 
 
 ## Git status and publication
 
-- Integrated branch: `main` at `d3ae0da`; merge record branch: `docs/backup-merge-state`.
+- Integrated branch: `main` at `8029986`; local work: `feat/deletion-recovery`.
+  Backup merge record reached main through PR #11.
   Application merge: `eb54eba`.
   Merge-record/test maintenance is tracked by PR #6 below.
 - Merged M1 PR: https://github.com/sre0089/TechnoNichi/pull/3.
@@ -569,7 +576,7 @@ those early failures.
 The visual template is independently drawn and estimated, not an exact measured
 copy. The initial book is 2026, opening on October 6–7; navigation stays within
 that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
-There are no duration blocks, dragging/resizing, full rich text, book-wide undo/soft deletion,
+There are no duration blocks, dragging/resizing, full rich text or book-wide undo,
 cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
 are available on `main`; they do not merge/replace a populated planner.
 
@@ -579,9 +586,41 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Next action: manually exercise backup download and restore using a synthetic book
-on the actual device, then select a bounded M2 editor task with the user.
-Do not begin another M2 slice without defining its scope.
+Next action: publish the approved deletion/recovery slice and verify GitHub CI,
+then request separate merge approval. Manual backup and recovery checks on the actual device
+remain pending. Do not begin another M2 slice without defining its scope.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.
+
+## Deletion and recovery — local implementation, 2026-10-07
+
+- Select writing and choose **Delete entry**, then confirm or keep it. Deletion
+  flushes the latest draft before a revision-checked transaction; the page changes
+  only after the write commits. A failed save or delete leaves writing retained.
+- **Deleted entries** lists the whole current book, newest deletion first, with
+  twenty entries per page. Restore retains IDs, text, styles, word ranges,
+  completion, exact time and note geometry. Off-spread restore stays on the current
+  spread; the writing is present when its original page is opened.
+- Restore checks the original placement in the same transaction as its write:
+  an active entry in that hourly row/checklist slot or an intersecting note refuses
+  restoration. Even an empty saved slot is occupied. Both entries stay unchanged.
+- New hourly/checklist entries reserve all retained IDs, including deleted IDs,
+  so rewriting an emptied slot cannot replace deleted history. No schema or
+  dependency change is needed. Deleted records remain in JSON backups and can be
+  restored individually after importing a complete-book backup.
+- A Firefox rewrite journey exposed a stale empty-entry echo while native input
+  was still pending. Focused editor content now remains authoritative; initial
+  focus-save echoes are also tracked with this editor's own emitted records.
+  Five repeated Firefox checklist journeys passed after the correction.
+- Full browser suite: 85 passed, two intentional screenshot skips, across
+  Chromium, Firefox and WebKit. All 21 new recovery journeys passed. Synthetic
+  desktop and 320px phone screenshots were visually inspected; artifacts remain
+  local and ignored. Final `npm run check` passed: formatting, lint, strict types,
+  all 56 unit tests across six files and the production build. Whitespace checks
+  passed. The unit suite includes two connections racing to restore different
+  deleted entries into one slot; exactly one succeeds and the other is retained.
+- The browser-test permission review once timed out; its permitted retry succeeded.
+  Physical touch/IME/assistive-technology testing remains unverified. Permanent
+  deletion, alternate-placement restoration, book-wide undo and cross-tab change
+  notifications are not added.

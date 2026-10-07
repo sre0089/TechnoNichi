@@ -343,3 +343,28 @@ the arrow key, retaining all endpoint, overnight, selection, IME and reload
 assertions. This is a fixture refinement; application source is unchanged.
 All 15 repeated keyboard journeys passed across Chromium/Firefox/WebKit; the
 required format/lint/types/43-unit/build checks passed afterward.
+
+## 2026-10-07 — Bounded deletion and recovery slice
+
+The user authorized recoverable deletion for timed writing, free notes and
+checklist entries. Track it with issue #12 on `feat/deletion-recovery`, based on
+main `8029986`. The user approved commit/push/PR publication on 2026-10-07;
+merge still requires separate task-specific approval.
+
+Keep schema-v1 tombstones and original identities; never physically remove an
+entry in this slice. Reserve deleted IDs when generating new hourly/checklist
+records. Flush drafts before mutation and check revisions transactionally. Restore
+only into an unoccupied hourly row/checklist slot or nonintersecting note rectangle,
+including refusal for empty saved entries. This conservative policy protects newer
+writing and keeps both records available; alternative placement is later work.
+
+Use the existing shared Radix dialogs and toolbar/context controls. Recovery spans
+one complete book, sorts newest-first and renders twenty entries at a time. Keep
+full text/ranges/completion/geometry in records and backups. No new dependencies,
+cloud behavior, permanent deletion, book-wide undo or cross-tab notifications.
+
+A Firefox rewrite test exposed an empty focus-save echo that could overwrite newer
+DOM input before the editor's observer had processed it. Skip content replacement
+while the editor is focused and recognize the focus-save record as an emitted
+local echo. The existing text and recovery assertions stay intact; five repeated
+Firefox journeys and the full three-engine browser suite passed afterward.

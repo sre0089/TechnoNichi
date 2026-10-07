@@ -39,6 +39,10 @@ export class SaveQueue {
     entries.forEach((e) => this.revisions.set(e.id, e.revision));
   }
 
+  revision(id: string): number | undefined {
+    return this.revisions.get(id);
+  }
+
   private checkpoint(): void {
     try {
       if (this.recovery.size)
