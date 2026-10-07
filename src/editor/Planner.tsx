@@ -16,6 +16,7 @@ import {
 import {
   newEntry,
   newHourlyEntry,
+  newTaskEntry,
   type Entry,
   type PageRecord,
 } from '../domain/model';
@@ -60,6 +61,10 @@ import { Hint, TooltipProvider } from '../components/ui/tooltip';
 import { SaveStatus } from '../components/ui/save-status';
 import { PageSizeSelect, ViewSettings } from './ViewSettings';
 import { BackupsDialog } from './BackupsDialog';
+import {
+  DeleteEntryButton,
+  DeletedEntriesDialog,
+} from './DeletedEntriesDialog';
 import {
   RichWriting,
   WritingProvider,
@@ -379,7 +384,7 @@ function Writing({
 function DailyPage({
   page,
   side,
-  entries,
+  entries: records,
   edit,
   select,
   moving,
@@ -393,6 +398,7 @@ function DailyPage({
   moving: boolean;
   selectedId: string | null;
 }) {
+  const entries = records.filter((entry) => !entry.deletedAt);
   const parts = parseDate(page.date);
   const object = dateObject(page.date);
   const month = new Intl.DateTimeFormat('en-US', {
@@ -467,7 +473,7 @@ function DailyPage({
           const task =
             existing?.type === 'task'
               ? existing
-              : newEntry(page.id, { type: 'task', slot });
+              : newTaskEntry(page.id, slot, records);
           return (
             <TaskRow
               key={slot}
@@ -512,7 +518,7 @@ function DailyPage({
         const entry =
           existing.find((e) => e.id === selectedId) ??
           existing[0] ??
-          newHourlyEntry(page.id, row.minute, row.dayOffset, entries);
+          newHourlyEntry(page.id, row.minute, row.dayOffset, records);
         return (
           <Writing
             key={row.absolute}
@@ -587,7 +593,7 @@ function DailyPage({
               (i) => !entries.some((e) => e.type === 'task' && e.slot === i),
             );
             if (slot !== undefined)
-              create(newEntry(page.id, { type: 'task', slot }));
+              create(newTaskEntry(page.id, slot, records));
           }}
         >
           + Task
@@ -629,7 +635,7 @@ function MiniCalendar({
 function PlannerEditor() {
   const {
     view,
-    entries,
+    entries: records,
     saveState,
     openingError,
     moving,
@@ -640,7 +646,11 @@ function PlannerEditor() {
     unsaved,
     exportBackup,
     restoreBackup,
+    listDeletedEntries,
+    deleteEntry,
+    restoreEntry,
   } = usePlanner();
+  const entries = records.filter((entry) => !entry.deletedAt);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showRecovery, setShowRecovery] = useState(false);
   const [focusedEditor, setFocusedEditor] = useState(false);
@@ -730,6 +740,11 @@ function PlannerEditor() {
             </Hint>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2">
+            <DeletedEntriesDialog
+              disabled={moving || focusedEditor}
+              listEntries={listDeletedEntries}
+              restoreEntry={restoreEntry}
+            />
             <BackupsDialog
               disabled={moving}
               exportBackup={exportBackup}
@@ -845,7 +860,7 @@ function PlannerEditor() {
               key={page.id}
               page={page}
               side={side as 0 | 1}
-              entries={entries.filter((e) => e.pageId === page.id)}
+              entries={records.filter((e) => e.pageId === page.id)}
               edit={edit}
               select={setSelectedId}
               moving={moving || focusedEditor}
@@ -928,6 +943,16 @@ function PlannerEditor() {
                   </p>
                 </PopoverContent>
               </Popover>
+              <DeleteEntryButton
+                entry={selected}
+                disabled={moving || focusedEditor}
+                deleteEntry={async () => {
+                  await deleteEntry(selected.id);
+                  setSelectedId(null);
+                  setFocusedEditor(false);
+                  requestAnimationFrame(() => bookRef.current?.focus());
+                }}
+              />
               <Button variant="ghost" onClick={() => setFocusedEditor(true)}>
                 <Expand size={15} aria-hidden="true" />
                 Edit writing

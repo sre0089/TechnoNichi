@@ -169,3 +169,20 @@ No later feature is promoted into M1. No public deployment is authorized.
 Exact dependency versions were verified against official requirements and npm
 metadata, then pinned and clean-installed from the lockfile. No real-device
 performance measurements or full offline shell behavior were claimed.
+
+## Recoverable entry deletion
+
+`deletedAt` remains the schema-v1 soft-deletion marker. UI mutation waits for
+SaveQueue to flush, then uses the queue's durable revision for deletion. The
+repository copies the stored record and changes only the marker and revision.
+Restoration uses the deleted record's reviewed revision, checks the original slot
+or note rectangle, and clears its marker in the same read/write transaction.
+Refusal, stale revisions and storage failure preserve the existing records.
+
+The editor loads visible-page records including tombstones to reserve identities;
+rendering and outline filters expose active records only. New hourly and checklist
+entries suffix an occupied ID instead of reusing a deleted record. The whole-book
+recovery query scopes by the book's page manifest. Its dialog renders twenty
+records at a time. JSON archives already include tombstones; no migration or new
+service is required. Other-tab notifications and alternate-placement recovery
+remain separate work.

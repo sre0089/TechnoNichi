@@ -8,6 +8,7 @@ import {
   type Preferences,
 } from '../domain/model';
 import { validateBackup, type PlannerBackup } from './backup';
+import { hourForTime } from '../templates/daily-v1';
 
 export class RevisionConflict extends Error {
   constructor() {
@@ -16,6 +17,7 @@ export class RevisionConflict extends Error {
 }
 
 export class RestoreRefused extends Error {}
+export class EntryRestoreRefused extends Error {}
 
 export class PlannerDB extends Dexie {
   books!: Table<Book, string>;
@@ -73,10 +75,87 @@ export class PlannerDB extends Dexie {
     );
   }
 
-  async readPages(pageIds: string[]): Promise<Entry[]> {
+  async readPages(pageIds: string[], includeDeleted = false): Promise<Entry[]> {
     const entries = await this.entries.where('pageId').anyOf(pageIds).toArray();
     entries.forEach(assertEntry);
-    return entries.filter((e) => !e.deletedAt);
+    return includeDeleted ? entries : entries.filter((e) => !e.deletedAt);
+  }
+
+  async readDeleted(bookId: string): Promise<Entry[]> {
+    return this.transaction('r', this.pages, this.entries, async () => {
+      const pages = await this.pages.where('bookId').equals(bookId).toArray();
+      if (!pages.length) return [];
+      const entries = await this.readPages(
+        pages.map((page) => page.id),
+        true,
+      );
+      return entries
+        .filter((entry) => entry.deletedAt)
+        .sort(
+          (a, b) =>
+            b.deletedAt!.localeCompare(a.deletedAt!) ||
+            a.id.localeCompare(b.id),
+        );
+    });
+  }
+
+  async deleteEntry(id: string, expectedRevision: number): Promise<Entry> {
+    return this.transaction('rw', this.entries, async () => {
+      const current = await this.entries.get(id);
+      if (!current || current.revision !== expectedRevision)
+        throw new RevisionConflict();
+      if (current.deletedAt) throw new Error('This entry is already deleted.');
+      assertEntry(current);
+      const deleted = {
+        ...current,
+        deletedAt: new Date().toISOString(),
+        revision: current.revision + 1,
+      };
+      await this.entries.put(deleted);
+      return deleted;
+    });
+  }
+
+  async restoreEntry(id: string, expectedRevision: number): Promise<Entry> {
+    return this.transaction('rw', this.entries, this.pages, async () => {
+      const current = await this.entries.get(id);
+      if (!current || current.revision !== expectedRevision)
+        throw new RevisionConflict();
+      if (!current.deletedAt)
+        throw new Error('This entry is already restored.');
+      assertEntry(current);
+      if (!(await this.pages.get(current.pageId)))
+        throw new Error('Unknown page');
+      const active = await this.readPages([current.pageId]);
+      const occupied = active.some((entry) => {
+        if (current.type === 'task')
+          return entry.type === 'task' && entry.slot === current.slot;
+        if (current.type === 'scheduled-line')
+          return (
+            entry.type === 'scheduled-line' &&
+            hourForTime(entry.minute, entry.dayOffset) ===
+              hourForTime(current.minute, current.dayOffset)
+          );
+        return (
+          entry.type === 'note' &&
+          entry.x < current.x + current.width &&
+          entry.x + entry.width > current.x &&
+          entry.y < current.y + current.height &&
+          entry.y + entry.height > current.y
+        );
+      });
+      if (occupied)
+        throw new EntryRestoreRefused(
+          'The original space is occupied. Delete the entry there before restoring. Your deleted writing is still retained.',
+        );
+      const restored = {
+        ...current,
+        deletedAt: null,
+        revision: current.revision + 1,
+      };
+      await this.entries.put(restored);
+      return restored;
+    });
   }
 
   async exportBackup(bookId: string): Promise<PlannerBackup> {

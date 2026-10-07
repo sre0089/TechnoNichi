@@ -141,3 +141,20 @@ The installed Next.js CSS, client-boundary and CLI guides were also consulted.
 Production still uses the default Turbopack build; the sandbox-related cached
 PostCSS worker failure encountered during validation was resolved by clearing
 only generated production Turbopack cache and retrying with worker permissions.
+
+## Deletion and recovery controls
+
+The selected writing controls expose **Delete entry**. A shared Radix confirmation
+shows the selected text and offers **Keep entry** or deletion. Its busy state
+prevents duplicate actions and dismissal until the transaction settles. Failure
+leaves the dialog open and the page writing retained.
+
+The toolbar's **Deleted entries** dialog reads the whole current book when opened,
+including off-spread entries. It shows original date/placement, formatted writing,
+completion and **Restore entry**. Twenty-record pagination bounds rendered history;
+scrollable previews retain the full wording. Occupied placement and storage/revision
+errors stay visible and allow refresh/retry. Success restores the original record
+without navigating or altering its placement. Shared dialog focus containment,
+Escape handling and interface typography remain in use; page-writing font and
+paper geometry stay unchanged. Tests cover cancellation, slot rewriting,
+word/completion preservation, failure/retry, pagination and phone keyboard focus.

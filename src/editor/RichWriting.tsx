@@ -289,6 +289,9 @@ export function RichWriting({
       },
       onFocus: ({ editor }) => {
         const current = latest.current;
+        // Focusing an empty slot saves its initial record. Its React echo can
+        // arrive after typing and must not replace the newer editor content.
+        emittedEntries.current.add(current.entry);
         current.context.activate(editor, current.entry.id);
         current.onFocus?.();
       },
@@ -345,7 +348,9 @@ export function RichWriting({
     if (!editor || editor.isDestroyed) return;
     // React can acknowledge an earlier keystroke after the editor has moved on.
     // An echo of this editor's own write must never replace newer live content.
-    if (emittedEntries.current.has(entry)) return;
+    // The browser may have an input mutation pending in its DOM observer.
+    // Keep focused writing authoritative until that input reaches onUpdate.
+    if (editor.isFocused || emittedEntries.current.has(entry)) return;
     const content = documentFor(entry);
     if (JSON.stringify(editor.getJSON()) !== JSON.stringify(content)) {
       // ProseMirror omits empty marks/content arrays. Compare semantic ranges too

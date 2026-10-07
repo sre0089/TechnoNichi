@@ -123,13 +123,22 @@ export function newHourlyEntry(
   const baseId = `${pageId}:hour:${minute + dayOffset * 1440}`;
   let id = baseId;
   let suffix = 2;
+  const usedIds = new Set(existing.map((entry) => entry.id));
   // Moving an entry's time must not make its original ID available for reuse.
-  while (existing.some((entry) => entry.id === id))
-    id = `${baseId}:${suffix++}`;
+  while (usedIds.has(id)) id = `${baseId}:${suffix++}`;
   return {
     ...newEntry(pageId, { type: 'scheduled-line', minute, dayOffset }),
     id,
   };
+}
+
+export function newTaskEntry(pageId: string, slot: number, existing: Entry[]) {
+  const task = newEntry(pageId, { type: 'task', slot });
+  const baseId = task.id;
+  let suffix = 2;
+  const usedIds = new Set(existing.map((entry) => entry.id));
+  while (usedIds.has(task.id)) task.id = `${baseId}:${suffix++}`;
+  return task;
 }
 
 export function assertEntry(value: unknown): asserts value is Entry {

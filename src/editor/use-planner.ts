@@ -10,7 +10,12 @@ import {
   type Preferences,
 } from '../domain/model';
 import { spreadIndex } from '../domain/calendar';
-import { PlannerDB, RestoreRefused } from '../local/repository';
+import {
+  PlannerDB,
+  RestoreRefused,
+  RevisionConflict,
+  EntryRestoreRefused,
+} from '../local/repository';
 import { readRecovery, SaveQueue, type SaveState } from '../local/save-queue';
 import { serializeBackup, type PlannerBackup } from '../local/backup';
 
@@ -62,6 +67,7 @@ export function usePlanner() {
         const preferences = { ...savedPreferences, pageIndex };
         const loaded = await database.readPages(
           pages.slice(pageIndex, pageIndex + 2).map((p) => p.id),
+          true,
         );
         if (!active) {
           database.close();
@@ -136,6 +142,7 @@ export function usePlanner() {
       if (!(await writer.current.flush())) return false;
       const loaded = await db.current.readPages(
         view.pages.slice(nextIndex, nextIndex + 2).map((p) => p.id),
+        true,
       );
       const preferences = {
         ...view.preferences,
@@ -175,7 +182,7 @@ export function usePlanner() {
     }
   };
 
-  const withBackupLock = async <T>(
+  const withOperationLock = async <T>(
     operation: (database: PlannerDB, queue: SaveQueue) => Promise<T>,
   ): Promise<T> => {
     if (!db.current || !writer.current || moveLock.current)
@@ -185,7 +192,7 @@ export function usePlanner() {
     try {
       if (!(await writer.current.flush()))
         throw new Error(
-          'Your latest writing could not save. Retry saving before making a backup or restoring.',
+          'Your latest writing could not save. Retry saving before continuing.',
         );
       return await operation(db.current, writer.current);
     } finally {
@@ -195,7 +202,7 @@ export function usePlanner() {
   };
 
   const exportBackup = () =>
-    withBackupLock(async (database) => {
+    withOperationLock(async (database) => {
       if (!view) throw new Error('Please wait for the book to open.');
       let archive: PlannerBackup;
       try {
@@ -209,7 +216,7 @@ export function usePlanner() {
     });
 
   const restoreBackup = (archive: PlannerBackup) =>
-    withBackupLock(async (database, queue) => {
+    withOperationLock(async (database, queue) => {
       let restored: PlannerBackup;
       try {
         restored = await database.restoreBackup(archive);
@@ -226,13 +233,68 @@ export function usePlanner() {
           .slice(preferences.pageIndex, preferences.pageIndex + 2)
           .map((page) => page.id),
       );
-      const loaded = restored.entries.filter(
-        (entry) => !entry.deletedAt && visibleIds.has(entry.pageId),
+      const loaded = restored.entries.filter((entry) =>
+        visibleIds.has(entry.pageId),
       );
       queue.seed(loaded);
       setEntries(loaded);
       setView({ book, pages, preferences });
       setSaveState({ kind: 'saved' });
+    });
+
+  const listDeletedEntries = () =>
+    withOperationLock(async (database) => {
+      if (!view) throw new Error('Please wait for the book to open.');
+      return database.readDeleted(view.book.id);
+    });
+
+  const deleteEntry = (id: string) =>
+    withOperationLock(async (database, queue) => {
+      const revision = queue.revision(id);
+      if (revision === undefined)
+        throw new Error('Please select a saved entry.');
+      let deleted: Entry;
+      try {
+        deleted = await database.deleteEntry(id, revision);
+      } catch (error) {
+        if (error instanceof RevisionConflict) throw error;
+        throw new Error(
+          'Could not delete this entry. Your writing is still on the page.',
+          { cause: error },
+        );
+      }
+      queue.seed([deleted]);
+      setEntries((current) =>
+        current.map((entry) => (entry.id === id ? deleted : entry)),
+      );
+    });
+
+  const restoreEntry = (entry: Entry) =>
+    withOperationLock(async (database, queue) => {
+      let restored: Entry;
+      try {
+        restored = await database.restoreEntry(entry.id, entry.revision);
+      } catch (error) {
+        if (
+          error instanceof RevisionConflict ||
+          error instanceof EntryRestoreRefused
+        )
+          throw error;
+        throw new Error(
+          'Could not restore this entry. Your deleted writing is still retained.',
+          { cause: error },
+        );
+      }
+      queue.seed([restored]);
+      if (
+        view?.pages
+          .slice(view.preferences.pageIndex, view.preferences.pageIndex + 2)
+          .some((page) => page.id === restored.pageId)
+      )
+        setEntries((current) => [
+          ...current.filter((item) => item.id !== restored.id),
+          restored,
+        ]);
     });
 
   return {
@@ -246,6 +308,9 @@ export function usePlanner() {
     updatePreferences,
     exportBackup,
     restoreBackup,
+    listDeletedEntries,
+    deleteEntry,
+    restoreEntry,
     retry: () => writer.current?.flush(),
     unsaved: () => writer.current?.unsaved() ?? [],
   };
