@@ -16,12 +16,14 @@ checked head. Exact run links and merge details appear below.
 Earlier local-review/publication sections are historical checkpoints.
 
 The user accepted the next bounded proposal on 2026-10-06: versioned local JSON
-export/import, including word formatting. Implementation is on `feat/planner-backups`,
+export/import, including word formatting. Implementation began on `feat/planner-backups`,
 based on merged main `619945a` (PR #6). The user approved committing, pushing and
 opening a PR on 2026-10-06. Implementation commit `a9ebb3b` is pushed and published
 in [PR #9](https://github.com/sre0089/TechnoNichi/pull/9), tracked by
-[issue #8](https://github.com/sre0089/TechnoNichi/issues/8). The PR is open;
-its [Checks tab](https://github.com/sre0089/TechnoNichi/pull/9/checks) reports GitHub CI.
+[issue #8](https://github.com/sre0089/TechnoNichi/issues/8). The user explicitly
+approved the merge on 2026-10-06. PR #9 merged as `d3ae0da` at
+2026-10-07 01:26:30 UTC (October 6 in the user's time zone); issue #8 is closed.
+Local `main` was fast-forwarded to the same merge without rewriting history.
 The short repository README merged through
 [PR #10](https://github.com/sre0089/TechnoNichi/pull/10) as `1ed7960`.
 The user authorized reconciling the backup PR with that main branch on 2026-10-06.
@@ -39,8 +41,11 @@ overwrite the next keystroke. Tiptap's focus command already preserves selection
 the existing test assertions and timeouts are unchanged. All 15 repeated arrow
 journeys passed across Chromium, Firefox and WebKit after this correction.
 `npm run check` passed again after the correction, including all 43 unit tests and
-the production build. The PR Checks tab reports full CI on the final pushed head.
-Backup PR merge approval is still pending.
+the production build. Final head `3c7825f` passed
+[GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/37555260963):
+43 unit tests, production build and 64 browser tests with two intentional skips.
+The merged application source, tests, dependencies and short README are identical
+to that checked head. This merge record is maintained on `docs/backup-merge-state`.
 The remainder of M2, cloud services and public deployment are not authorized or begun.
 
 ## Completed work
@@ -69,14 +74,14 @@ The remainder of M2, cloud services and public deployment are not authorized or 
 
 ## Git status and publication
 
-- Integrated base: `main` at `1ed7960`; current work: `feat/planner-backups`.
+- Integrated branch: `main` at `d3ae0da`; merge record branch: `docs/backup-merge-state`.
   Application merge: `eb54eba`.
   Merge-record/test maintenance is tracked by PR #6 below.
 - Merged M1 PR: https://github.com/sre0089/TechnoNichi/pull/3.
 - Merged writing-controls PR: https://github.com/sre0089/TechnoNichi/pull/5.
-- Published backup PR: https://github.com/sre0089/TechnoNichi/pull/9, base `main`,
-  branch `feat/planner-backups`, implementation `a9ebb3b` plus publication records.
-  Issue #8 remains open until the PR is merged. Merge approval has not been given.
+- Merged backup PR: https://github.com/sre0089/TechnoNichi/pull/9, base `main`,
+  branch `feat/planner-backups`, checked head `3c7825f`, merge `d3ae0da`.
+  Issue #8 closed automatically after the explicitly approved merge.
 - Tracking issues #2 and #4 closed after their changes reached `main`.
 - Implementation history is retained through merge commits; no force push,
   shared-history rewrite, branch deletion or global Git setting change.
@@ -566,7 +571,7 @@ copy. The initial book is 2026, opening on October 6–7; navigation stays withi
 that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
 There are no duration blocks, dragging/resizing, full rich text, book-wide undo/soft deletion,
 cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
-are available on the current branch; they do not merge/replace a populated planner.
+are available on `main`; they do not merge/replace a populated planner.
 
 Stale writes are blocked rather than silently overwriting; rich conflict resolution,
 cross-tab change notifications, and richer recovery/archives remain deferred. Browser eviction
@@ -574,8 +579,9 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Next action: review PR #9 and its GitHub CI results; obtain separate merge approval.
-Do not begin another M2 slice.
+Next action: manually exercise backup download and restore using a synthetic book
+on the actual device, then select a bounded M2 editor task with the user.
+Do not begin another M2 slice without defining its scope.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.
