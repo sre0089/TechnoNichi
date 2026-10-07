@@ -16,11 +16,13 @@ export function DialogContent({
   children,
   className,
   onEscapeKeyDown,
+  closeDisabled = false,
   ...props
 }: Omit<ComponentProps<typeof DialogPrimitive.Content>, 'title'> & {
   title: string;
   description: string;
   children: ReactNode;
+  closeDisabled?: boolean;
 }) {
   return (
     <DialogPrimitive.Portal>
@@ -50,6 +52,7 @@ export function DialogContent({
             variant="ghost"
             size="icon"
             aria-label="Close dialog"
+            disabled={closeDisabled}
             className="absolute right-3 top-3"
           >
             <X size={17} aria-hidden="true" />

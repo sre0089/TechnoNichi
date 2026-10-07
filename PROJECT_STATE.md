@@ -15,6 +15,32 @@ intentional screenshot skips. The merged application tree is identical to that
 checked head. Exact run links and merge details appear below.
 Earlier local-review/publication sections are historical checkpoints.
 
+The user accepted the next bounded proposal on 2026-10-06: versioned local JSON
+export/import, including word formatting. Implementation is on `feat/planner-backups`,
+based on merged main `619945a` (PR #6). The user approved committing, pushing and
+opening a PR on 2026-10-06. Implementation commit `a9ebb3b` is pushed and published
+in [PR #9](https://github.com/sre0089/TechnoNichi/pull/9), tracked by
+[issue #8](https://github.com/sre0089/TechnoNichi/issues/8). The PR is open;
+its [Checks tab](https://github.com/sre0089/TechnoNichi/pull/9/checks) reports GitHub CI.
+The short repository README merged through
+[PR #10](https://github.com/sre0089/TechnoNichi/pull/10) as `1ed7960`.
+The user authorized reconciling the backup PR with that main branch on 2026-10-06.
+The README conflict is resolved by retaining the exact short README from main;
+application source, dependencies and tests are unchanged by this reconciliation.
+Reconciliation validation passed: formatting, lint, strict types, all 43 unit tests,
+production build and all 12 backup browser journeys across Chromium, Firefox and
+WebKit. The first sandboxed build could not bind Turbopack's internal port; moving
+aside its generated cache and rebuilding with local process permissions passed.
+The PR Checks tab reports CI for the updated branch after publication.
+The first reconciliation CI run passed 63 browser journeys but failed the existing
+WebKit assertion for Left-arrow movement immediately after returning to a row.
+Removed the redundant animation-frame caret reset in `Planner.tsx`, which could
+overwrite the next keystroke. Tiptap's focus command already preserves selection;
+the existing test assertions and timeouts are unchanged. All 15 repeated arrow
+journeys passed across Chromium, Firefox and WebKit after this correction.
+`npm run check` passed again after the correction, including all 43 unit tests and
+the production build. The PR Checks tab reports full CI on the final pushed head.
+Backup PR merge approval is still pending.
 The remainder of M2, cloud services and public deployment are not authorized or begun.
 
 ## Completed work
@@ -36,13 +62,21 @@ The remainder of M2, cloud services and public deployment are not authorized or 
 - Generated and visually inspected synthetic blank, normal, dense, and phone fixtures.
 - Added shared UI components and view settings; exact stack and component contracts
   are documented in `docs/UI_SYSTEM.md`.
+- Added toolbar Backups controls, complete-book JSON export after saving drafts,
+  file validation/preview and transactional restore into a fresh planner. Word
+  formatting, completion, note geometry, exact times, revisions, legacy flags,
+  deletion markers and preferences are retained. Restored books reopen correctly.
 
 ## Git status and publication
 
-- Integrated branch: `main`; application merge: `eb54eba`.
+- Integrated base: `main` at `1ed7960`; current work: `feat/planner-backups`.
+  Application merge: `eb54eba`.
   Merge-record/test maintenance is tracked by PR #6 below.
 - Merged M1 PR: https://github.com/sre0089/TechnoNichi/pull/3.
 - Merged writing-controls PR: https://github.com/sre0089/TechnoNichi/pull/5.
+- Published backup PR: https://github.com/sre0089/TechnoNichi/pull/9, base `main`,
+  branch `feat/planner-backups`, implementation `a9ebb3b` plus publication records.
+  Issue #8 remains open until the PR is merged. Merge approval has not been given.
 - Tracking issues #2 and #4 closed after their changes reached `main`.
 - Implementation history is retained through merge commits; no force push,
   shared-history rewrite, branch deletion or global Git setting change.
@@ -465,23 +499,83 @@ those early failures.
 - Docs: PRD, architecture, page template, decisions, README, contributing guide,
   interface system and AGENTS. Font license: `public/licenses/kalam-OFL.txt`.
 
+## Local backup slice — implementation, 2026-10-06
+
+- Strict version-1 `daily-book-backup` envelope; full ordered yearly manifest,
+  all entry records and local preferences. Unsupported versions/templates,
+  incomplete dates, broken references, duplicate IDs/active checklist slots,
+  unknown fields and invalid geometry/time/formatting/preferences are rejected.
+- Files are capped at 20 MiB, 50,000 records, one million UTF-16 text units and
+  20,000 formatting runs per entry. Supported daily-template-v1 years: 1900–2200.
+- Download locks local editing/navigation, flushes latest drafts and reads a
+  consistent snapshot. Failed saving prevents download and preserves recovery.
+- Choosing a file only validates/previews it. Explicit restoration atomically
+  checks the destination and writes all four stores. Only an empty database or
+  generated empty 2026 shell is eligible; any saved entry, including empty or
+  deleted records, prevents replacement. Unrelated empty books are preserved.
+- No merge/replace flow, server upload, encryption or automatic backup is added.
+  Successful restore activates the imported book/preferences immediately and on
+  reload. Concurrent restores serialize; revision checks remain active afterward.
+- Uses existing shared UI/dependencies. Changes are in `src/local/backup.ts`,
+  repository initialization/transactions, the planner hook, `BackupsDialog.tsx`,
+  toolbar and shared dialog dismissal. New unit/browser tests cover round trips,
+  leap years, formatting, legacy/deleted records, duplicates/invalid inputs,
+  existing-writing refusal, rollback/retry, queue failure and phone keyboard UI.
+- Final `npm run check`: pass (format, lint, strict types, 43 unit tests and optimized
+  production build). Full `npm run test:browser -- --workers=3`: 64 passed, two
+  intentional screenshot skips, across Chromium/Firefox/WebKit.
+- Synthetic desktop/320px phone captures were inspected. Corrected an unintended
+  border around the restore section caused by omitted Tailwind Preflight; the final
+  source passed `npm run check` and all 12 backup browser journeys again. Captures
+  are ignored `artifacts/backups-desktop.png` and `artifacts/backups-phone.png`.
+- Production preview on port 3002 passed hydration, complete-year JSON download,
+  empty-book restoration and reload with no page errors, using an isolated synthetic
+  browser profile. Temporary preview was stopped; the user's port-3000 development
+  server was preserved. Physical device/assistive-technology checks remain pending.
+- `git diff --check`: pass. Source, tests and affected documentation were reviewed;
+  private originals remain untracked and captures are ignored. No dependencies,
+  credentials, personal planner data or private references are included.
+- Branch `feat/planner-backups` is based on `619945a`. The user approved
+  commit/push/PR publication on 2026-10-06. Implementation `a9ebb3b` is committed,
+  pushed to the public origin and published in PR #9, which closes issue #8 when
+  merged. Publication records are included in a documentation follow-up commit.
+  [PR #9's Checks tab](https://github.com/sre0089/TechnoNichi/pull/9/checks) records
+  CI on each published head. Merge requires separate approval.
+- Initial GitHub CI runs on `a9ebb3b` and `7d82f63` passed all project checks and
+  63 browser tests, with two intentional skips, but the combined WebKit backup
+  round trip exceeded the 30-second test budget. The restore profile opened only
+  21–25 seconds after the source profile; inline cleanup masked the timed-out step.
+  Give only that multi-profile journey 60 seconds, add named phases and use fixture
+  teardown for the restore context. All assertions keep their normal five-second
+  timeout and other journeys keep 30 seconds. Nine repeated round trips passed
+  locally across all three engines; all 12 backup journeys and `npm run check`
+  passed again after the fixture correction. The test correction is included in PR #9;
+  its Checks tab reports CI for the corrected head. Application source is unchanged.
+- The CI run on `6eae55a` passed all backup journeys and project checks; an existing
+  WebKit boundary-arrow fixture instead failed after a scripted focus jump to an
+  empty field. Tiptap schedules focus on an animation frame. Use real field clicks
+  and assert the starting focus before testing the boundary arrows, preserving
+  the existing focus/navigation assertions. All 15 repeated keyboard journeys
+  passed across the three engines, and `npm run check` passed again. PR #9 includes this fixture refinement;
+  application source remains the approved backup implementation.
+
 ## Limits and next action
 
 The visual template is independently drawn and estimated, not an exact measured
 copy. The initial book is 2026, opening on October 6–7; navigation stays within
 that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
 There are no duration blocks, dragging/resizing, full rich text, book-wide undo/soft deletion,
-export/import, cached offline reopening, search, accounts, sync, or deployment.
+cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
+are available on the current branch; they do not merge/replace a populated planner.
 
 Stale writes are blocked rather than silently overwriting; rich conflict resolution,
-cross-tab change notifications, and full recovery/archives are M2. Browser eviction
+cross-tab change notifications, and richer recovery/archives remain deferred. Browser eviction
 can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Exact next bounded proposal: versioned JSON export/import with validated,
-transactional restoration into an empty store, including formatting ranges.
-Confirm that feature's scope before beginning M2; the approved merges are complete.
+Next action: review PR #9 and its GitHub CI results; obtain separate merge approval.
+Do not begin another M2 slice.
 Physical device checks remain pending as described above.
-Stop before beginning M2. Recommend branch protections only
+Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.

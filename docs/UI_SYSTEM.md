@@ -91,6 +91,17 @@ The checkbox text measurement renders the same styled segments as the field.
 Underline combines with completion's translucent strike-through. The reading
 popover and day outline render controlled React spans from the same ranges.
 
+## Backup controls
+
+The toolbar's **Backups** action opens a shared Radix dialog with two sections:
+download the complete book, or choose a native JSON file and review its book/year,
+page/entry counts and export date before restoring. Files are read locally. Export
+waits for current drafts to save; restore refuses saved writing. The dialog announces
+progress, completion and validation/storage errors, prevents dismissal while busy,
+and returns focus to its trigger when closed. The toolbar wraps on narrow screens;
+the dialog stays within the existing bounded, scrollable viewport contract.
+Typography on planner writing is unchanged. See the README for limits and operation.
+
 ## Verification and limits
 
 Browser journeys cover preference persistence at desktop and phone widths,

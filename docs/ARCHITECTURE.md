@@ -1,6 +1,8 @@
 # Architecture and milestone plan
 
-Status: M1 implemented and published to PR #3; validation and visual approval recorded in project state.
+Status: M1 merged through PRs #3/#5/#6. The authorized first M2 slice implements
+local JSON export/import on `feat/planner-backups`, published in
+[PR #9](https://github.com/sre0089/TechnoNichi/pull/9) and tracked by issue #8.
 Requirements live in `docs/PRD.md`; visual measurements live in
 `docs/PAGE_TEMPLATE_SPEC.md`. The real spread and mockup were received as private
 conversation attachments and inspected. Geometry estimates retain their uncertainty.
@@ -22,7 +24,7 @@ No server, account, cloud service, or deployment is required for M1.
 | `components/ui` | Shared native controls, Radix dialogs/popovers/tooltips, save-status presentation |
 | `local`         | Dexie schema, serialized writes, revisions, hydration, save failure recovery      |
 
-Create these modules only as implementation needs them. Search/export, sync,
+Create these modules only as implementation needs them. Search, sync,
 attachments, handwriting, and a curl adapter are later milestone work.
 
 ## Data and editing contracts
@@ -67,6 +69,33 @@ attachments, handwriting, and a curl adapter are later milestone work.
   This explicit scope does not start the remainder of M2.
 - Only explicit previous/next controls navigate in M1. Decorative book layers
   are hidden from accessibility and cannot intercept editing input.
+
+## Local backup boundary
+
+`local/backup.ts` defines the strict `daily-book-backup` version-1 JSON envelope:
+export timestamp, book, full ordered page manifest, all entry records (including
+deletion markers), and local preferences. It rejects unknown fields, unsupported
+versions/templates, missing/duplicate dates, duplicate entry IDs/active checklist
+slots, broken page references, invalid geometry/time/format ranges and preferences.
+Legacy optional flags remain absent. Files are limited to 20 MiB, 50,000 entries,
+one million UTF-16 text units and 20,000 formatting runs per entry.
+
+Export locks local editing/navigation, drains pending writes, then reads all four
+tables in one read transaction. The client serializes and downloads a JSON Blob;
+no writing reaches a server. Failed flushing prevents export and retains recovery.
+
+File reading/parsing and full validation occur before the write transaction. Restore
+copies/validates the archive again, then checks destination emptiness and writes all
+four tables in one Dexie transaction. Any request failure aborts the whole operation.
+Only a completely empty database or the generated empty 2026 bootstrap book is
+eligible. Saved entries, including empty/deleted ones, or unrelated book metadata
+cause refusal. Duplicate records are rejected rather than merged. Restore activates
+the imported preferences/book; startup reads that book instead of creating another
+default. The UI reviews a chosen file before an explicit restore action.
+
+Concurrent restores serialize through IndexedDB; revision checks continue after
+restoration. Other tabs are not refreshed automatically. Cross-tab notifications,
+replacement/merge flows, automatic backups and the rest of M2 remain deferred.
 
 ## Reversible defaults
 
