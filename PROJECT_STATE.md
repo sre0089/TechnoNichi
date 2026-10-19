@@ -47,13 +47,25 @@ the production build. Final head `3c7825f` passed
 The merged application source, tests, dependencies and short README are identical
 to that checked head. This merge record is maintained on `docs/backup-merge-state`.
 The user authorized the next bounded M2 slice on 2026-10-07: deletion and recovery
-for timed writing, free notes and checklist entries. Current local work is on
+for timed writing, free notes and checklist entries. Implementation was on
 `feat/deletion-recovery`, based on main `8029986`, tracked by
 [issue #12](https://github.com/sre0089/TechnoNichi/issues/12). The user approved
 committing, pushing and opening a PR on 2026-10-07. Implementation `9f21f69` is
-published in [PR #13](https://github.com/sre0089/TechnoNichi/pull/13). GitHub CI
-must pass on the final published head; merge requires separate approval. Cloud
-services, deployment and the other M2 features remain deferred.
+published in [PR #13](https://github.com/sre0089/TechnoNichi/pull/13). Final head
+`1cf94d9` passed [GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/37665927109):
+56 unit tests, production build and 85 browser tests with two intentional skips.
+The user separately approved merging on 2026-10-07. PR #13 merged as `687ddb0`
+at 18:31:50 UTC; issue #12 closed automatically. Local `main` was fast-forwarded
+to that merge, and its application source, tests, dependencies and README match
+the checked head. The merge record and the user's successful backup recovery
+check are retained in the current feature branch.
+
+On 2026-10-19 the user authorized free-note movement/resizing and periodic
+commits/pushes. Work is on `feat/note-movement-resizing`, based on `687ddb0`,
+tracked by [issue #14](https://github.com/sre0089/TechnoNichi/issues/14).
+The first checkpoint adds pure grid-snapped movement/resizing and six passing
+geometry tests; UI integration and browser verification are still in progress.
+Merge requires separate approval. Cloud services and other M2 features remain deferred.
 
 ## Completed work
 
@@ -78,12 +90,15 @@ services, deployment and the other M2 features remain deferred.
   file validation/preview and transactional restore into a fresh planner. Word
   formatting, completion, note geometry, exact times, revisions, legacy flags,
   deletion markers and preferences are retained. Restored books reopen correctly.
+- Added recoverable deletion for timed tasks, checklist tasks and notes, with
+  whole-book recovery and transactional refusal to overwrite occupied placement.
 
 ## Git status and publication
 
-- Integrated branch: `main` at `8029986`; local work: `feat/deletion-recovery`.
-  Deletion/recovery implementation: `9f21f69`, open PR #13, tracking issue #12.
-  Local validation is recorded below; the PR Checks tab reports final-head CI.
+- Integrated branch: `main` at `687ddb0`; current work:
+  `feat/note-movement-resizing`, issue #14. Periodic commits/pushes authorized.
+  Deletion/recovery implementation: `9f21f69`, merged PR #13, closed issue #12.
+  Final head `1cf94d9` passed GitHub CI as recorded above.
   Backup merge record reached main through PR #11.
   Application merge: `eb54eba`.
   Merge-record/test maintenance is tracked by PR #6 below.
@@ -589,9 +604,14 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Next action: verify GitHub CI on PR #13's final head, then request separate merge
-approval. Manual backup and recovery checks on the actual device
-remain pending. Do not begin another M2 slice without defining its scope.
+The user confirmed on 2026-10-19 that backup recovery works in their manual check.
+The device/browser and individual scenarios were not specified; this confirmation
+does not establish completion of the separate deletion/occupied-slot checks.
+
+Current slice: free-note movement and resizing, with grid snapping, keyboard
+alternatives and stable saved geometry. Complete UI integration, meaningful browser
+journeys and validation before proposing a merge. Do not begin another M2 slice
+without defining its scope.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.
