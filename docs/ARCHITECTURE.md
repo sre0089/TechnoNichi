@@ -2,8 +2,10 @@
 
 Status: M1 merged through PRs #3/#5/#6. M2 backup and deletion/recovery slices
 merged through PRs #9/#13. Free-note movement/resizing is implemented on
-`feat/note-movement-resizing`, tracked by issue #14 and published in
-[PR #15](https://github.com/sre0089/TechnoNichi/pull/15); merge approval is pending.
+`feat/note-movement-resizing`, merged through
+[PR #15](https://github.com/sre0089/TechnoNichi/pull/15) as `ed6ef3f` after separate
+user approval; issue #14 is closed. Final head `32be44e` passed CI, and the merged
+application source matches it.
 Requirements live in `docs/PRD.md`; visual measurements live in
 `docs/PAGE_TEMPLATE_SPEC.md`. The real spread and mockup were received as private
 conversation attachments and inspected. Geometry estimates retain their uncertainty.

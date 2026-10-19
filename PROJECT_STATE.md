@@ -61,17 +61,23 @@ the checked head. The merge record and the user's successful backup recovery
 check are retained in the current feature branch.
 
 On 2026-10-19 the user authorized free-note movement/resizing and periodic
-commits/pushes. Work is on `feat/note-movement-resizing`, based on `687ddb0`,
+commits/pushes. Implementation was on `feat/note-movement-resizing`, based on `687ddb0`,
 tracked by [issue #14](https://github.com/sre0089/TechnoNichi/issues/14).
 The first checkpoint `69bcf9a` adds pure grid-snapped movement/resizing and six
 passing geometry tests. UI checkpoint `05e9084` adds selected-note pointer handles,
 keyboard alternatives and cancellation. [PR #15](https://github.com/sre0089/TechnoNichi/pull/15)
-targets `main`. Local validation passed: 62 unit tests, production build and 107
+merged into `main` after the user's separate approval on 2026-10-19.
+Merge commit: `ed6ef3f`, at 07:06:13 UTC; issue #14 closed automatically.
+Local `main` was fast-forwarded to that merge. Local validation passed: 62 unit tests, production build and 107
 browser journeys with four intentional skips. Checkpoint `05e9084` also passed
 [GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/39202846186) with
-the same counts. The PR Checks tab reports CI on later verification-record and
-test-fixture commits. Merge requires separate approval. Cloud services and other
-M2 features remain deferred.
+the same counts. Final reviewed head `32be44e` passed
+[GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/39203423518):
+62 unit tests, production build and 107 browser journeys with four intentional skips.
+Merged application source, tests, dependencies, workflow and README match that
+checked head. This documentation closeout is maintained on `docs/note-merge-state`
+under the existing commit/push authorization. Cloud services and other M2 features
+remain deferred.
 
 ## Completed work
 
@@ -98,12 +104,15 @@ M2 features remain deferred.
   deletion markers and preferences are retained. Restored books reopen correctly.
 - Added recoverable deletion for timed tasks, checklist tasks and notes, with
   whole-book recovery and transactional refusal to overwrite occupied placement.
+- Added grid-snapped free-note movement/resizing, pointer and keyboard controls,
+  cancellation, bounds and retained geometry/text across reload and backups.
 
 ## Git status and publication
 
-- Integrated branch: `main` at `687ddb0`; current work:
-  `feat/note-movement-resizing`, issue #14. Periodic commits/pushes authorized.
-  Open PR #15; source checkpoints `69bcf9a` and `05e9084` are pushed.
+- Integrated branch: `main` at `ed6ef3f`; documentation closeout:
+  `docs/note-merge-state`. Periodic commits/pushes authorized for this feature.
+  Merged PR #15, closed issue #14, final checked head `32be44e`.
+  Source checkpoints `69bcf9a` and `05e9084` are retained.
   Deletion/recovery implementation: `9f21f69`, merged PR #13, closed issue #12.
   Final head `1cf94d9` passed GitHub CI as recorded above.
   Backup merge record reached main through PR #11.
@@ -615,10 +624,10 @@ The user confirmed on 2026-10-19 that backup recovery works in their manual chec
 The device/browser and individual scenarios were not specified; this confirmation
 does not establish completion of the separate deletion/occupied-slot checks.
 
-Current slice is ready for review: free-note movement and resizing, with grid
-snapping, keyboard alternatives and stable saved geometry. Verify final-head CI
-on PR #15 and obtain separate merge approval. Real-device note gestures remain
-unverified. Do not begin another M2 slice without defining its scope.
+Free-note movement/resizing is merged and verified as recorded above. Next action:
+review note gestures on the actual device. Real-device note gestures remain
+unverified. The next proposed coding slice is two-tab change notifications and
+stale-edit recovery; define and authorize its scope before implementation.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.
