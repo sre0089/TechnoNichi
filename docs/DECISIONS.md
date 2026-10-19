@@ -387,3 +387,12 @@ imported edge boxes whose available space is smaller. Movement preserves existin
 sizes. Resizing preserves full text/ranges; existing overflow reading/editing remains.
 Block navigation and other placement-changing controls during a pointer gesture.
 Keep the existing revision-checked save queue and recoverable failure behavior.
+
+Regression verification found two local timing issues. The long new Firefox
+journey reached the existing 30-second test limit while a production build ran
+concurrently; it passed in ten seconds without the build, with assertions and
+timeouts unchanged. An existing WebKit deletion test could target its button while
+the failed-save banner shifted the page. Establish the expected Storage problem
+state before clicking, retaining every subsequent recovery assertion. Limit the
+full local browser run to three workers; each multi-tab test still exercises its
+own concurrent tabs.
