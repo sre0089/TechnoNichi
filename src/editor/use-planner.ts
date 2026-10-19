@@ -31,9 +31,22 @@ export function usePlanner() {
   const [saveState, setSaveState] = useState<SaveState>({ kind: 'saving' });
   const [openingError, setOpeningError] = useState(false);
   const [moving, setMoving] = useState(false);
+  const [adjustingNote, setAdjustingNote] = useState(false);
   const db = useRef<PlannerDB | null>(null);
   const writer = useRef<SaveQueue | null>(null);
   const moveLock = useRef(false);
+  const noteGestureLock = useRef(false);
+
+  const beginNoteGesture = useCallback(() => {
+    if (moveLock.current || noteGestureLock.current) return false;
+    noteGestureLock.current = true;
+    setAdjustingNote(true);
+    return true;
+  }, []);
+  const endNoteGesture = useCallback(() => {
+    noteGestureLock.current = false;
+    setAdjustingNote(false);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -130,7 +143,13 @@ export function usePlanner() {
   }, []);
 
   const navigate = async (index: number) => {
-    if (!view || !db.current || !writer.current || moveLock.current)
+    if (
+      !view ||
+      !db.current ||
+      !writer.current ||
+      moveLock.current ||
+      noteGestureLock.current
+    )
       return false;
     const nextIndex = spreadIndex(
       Math.max(0, Math.min(view.pages.length - 1, index)),
@@ -169,7 +188,8 @@ export function usePlanner() {
   const updatePreferences = async (
     changes: Partial<Pick<Preferences, 'focusSide' | 'toolbarSide' | 'zoom'>>,
   ) => {
-    if (!view || !db.current || moveLock.current) return;
+    if (!view || !db.current || moveLock.current || noteGestureLock.current)
+      return;
     const preferences = { ...view.preferences, ...changes };
     setView({ ...view, preferences });
     try {
@@ -185,7 +205,12 @@ export function usePlanner() {
   const withOperationLock = async <T>(
     operation: (database: PlannerDB, queue: SaveQueue) => Promise<T>,
   ): Promise<T> => {
-    if (!db.current || !writer.current || moveLock.current)
+    if (
+      !db.current ||
+      !writer.current ||
+      moveLock.current ||
+      noteGestureLock.current
+    )
       throw new Error('Please finish the current operation and try again.');
     moveLock.current = true;
     setMoving(true);
@@ -303,6 +328,9 @@ export function usePlanner() {
     saveState,
     openingError,
     moving,
+    adjustingNote,
+    beginNoteGesture,
+    endNoteGesture,
     edit,
     navigate,
     updatePreferences,

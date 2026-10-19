@@ -63,8 +63,9 @@ check are retained in the current feature branch.
 On 2026-10-19 the user authorized free-note movement/resizing and periodic
 commits/pushes. Work is on `feat/note-movement-resizing`, based on `687ddb0`,
 tracked by [issue #14](https://github.com/sre0089/TechnoNichi/issues/14).
-The first checkpoint adds pure grid-snapped movement/resizing and six passing
-geometry tests; UI integration and browser verification are still in progress.
+The first checkpoint `69bcf9a` adds pure grid-snapped movement/resizing and six
+passing geometry tests. Selected-note pointer handles, keyboard alternatives and
+gesture cancellation are integrated; full-suite browser verification is in progress.
 Merge requires separate approval. Cloud services and other M2 features remain deferred.
 
 ## Completed work
@@ -594,7 +595,7 @@ those early failures.
 The visual template is independently drawn and estimated, not an exact measured
 copy. The initial book is 2026, opening on October 6–7; navigation stays within
 that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
-There are no duration blocks, dragging/resizing, full rich text or book-wide undo,
+There are no duration blocks, full rich text or book-wide undo,
 cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
 are available on `main`; they do not merge/replace a populated planner.
 
@@ -609,8 +610,8 @@ The device/browser and individual scenarios were not specified; this confirmatio
 does not establish completion of the separate deletion/occupied-slot checks.
 
 Current slice: free-note movement and resizing, with grid snapping, keyboard
-alternatives and stable saved geometry. Complete UI integration, meaningful browser
-journeys and validation before proposing a merge. Do not begin another M2 slice
+alternatives and stable saved geometry. Complete browser journeys and validation
+before proposing a merge. Do not begin another M2 slice
 without defining its scope.
 Physical device checks remain pending as described above.
 Recommend branch protections only
@@ -647,3 +648,25 @@ after the first real GitHub CI run and verification of available repository feat
   Physical touch/IME/assistive-technology testing remains unverified. Permanent
   deletion, alternate-placement restoration, book-wide undo and cross-tab change
   notifications are not added.
+
+## Free-note movement/resizing — implementation checkpoint, 2026-10-19
+
+- Dedicated selected-note handles preview snapped movement/resizing. A completed
+  gesture queues one geometry edit; clicks do not snap old unsnapped notes.
+  Escape, pointer cancellation/lost capture, blur, scrolling and viewport changes
+  cancel without persisting the preview. Navigation, other entry actions and view
+  changes are locked during the gesture; native text editing remains separate.
+- Arrow keys on handles move/resize by one square, Shift by five. Contextual Move
+  and size buttons provide alternatives to dragging. Grid bounds/minimum sizes
+  preserve all text and original identity; overflow reading/editing is retained.
+- `npm run check` passed during integration: formatting, lint, strict types,
+  62 unit tests across seven files and production build. Full-suite browser
+  validation follows the latest interaction refinements. Synthetic desktop and
+  phone screenshots were visually inspected and remain ignored local artifacts.
+- All 22 new browser journeys passed across Chromium, Firefox and WebKit; two
+  touch-injection cases are intentionally skipped outside Chromium. The new
+  cancellation fixture includes Firefox's zero-valued mouse pointer ID.
+- Chromium touch injection passed; real touch, pen, IME and assistive-technology
+  checks remain pending. New notes are created below 03:00; movement may use the
+  printed grid, including legacy upper-grid notes. No dependency/schema change,
+  duration blocks, book-wide undo, cloud work or deployment is included.

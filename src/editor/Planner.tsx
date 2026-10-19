@@ -62,6 +62,11 @@ import { SaveStatus } from '../components/ui/save-status';
 import { PageSizeSelect, ViewSettings } from './ViewSettings';
 import { BackupsDialog } from './BackupsDialog';
 import {
+  NoteFrame,
+  NotePlacementControls,
+  type NoteGestureControls,
+} from './NoteFrame';
+import {
   DeleteEntryButton,
   DeletedEntriesDialog,
 } from './DeletedEntriesDialog';
@@ -269,6 +274,7 @@ function Writing({
   otherWriting = [],
   moveRow,
   selected,
+  noteGesture,
 }: {
   entry: Entry;
   edit: (e: Entry) => void;
@@ -278,6 +284,7 @@ function Writing({
   otherWriting?: Entry[];
   moveRow?: (direction: -1 | 1, caret: number) => boolean;
   selected: boolean;
+  noteGesture?: NoteGestureControls;
 }) {
   const input = useRef<HTMLElement>(null);
   const [overflow, setOverflow] = useState(false);
@@ -311,11 +318,9 @@ function Writing({
     : entry.type === 'scheduled-line'
       ? `Timed writing ${timeLabel(entry.minute, entry.dayOffset)}`
       : 'Writing';
-  return (
-    <div
-      className={`writing-item ${isNote ? 'note' : 'timed'}${submitted ? ' submitted' : ''}${entry.type === 'scheduled-line' && entry.completed ? ' completed' : ''}${overflow ? ' has-overflow' : ''}`}
-      style={style}
-    >
+  const className = `writing-item ${isNote ? 'note' : 'timed'}${submitted ? ' submitted' : ''}${entry.type === 'scheduled-line' && entry.completed ? ' completed' : ''}${overflow ? ' has-overflow' : ''}`;
+  const content = (
+    <>
       <RichWriting
         key={entry.id}
         entry={entry}
@@ -377,6 +382,22 @@ function Writing({
           …
         </Button>
       )}
+    </>
+  );
+  return isNote && noteGesture ? (
+    <NoteFrame
+      entry={entry}
+      selected={selected}
+      disabled={moving}
+      edit={edit}
+      className={className}
+      {...noteGesture}
+    >
+      {content}
+    </NoteFrame>
+  ) : (
+    <div className={className} style={style}>
+      {content}
     </div>
   );
 }
@@ -389,6 +410,7 @@ function DailyPage({
   select,
   moving,
   selectedId,
+  noteGesture,
 }: {
   page: PageRecord;
   side: 0 | 1;
@@ -397,6 +419,7 @@ function DailyPage({
   select: (id: string) => void;
   moving: boolean;
   selectedId: string | null;
+  noteGesture: NoteGestureControls;
 }) {
   const entries = records.filter((entry) => !entry.deletedAt);
   const parts = parseDate(page.date);
@@ -562,6 +585,7 @@ function DailyPage({
             edit={edit}
             select={select}
             moving={moving}
+            noteGesture={noteGesture}
           />
         ))}
       <span className="month-tab" aria-hidden="true">
@@ -638,7 +662,10 @@ function PlannerEditor() {
     entries: records,
     saveState,
     openingError,
-    moving,
+    moving: pageMoving,
+    adjustingNote,
+    beginNoteGesture,
+    endNoteGesture,
     edit,
     navigate,
     updatePreferences,
@@ -650,6 +677,7 @@ function PlannerEditor() {
     deleteEntry,
     restoreEntry,
   } = usePlanner();
+  const moving = pageMoving || adjustingNote;
   const entries = records.filter((entry) => !entry.deletedAt);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showRecovery, setShowRecovery] = useState(false);
@@ -786,6 +814,7 @@ function PlannerEditor() {
                     variant="ghost"
                     size="icon"
                     aria-label="View settings"
+                    disabled={moving}
                   >
                     <Settings2 size={18} strokeWidth={1.5} aria-hidden="true" />
                   </Button>
@@ -834,6 +863,7 @@ function PlannerEditor() {
               key={page.id}
               variant="ghost"
               aria-pressed={preferences.focusSide === side}
+              disabled={moving}
               onClick={() =>
                 void updatePreferences({ focusSide: side as 0 | 1 })
               }
@@ -843,7 +873,7 @@ function PlannerEditor() {
           ))}
         </div>
         <div
-          className={`book focus-${preferences.focusSide}${moving ? ' turning' : ''}`}
+          className={`book focus-${preferences.focusSide}${pageMoving ? ' turning' : ''}`}
           id="book"
           ref={bookRef}
           tabIndex={-1}
@@ -865,6 +895,7 @@ function PlannerEditor() {
               select={setSelectedId}
               moving={moving || focusedEditor}
               selectedId={selectedId}
+              noteGesture={{ beginNoteGesture, endNoteGesture }}
             />
           ))}
           {visible.length === 1 && (
@@ -893,6 +924,13 @@ function PlannerEditor() {
                   : 'Checklist task'}
             </span>
             <FormattingControls entry={selected} disabled={moving} />
+            {selected.type === 'note' && (
+              <NotePlacementControls
+                entry={selected}
+                edit={edit}
+                disabled={moving || focusedEditor}
+              />
+            )}
             {selected.type === 'scheduled-line' && (
               <>
                 <label className="flex items-center gap-2 text-ui-muted">
@@ -928,7 +966,7 @@ function PlannerEditor() {
             <div className="ml-auto flex flex-wrap items-center gap-1">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" id="full-writing">
+                  <Button variant="ghost" id="full-writing" disabled={moving}>
                     <Eye size={15} aria-hidden="true" />
                     Read full writing
                   </Button>
@@ -953,12 +991,17 @@ function PlannerEditor() {
                   requestAnimationFrame(() => bookRef.current?.focus());
                 }}
               />
-              <Button variant="ghost" onClick={() => setFocusedEditor(true)}>
+              <Button
+                variant="ghost"
+                disabled={moving}
+                onClick={() => setFocusedEditor(true)}
+              >
                 <Expand size={15} aria-hidden="true" />
                 Edit writing
               </Button>
               <Button
                 variant="primary"
+                disabled={moving}
                 onClick={() => {
                   finishTimed(selected, edit);
                   document.getElementById(selected.id)?.blur();
@@ -1006,6 +1049,7 @@ function PlannerEditor() {
                       <Button
                         variant="ghost"
                         className="h-auto w-full justify-start whitespace-pre-wrap text-left"
+                        disabled={moving}
                         onClick={() => {
                           void updatePreferences({
                             focusSide: visible.findIndex(

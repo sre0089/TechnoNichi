@@ -186,3 +186,21 @@ recovery query scopes by the book's page manifest. Its dialog renders twenty
 records at a time. JSON archives already include tombstones; no migration or new
 service is required. Other-tab notifications and alternate-placement recovery
 remain separate work.
+
+## Free-note geometry interactions
+
+`domain/note-geometry.ts` snaps movement/resizing in template units and bounds the
+result by the printed writing grid. It preserves note identities, text and marks.
+Movement retains legacy dimensions; resizing has four-column/two-row minimums
+except for imported edge boxes with less available space. No schema change.
+
+`NoteFrame` owns selected-note move and resize handles. Pointer capture tracks one
+primary pointer; screen positions are converted through the paper rectangle.
+A three-pixel activation threshold prevents clicks from snapping legacy geometry.
+React previews positions; release queues one changed record. Escape, pointer
+cancellation/lost capture, window blur, scroll or resize discard the preview.
+The planner locks navigation/preferences/backup/deletion during a gesture and
+temporarily makes writing read-only. Handle focus survives editing re-enablement.
+Arrow keys and contextual buttons reuse the same pure geometry functions. Failed
+geometry saves use the existing revision-checked queue and recoverable draft path.
+Full text remains available through overflow/focused editing after a resize.
