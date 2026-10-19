@@ -456,6 +456,49 @@
 .writing-item:hover .writing-input {
   background: #fff3;
 }
+.note-selected {
+  z-index: 2;
+  outline: 1px solid rgb(137 114 147 / 45%);
+}
+.note-adjusting {
+  outline: 1px dashed var(--ink);
+  background: rgb(255 255 255 / 30%);
+}
+.note-handle {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  touch-action: none;
+  user-select: none;
+  z-index: 1;
+}
+.note-move-handle {
+  left: 0;
+  bottom: 100%;
+  cursor: grab;
+}
+.note-adjusting .note-move-handle {
+  cursor: grabbing;
+}
+.note-resize-handle {
+  left: 100%;
+  top: 100%;
+  transform: translate(-50%, -50%);
+  cursor: nwse-resize;
+}
+.note-selected .overflow-mark {
+  right: 20px;
+}
+@media (pointer: coarse) {
+  .note-handle {
+    width: 36px;
+    height: 36px;
+  }
+}
 .row-alternatives {
   position: absolute;
   right: 0;

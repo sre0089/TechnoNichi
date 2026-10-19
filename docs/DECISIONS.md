@@ -368,3 +368,31 @@ DOM input before the editor's observer had processed it. Skip content replacemen
 while the editor is focused and recognize the focus-save record as an emitted
 local echo. The existing text and recovery assertions stay intact; five repeated
 Firefox journeys and the full three-engine browser suite passed afterward.
+
+## 2026-10-19 — Free-note movement and resizing
+
+The user authorized implementation and periodic commits/pushes on
+`feat/note-movement-resizing`, tracked by issue #14. Merge remains separate.
+Keep the existing note records and page coordinates; use no new dependencies.
+Dedicated selected-note handles own pointer gestures, preserving native text
+selection. Preview geometry and persist one change on release; cancellation
+leaves the original record intact. Provide handle arrow keys and contextual
+buttons as non-drag alternatives.
+
+Snap to the existing 3.7-unit grid and bound geometry by the printed writing grid.
+New note creation stays in the lower memo area; movement may use the whole printed
+grid, including the positions of legacy upper-grid notes. Notes remain notes and
+never acquire a time. Minimum resized size is four columns by two rows, except
+imported edge boxes whose available space is smaller. Movement preserves existing
+sizes. Resizing preserves full text/ranges; existing overflow reading/editing remains.
+Block navigation and other placement-changing controls during a pointer gesture.
+Keep the existing revision-checked save queue and recoverable failure behavior.
+
+Regression verification found two local timing issues. The long new Firefox
+journey reached the existing 30-second test limit while a production build ran
+concurrently; it passed in ten seconds without the build, with assertions and
+timeouts unchanged. An existing WebKit deletion test could target its button while
+the failed-save banner shifted the page. Establish the expected Storage problem
+state before clicking, retaining every subsequent recovery assertion. Limit the
+full local browser run to three workers; each multi-tab test still exercises its
+own concurrent tabs.

@@ -158,3 +158,20 @@ without navigating or altering its placement. Shared dialog focus containment,
 Escape handling and interface typography remain in use; page-writing font and
 paper geometry stay unchanged. Tests cover cancellation, slot rewriting,
 word/completion preservation, failure/retry, pagination and phone keyboard focus.
+
+## Selected-note placement
+
+Only the selected note displays a thin outline, a move handle above its top-left
+corner and a bottom-right resize handle. These use the shared button and Lucide
+icons. A dashed outline indicates an unsaved gesture preview. Handles alone use
+pointer capture, `touch-action: none` and suppressed text selection; writing and
+the rest of the page retain native interaction. Coarse-pointer targets are larger.
+The overflow affordance is inset from the resize handle.
+
+Handle arrow keys adjust one grid square; Shift adjusts five. Escape cancels an
+active drag. Contextual Move buttons and Narrower/Wider/Shorter/Taller controls
+provide non-drag alternatives; controls disable at their geometry bounds.
+Screen-reader descriptions explain handle shortcuts. Other entry actions, view
+changes and navigation are unavailable during a gesture. New notes still begin
+in the lower memo grid; moving a note never assigns a time. Geometry/style changes
+are limited to selected notes, leaving the paper template and writing font intact.

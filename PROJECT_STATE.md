@@ -47,13 +47,31 @@ the production build. Final head `3c7825f` passed
 The merged application source, tests, dependencies and short README are identical
 to that checked head. This merge record is maintained on `docs/backup-merge-state`.
 The user authorized the next bounded M2 slice on 2026-10-07: deletion and recovery
-for timed writing, free notes and checklist entries. Current local work is on
+for timed writing, free notes and checklist entries. Implementation was on
 `feat/deletion-recovery`, based on main `8029986`, tracked by
 [issue #12](https://github.com/sre0089/TechnoNichi/issues/12). The user approved
 committing, pushing and opening a PR on 2026-10-07. Implementation `9f21f69` is
-published in [PR #13](https://github.com/sre0089/TechnoNichi/pull/13). GitHub CI
-must pass on the final published head; merge requires separate approval. Cloud
-services, deployment and the other M2 features remain deferred.
+published in [PR #13](https://github.com/sre0089/TechnoNichi/pull/13). Final head
+`1cf94d9` passed [GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/37665927109):
+56 unit tests, production build and 85 browser tests with two intentional skips.
+The user separately approved merging on 2026-10-07. PR #13 merged as `687ddb0`
+at 18:31:50 UTC; issue #12 closed automatically. Local `main` was fast-forwarded
+to that merge, and its application source, tests, dependencies and README match
+the checked head. The merge record and the user's successful backup recovery
+check are retained in the current feature branch.
+
+On 2026-10-19 the user authorized free-note movement/resizing and periodic
+commits/pushes. Work is on `feat/note-movement-resizing`, based on `687ddb0`,
+tracked by [issue #14](https://github.com/sre0089/TechnoNichi/issues/14).
+The first checkpoint `69bcf9a` adds pure grid-snapped movement/resizing and six
+passing geometry tests. UI checkpoint `05e9084` adds selected-note pointer handles,
+keyboard alternatives and cancellation. [PR #15](https://github.com/sre0089/TechnoNichi/pull/15)
+targets `main`. Local validation passed: 62 unit tests, production build and 107
+browser journeys with four intentional skips. Checkpoint `05e9084` also passed
+[GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/39202846186) with
+the same counts. The PR Checks tab reports CI on later verification-record and
+test-fixture commits. Merge requires separate approval. Cloud services and other
+M2 features remain deferred.
 
 ## Completed work
 
@@ -78,12 +96,16 @@ services, deployment and the other M2 features remain deferred.
   file validation/preview and transactional restore into a fresh planner. Word
   formatting, completion, note geometry, exact times, revisions, legacy flags,
   deletion markers and preferences are retained. Restored books reopen correctly.
+- Added recoverable deletion for timed tasks, checklist tasks and notes, with
+  whole-book recovery and transactional refusal to overwrite occupied placement.
 
 ## Git status and publication
 
-- Integrated branch: `main` at `8029986`; local work: `feat/deletion-recovery`.
-  Deletion/recovery implementation: `9f21f69`, open PR #13, tracking issue #12.
-  Local validation is recorded below; the PR Checks tab reports final-head CI.
+- Integrated branch: `main` at `687ddb0`; current work:
+  `feat/note-movement-resizing`, issue #14. Periodic commits/pushes authorized.
+  Open PR #15; source checkpoints `69bcf9a` and `05e9084` are pushed.
+  Deletion/recovery implementation: `9f21f69`, merged PR #13, closed issue #12.
+  Final head `1cf94d9` passed GitHub CI as recorded above.
   Backup merge record reached main through PR #11.
   Application merge: `eb54eba`.
   Merge-record/test maintenance is tracked by PR #6 below.
@@ -579,7 +601,7 @@ those early failures.
 The visual template is independently drawn and estimated, not an exact measured
 copy. The initial book is 2026, opening on October 6–7; navigation stays within
 that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
-There are no duration blocks, dragging/resizing, full rich text or book-wide undo,
+There are no duration blocks, full rich text or book-wide undo,
 cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
 are available on `main`; they do not merge/replace a populated planner.
 
@@ -589,9 +611,14 @@ can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
 
-Next action: verify GitHub CI on PR #13's final head, then request separate merge
-approval. Manual backup and recovery checks on the actual device
-remain pending. Do not begin another M2 slice without defining its scope.
+The user confirmed on 2026-10-19 that backup recovery works in their manual check.
+The device/browser and individual scenarios were not specified; this confirmation
+does not establish completion of the separate deletion/occupied-slot checks.
+
+Current slice is ready for review: free-note movement and resizing, with grid
+snapping, keyboard alternatives and stable saved geometry. Verify final-head CI
+on PR #15 and obtain separate merge approval. Real-device note gestures remain
+unverified. Do not begin another M2 slice without defining its scope.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.
@@ -627,3 +654,32 @@ after the first real GitHub CI run and verification of available repository feat
   Physical touch/IME/assistive-technology testing remains unverified. Permanent
   deletion, alternate-placement restoration, book-wide undo and cross-tab change
   notifications are not added.
+
+## Free-note movement/resizing — verified implementation, 2026-10-19
+
+- Dedicated selected-note handles preview snapped movement/resizing. A completed
+  gesture queues one geometry edit; clicks do not snap old unsnapped notes.
+  Escape, pointer cancellation/lost capture, blur, scrolling and viewport changes
+  cancel without persisting the preview. Navigation, other entry actions and view
+  changes are locked during the gesture; native text editing remains separate.
+- Arrow keys on handles move/resize by one square, Shift by five. Contextual Move
+  and size buttons provide alternatives to dragging. Grid bounds/minimum sizes
+  preserve all text and original identity; overflow reading/editing is retained.
+- `npm run check` passed after the interaction refinements: formatting, lint,
+  strict types, 62 unit tests across seven files and production build. Full local
+  browser run `npm run test:browser -- --workers=3`: 107 passed, four intentional
+  skips (two Chromium-only visual fixtures, two Chromium-only touch injections
+  skipped in Firefox/WebKit). Synthetic desktop and
+  phone screenshots were visually inspected and remain ignored local artifacts.
+- All 22 new browser journeys passed across Chromium, Firefox and WebKit; two
+  touch-injection cases are intentionally skipped outside Chromium. The new
+  cancellation fixture includes Firefox's zero-valued mouse pointer ID.
+- A concurrent build caused one earlier Firefox test timeout; without the build,
+  that journey passed with unchanged assertions/timeouts. Another run exposed
+  an existing WebKit failed-save setup racing its error-banner layout shift. The
+  fixture now waits for Storage problem before targeting Delete; subsequent
+  recovery assertions remain intact. The complete suite passed afterward.
+- Chromium touch injection passed; real touch, pen, IME and assistive-technology
+  checks remain pending. New notes are created below 03:00; movement may use the
+  printed grid, including legacy upper-grid notes. No dependency/schema change,
+  duration blocks, book-wide undo, cloud work or deployment is included.

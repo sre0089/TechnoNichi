@@ -278,6 +278,8 @@ test('failed draft saving prevents deletion and retains the latest writing for r
     };
   });
   await row(page).fill('Latest unsaved writing');
+  // Establish the failed-save state before targeting controls below its banner.
+  await expect(page.getByRole('status')).toHaveText('Storage problem');
   await page.getByRole('button', { name: 'Delete entry', exact: true }).click();
   const confirmation = page.getByRole('dialog', { name: 'Delete entry?' });
   await confirmation
