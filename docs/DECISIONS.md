@@ -444,3 +444,15 @@ unclaimed, checking both before and inside the animation-frame callback. Apply
 the same helper to tab review, deletion and enlarged writing. Durable IndexedDB
 assertions and all original writing assertions remain intact; ten repeated
 Firefox journeys passed after the fix.
+
+Implementation checkpoint `20a5050` passed Ubuntu CI (90 units, production build,
+146 browser passes/four intentional skips). The documentation-head run then
+exhausted the existing 30-second total test budget in WebKit's full formatted
+timed-task deletion/rewrite/restoration lifecycle, while reopening its second
+recovery dialog; 145 other browser journeys passed. CI retains no trace artifact
+for this run, so this does not establish a stalled storage operation. Scope a
+60-second total budget to that existing journey, which has four reloads, two
+deletions and three recovery dialogs. Preserve every assertion, ordinary expect
+timeout, retry policy and the rest of the suite's limits. Nine repeated lifecycle
+journeys passed in the three engines, and `npm run check` passed again with 90
+units and production build. Recheck final-head CI before requesting merge.

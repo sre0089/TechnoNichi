@@ -37,6 +37,20 @@ Next bounded action: verify final PR CI and request separate merge approval unde
 AGENTS.md. A manual two-tab review on the user's browser is still useful; no next
 M2 feature has begun.
 
+Implementation `20a5050` passed [Ubuntu CI](https://github.com/sre0089/TechnoNichi/actions/runs/39532807634)
+with 90 unit tests, production build and 146 browser passes/four intentional skips.
+The documentation-head [run](https://github.com/sre0089/TechnoNichi/actions/runs/39533042690)
+then passed 145 browser journeys but exhausted the existing 30-second total budget
+in WebKit's formatted timed-task delete/rewrite/restore lifecycle while reopening
+its second recovery dialog. The fix scopes a 60-second total budget to that
+four-reload lifecycle; all assertions, ordinary expect timeouts and retry settings
+are unchanged. `npm run check` passed again (90 units and production build).
+`npm run test:browser -- tests/browser/deletion.spec.ts --grep "a formatted completed timed task" --repeat-each=3 --workers=3`
+passed all nine repeated lifecycle journeys across Chromium, Firefox and WebKit.
+The application source remains identical to checked implementation `20a5050`;
+the correction changes only that test's total budget and its documentation.
+The PR's Checks tab reports CI for the correction's final head.
+
 ## Current stage
 
 M1, including the reviewed UI, timed-writing refinements, hourly keyboard
