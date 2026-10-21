@@ -1,10 +1,31 @@
 # Project state
 
-## Tab recovery validation — 2026-10-20
+## Approved tab recovery merge — 2026-10-21
+
+The user separately approved merging PR #17 on 2026-10-21.
+[PR #17](https://github.com/sre0089/TechnoNichi/pull/17) merged into `main` as
+`7a12c7e` at 04:40:04 UTC (00:40:04 America/New_York); issue #16 closed automatically.
+Local `main` was fast-forwarded to the same commit. A full tree comparison with
+the reviewed head `b9df802` is identical, including source, tests, dependencies,
+workflow and README; no application changes were made during merge.
+
+Final head `b9df802` passed [GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/39534041958):
+format, lint, strict types, 90 unit tests, production build and 146 browser tests
+with four intentional skips. Those checks were not rerun locally for this
+identical-tree merge. Only this project-state closeout changes afterward;
+formatting and whitespace checks are recorded for it on `docs/tab-merge-state`,
+published under the user's continuing periodic commit/push instruction.
+
+The two-tab review is now integrated. Next bounded action: manually check it in
+the user's browser, then choose the next remaining M2 slice. Physical tablet,
+real IME and assistive-technology checks remain unverified. No next feature,
+deployment, new service or dependency change has begun.
+
+## Tab recovery validation — 2026-10-20 publication history
 
 Current bounded slice: issue #16, PR #17, `feat/tab-change-recovery`.
-Implementation checkpoints `eb7e5de` and `20a5050` are pushed; main remains
-`ed6ef3f`. No merge, deployment, service or dependency change was performed.
+Implementation checkpoints `eb7e5de` and `20a5050` were pushed while main was
+`ed6ef3f`. No merge, deployment, service or dependency change had occurred yet.
 
 - Other-tab notices preserve live page writing. Explicit review compares local
   and saved versions, checks revisions transactionally, and offers Keep my writing,
@@ -33,9 +54,9 @@ Implementation checkpoints `eb7e5de` and `20a5050` are pushed; main remains
   buffers remain best effort and same-device only; JSON exports remain necessary
   for independent backups.
 
-Next bounded action: verify final PR CI and request separate merge approval under
-AGENTS.md. A manual two-tab review on the user's browser is still useful; no next
-M2 feature has begun.
+The publication gate was final PR CI and separate merge approval under AGENTS.md;
+both are now satisfied as recorded above. A manual two-tab review on the user's
+browser is still useful; no next M2 feature has begun.
 
 Implementation `20a5050` passed [Ubuntu CI](https://github.com/sre0089/TechnoNichi/actions/runs/39532807634)
 with 90 unit tests, production build and 146 browser passes/four intentional skips.
@@ -131,7 +152,7 @@ under the existing commit/push authorization. Cloud services and other M2 featur
 remain deferred.
 
 On 2026-10-20 the user authorized two-tab change notices and conflict recovery,
-continuing periodic commits/pushes. Work is on `feat/tab-change-recovery`, based
+continuing periodic commits/pushes. Work was on `feat/tab-change-recovery`, based
 on merged main `ed6ef3f` plus the note merge closeout `eb897d1`, tracked by
 [issue #16](https://github.com/sre0089/TechnoNichi/issues/16). The first checkpoint
 `eb7e5de` adds transactional decisions/recovery copies, isolated recovery buffers
@@ -143,8 +164,11 @@ UI checkpoint `20a5050` is pushed in
 [PR #17](https://github.com/sre0089/TechnoNichi/pull/17). Full `npm run check`
 passes formatting, lint, strict types, 90 unit tests and production build.
 The complete browser suite passes: 146 passed and four intentional skips.
-Final-head GitHub CI is reported by the PR's Checks tab. Merge remains a separate
-approval; main is still `ed6ef3f`.
+Final reviewed head `b9df802` passed GitHub CI with the same counts. The user
+separately approved merging on 2026-10-21; PR #17 merged as `7a12c7e` at
+04:40:04 UTC, and issue #16 closed automatically. Local main matches the merge
+and the reviewed head's complete file tree. This closeout is maintained on
+`docs/tab-merge-state`.
 
 ## Completed work
 
@@ -173,15 +197,15 @@ approval; main is still `ed6ef3f`.
   whole-book recovery and transactional refusal to overwrite occupied placement.
 - Added grid-snapped free-note movement/resizing, pointer and keyboard controls,
   cancellation, bounds and retained geometry/text across reload and backups.
-- Implemented local two-tab notices and explicit conflict review on the active
-  feature branch, with per-tab draft recovery and transactional archive copies.
+- Integrated local two-tab notices and explicit conflict review into main, with
+  per-tab draft recovery and transactional archive copies.
 
 ## Git status and publication
 
-- Integrated branch: `main` at `ed6ef3f`; documentation closeout:
-  `docs/note-merge-state`. Current work: `feat/tab-change-recovery`, issue #16;
-  [PR #17](https://github.com/sre0089/TechnoNichi/pull/17), implementation checkpoints
-  `eb7e5de` and `20a5050`. Periodic commits/pushes continue under the user's instruction.
+- Integrated branch: `main` at `7a12c7e`; documentation closeout:
+  `docs/tab-merge-state`. Merged [PR #17](https://github.com/sre0089/TechnoNichi/pull/17),
+  closed issue #16, checked head `b9df802`; implementation checkpoints `eb7e5de`
+  and `20a5050`. Periodic commits/pushes continue under the user's instruction.
   Merged PR #15, closed issue #14, final checked head `32be44e`.
   Source checkpoints `69bcf9a` and `05e9084` are retained.
   Deletion/recovery implementation: `9f21f69`, merged PR #13, closed issue #12.
@@ -686,8 +710,8 @@ cached offline reopening, search, accounts, sync, or deployment. Local JSON back
 are available on `main`; they do not merge/replace a populated planner.
 
 Stale writes are blocked rather than silently overwriting. Explicit conflict review
-and cross-tab notices are implemented and locally validated on
-`feat/tab-change-recovery`, pending final CI, review and separately approved merge.
+and cross-tab notices are integrated on main through approved PR #17, with final
+head `b9df802` validated locally and by GitHub CI.
 Richer archives remain deferred. Browser eviction
 can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
@@ -700,9 +724,9 @@ does not establish completion of the separate deletion/occupied-slot checks.
 Free-note movement/resizing is merged, and the user confirmed on 2026-10-20 that
 moving and resizing work in their manual check. The device/browser and input
 method were not specified; broader touch, pen and accessibility coverage remains
-unverified. The active slice is two-tab change notifications and stale-edit
-recovery, authorized on 2026-10-20. Its implementation and local validation are
-complete; verify final CI and request separate merge approval. Other M2 features
+unverified. Two-tab change notifications and stale-edit recovery, authorized on
+2026-10-20, are complete and merged after separate approval on 2026-10-21.
+Next: a manual two-tab check, then scope a remaining M2 slice. Other M2 features
 remain deferred.
 Physical device checks remain pending as described above.
 Recommend branch protections only
