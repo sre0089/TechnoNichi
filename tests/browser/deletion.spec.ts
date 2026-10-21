@@ -45,6 +45,10 @@ async function close(page: Page) {
 test('a formatted completed timed task can be deleted, rewritten safely and restored after reload', async ({
   page,
 }) => {
+  // This full lifecycle includes four reloads, two deletions and three recovery
+  // dialogs. Give the complete journey its own budget on the hosted browsers;
+  // ordinary assertions and the rest of the suite retain their normal limits.
+  test.setTimeout(60_000);
   await ready(page);
   const writing = row(page);
   await writing.click();

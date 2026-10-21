@@ -1,4 +1,4 @@
-import { assertEntry, type Entry } from '../domain/model';
+import { assertEntry, sameContent, type Entry } from '../domain/model';
 
 export type SaveState = {
   kind: 'saved' | 'saving' | 'error';
@@ -28,6 +28,7 @@ export class SaveQueue {
   private revisions = new Map<string, number>();
   private timer: ReturnType<typeof setTimeout> | undefined;
   private running: Promise<boolean> | undefined;
+  private paused = false;
 
   constructor(
     private write: (entry: Entry, expectedRevision: number) => Promise<Entry>,
@@ -46,10 +47,7 @@ export class SaveQueue {
   private checkpoint(): void {
     try {
       if (this.recovery.size)
-        this.storage?.setItem(
-          RECOVERY_KEY,
-          JSON.stringify([...this.recovery.values()]),
-        );
+        this.storage?.setItem(RECOVERY_KEY, JSON.stringify(this.unsaved()));
       else this.storage?.removeItem(RECOVERY_KEY);
     } catch {
       /* IndexedDB remains authoritative; an in-memory failed draft is retained. */
@@ -65,9 +63,10 @@ export class SaveQueue {
     this.checkpoint();
     this.notify({ kind: 'saving' });
     clearTimeout(this.timer);
-    this.timer = setTimeout(() => {
-      void this.flush();
-    }, 120);
+    if (!this.paused)
+      this.timer = setTimeout(() => {
+        void this.flush();
+      }, 120);
   }
 
   async flush(): Promise<boolean> {
@@ -79,6 +78,33 @@ export class SaveQueue {
     } finally {
       this.running = undefined;
     }
+  }
+
+  async pause(): Promise<void> {
+    this.paused = true;
+    clearTimeout(this.timer);
+    if (this.running) await this.running;
+  }
+
+  resume(): void {
+    this.paused = false;
+  }
+
+  accept(reviewed: Entry, saved: Entry | undefined): void {
+    const draft = this.unsaved().find((entry) => entry.id === reviewed.id);
+    if (
+      !draft ||
+      draft.revision !== reviewed.revision ||
+      !sameContent(draft, reviewed)
+    )
+      throw new Error(
+        'Your draft changed while reviewing. Refresh the review.',
+      );
+    this.pending.delete(reviewed.id);
+    this.recovery.delete(reviewed.id);
+    this.revisions.set(reviewed.id, saved?.revision ?? 0);
+    this.checkpoint();
+    this.notify({ kind: this.pending.size ? 'saving' : 'saved' });
   }
 
   private async drain(): Promise<boolean> {
@@ -115,7 +141,10 @@ export class SaveQueue {
   }
 
   unsaved(): Entry[] {
-    return [...this.recovery.values()];
+    return [...this.recovery.values()].map((entry) => ({
+      ...entry,
+      revision: this.revisions.get(entry.id) ?? entry.revision,
+    }));
   }
   dispose(): void {
     clearTimeout(this.timer);

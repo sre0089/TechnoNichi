@@ -1,5 +1,56 @@
 # Project state
 
+## Tab recovery validation — 2026-10-20
+
+Current bounded slice: issue #16, PR #17, `feat/tab-change-recovery`.
+Implementation checkpoints `eb7e5de` and `20a5050` are pushed; main remains
+`ed6ef3f`. No merge, deployment, service or dependency change was performed.
+
+- Other-tab notices preserve live page writing. Explicit review compares local
+  and saved versions, checks revisions transactionally, and offers Keep my writing,
+  Use saved writing or Keep both. Preserved versions use existing Deleted entries
+  and JSON backups. Closed-tab snapshots offer Save recovery copy.
+- Immutable emergency snapshots and independent tab reload buffers prevent
+  successful saves from clearing another draft. Malformed/legacy buffers remain
+  available; equivalent durable/archive copies are filtered from review.
+- `npm run check`: passed format, lint, strict types, all 90 unit tests across
+  nine files, and optimized production build on project-specific Node 24.21.0.
+- `npm run test:browser -- tests/browser/tab-changes.spec.ts --workers=3`:
+  all 39 new browser journeys passed across Chromium, Firefox and WebKit.
+- `npm run test:browser -- tests/browser/tab-changes.spec.ts --project=firefox
+--grep "notices committed|edit versus" --repeat-each=5 --workers=1`:
+  ten passed after conditional dialog focus restoration, with durable-writing
+  assertions and original timeouts retained.
+- `npm run test:browser -- --workers=3`: 146 passed, four intentional skips.
+  Existing phone-touch and visual-fixture cases remain Chromium-only. Production
+  build and browser runs were sequential to avoid local CPU contention.
+- Reviewed synthetic `artifacts/tab-conflict-desktop.png` and
+  `artifacts/tab-conflict-phone.png`; snapshots/traces remain ignored and local.
+  Staged path review and whitespace checks pass. Private source documents and
+  application data are excluded from publication.
+- Final-head CI is available through PR #17's Checks tab. Physical tablet, real
+  IME and assistive-technology behavior remains unverified for this slice. Recovery
+  buffers remain best effort and same-device only; JSON exports remain necessary
+  for independent backups.
+
+Next bounded action: verify final PR CI and request separate merge approval under
+AGENTS.md. A manual two-tab review on the user's browser is still useful; no next
+M2 feature has begun.
+
+Implementation `20a5050` passed [Ubuntu CI](https://github.com/sre0089/TechnoNichi/actions/runs/39532807634)
+with 90 unit tests, production build and 146 browser passes/four intentional skips.
+The documentation-head [run](https://github.com/sre0089/TechnoNichi/actions/runs/39533042690)
+then passed 145 browser journeys but exhausted the existing 30-second total budget
+in WebKit's formatted timed-task delete/rewrite/restore lifecycle while reopening
+its second recovery dialog. The fix scopes a 60-second total budget to that
+four-reload lifecycle; all assertions, ordinary expect timeouts and retry settings
+are unchanged. `npm run check` passed again (90 units and production build).
+`npm run test:browser -- tests/browser/deletion.spec.ts --grep "a formatted completed timed task" --repeat-each=3 --workers=3`
+passed all nine repeated lifecycle journeys across Chromium, Firefox and WebKit.
+The application source remains identical to checked implementation `20a5050`;
+the correction changes only that test's total budget and its documentation.
+The PR's Checks tab reports CI for the correction's final head.
+
 ## Current stage
 
 M1, including the reviewed UI, timed-writing refinements, hourly keyboard
@@ -61,17 +112,39 @@ the checked head. The merge record and the user's successful backup recovery
 check are retained in the current feature branch.
 
 On 2026-10-19 the user authorized free-note movement/resizing and periodic
-commits/pushes. Work is on `feat/note-movement-resizing`, based on `687ddb0`,
+commits/pushes. Implementation was on `feat/note-movement-resizing`, based on `687ddb0`,
 tracked by [issue #14](https://github.com/sre0089/TechnoNichi/issues/14).
 The first checkpoint `69bcf9a` adds pure grid-snapped movement/resizing and six
 passing geometry tests. UI checkpoint `05e9084` adds selected-note pointer handles,
 keyboard alternatives and cancellation. [PR #15](https://github.com/sre0089/TechnoNichi/pull/15)
-targets `main`. Local validation passed: 62 unit tests, production build and 107
+merged into `main` after the user's separate approval on 2026-10-19.
+Merge commit: `ed6ef3f`, at 07:06:13 UTC; issue #14 closed automatically.
+Local `main` was fast-forwarded to that merge. Local validation passed: 62 unit tests, production build and 107
 browser journeys with four intentional skips. Checkpoint `05e9084` also passed
 [GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/39202846186) with
-the same counts. The PR Checks tab reports CI on later verification-record and
-test-fixture commits. Merge requires separate approval. Cloud services and other
-M2 features remain deferred.
+the same counts. Final reviewed head `32be44e` passed
+[GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/39203423518):
+62 unit tests, production build and 107 browser journeys with four intentional skips.
+Merged application source, tests, dependencies, workflow and README match that
+checked head. This documentation closeout is maintained on `docs/note-merge-state`
+under the existing commit/push authorization. Cloud services and other M2 features
+remain deferred.
+
+On 2026-10-20 the user authorized two-tab change notices and conflict recovery,
+continuing periodic commits/pushes. Work is on `feat/tab-change-recovery`, based
+on merged main `ed6ef3f` plus the note merge closeout `eb897d1`, tracked by
+[issue #16](https://github.com/sre0089/TechnoNichi/issues/16). The first checkpoint
+`eb7e5de` adds transactional decisions/recovery copies, isolated recovery buffers
+and metadata-only notifications. UI integration now includes explicit review,
+three conflict choices, retained-draft copies and saved-change loading. All 90
+unit tests and all 39 new three-engine browser journeys pass. Ten repeated
+Firefox journeys also pass after correcting delayed dialog focus restoration.
+UI checkpoint `20a5050` is pushed in
+[PR #17](https://github.com/sre0089/TechnoNichi/pull/17). Full `npm run check`
+passes formatting, lint, strict types, 90 unit tests and production build.
+The complete browser suite passes: 146 passed and four intentional skips.
+Final-head GitHub CI is reported by the PR's Checks tab. Merge remains a separate
+approval; main is still `ed6ef3f`.
 
 ## Completed work
 
@@ -98,12 +171,19 @@ M2 features remain deferred.
   deletion markers and preferences are retained. Restored books reopen correctly.
 - Added recoverable deletion for timed tasks, checklist tasks and notes, with
   whole-book recovery and transactional refusal to overwrite occupied placement.
+- Added grid-snapped free-note movement/resizing, pointer and keyboard controls,
+  cancellation, bounds and retained geometry/text across reload and backups.
+- Implemented local two-tab notices and explicit conflict review on the active
+  feature branch, with per-tab draft recovery and transactional archive copies.
 
 ## Git status and publication
 
-- Integrated branch: `main` at `687ddb0`; current work:
-  `feat/note-movement-resizing`, issue #14. Periodic commits/pushes authorized.
-  Open PR #15; source checkpoints `69bcf9a` and `05e9084` are pushed.
+- Integrated branch: `main` at `ed6ef3f`; documentation closeout:
+  `docs/note-merge-state`. Current work: `feat/tab-change-recovery`, issue #16;
+  [PR #17](https://github.com/sre0089/TechnoNichi/pull/17), implementation checkpoints
+  `eb7e5de` and `20a5050`. Periodic commits/pushes continue under the user's instruction.
+  Merged PR #15, closed issue #14, final checked head `32be44e`.
+  Source checkpoints `69bcf9a` and `05e9084` are retained.
   Deletion/recovery implementation: `9f21f69`, merged PR #13, closed issue #12.
   Final head `1cf94d9` passed GitHub CI as recorded above.
   Backup merge record reached main through PR #11.
@@ -605,8 +685,10 @@ There are no duration blocks, full rich text or book-wide undo,
 cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
 are available on `main`; they do not merge/replace a populated planner.
 
-Stale writes are blocked rather than silently overwriting; rich conflict resolution,
-cross-tab change notifications, and richer recovery/archives remain deferred. Browser eviction
+Stale writes are blocked rather than silently overwriting. Explicit conflict review
+and cross-tab notices are implemented and locally validated on
+`feat/tab-change-recovery`, pending final CI, review and separately approved merge.
+Richer archives remain deferred. Browser eviction
 can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
@@ -615,10 +697,13 @@ The user confirmed on 2026-10-19 that backup recovery works in their manual chec
 The device/browser and individual scenarios were not specified; this confirmation
 does not establish completion of the separate deletion/occupied-slot checks.
 
-Current slice is ready for review: free-note movement and resizing, with grid
-snapping, keyboard alternatives and stable saved geometry. Verify final-head CI
-on PR #15 and obtain separate merge approval. Real-device note gestures remain
-unverified. Do not begin another M2 slice without defining its scope.
+Free-note movement/resizing is merged, and the user confirmed on 2026-10-20 that
+moving and resizing work in their manual check. The device/browser and input
+method were not specified; broader touch, pen and accessibility coverage remains
+unverified. The active slice is two-tab change notifications and stale-edit
+recovery, authorized on 2026-10-20. Its implementation and local validation are
+complete; verify final CI and request separate merge approval. Other M2 features
+remain deferred.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.
@@ -683,3 +768,5 @@ after the first real GitHub CI run and verification of available repository feat
   checks remain pending. New notes are created below 03:00; movement may use the
   printed grid, including legacy upper-grid notes. No dependency/schema change,
   duration blocks, book-wide undo, cloud work or deployment is included.
+- On 2026-10-20 the user confirmed moving and resizing work in their manual
+  check. Device/browser, input method and individual scenarios were not specified.

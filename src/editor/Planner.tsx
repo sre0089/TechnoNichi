@@ -61,6 +61,8 @@ import { Hint, TooltipProvider } from '../components/ui/tooltip';
 import { SaveStatus } from '../components/ui/save-status';
 import { PageSizeSelect, ViewSettings } from './ViewSettings';
 import { BackupsDialog } from './BackupsDialog';
+import { TabChangesDialog } from './TabChangesDialog';
+import { restoreUnclaimedFocus } from './restore-focus';
 import {
   NoteFrame,
   NotePlacementControls,
@@ -165,9 +167,7 @@ function FocusedEditor({
         }}
         onCloseAutoFocus={(event) => {
           event.preventDefault();
-          requestAnimationFrame(() =>
-            document.getElementById(entry.id)?.focus(),
-          );
+          restoreUnclaimedFocus(() => document.getElementById(entry.id));
         }}
       >
         <label
@@ -676,12 +676,24 @@ function PlannerEditor() {
     listDeletedEntries,
     deleteEntry,
     restoreEntry,
+    otherTabChanged,
+    beginTabReview,
+    endTabReview,
+    reviewSnapshot,
+    resolveTabConflict,
+    retainTabDraft,
+    loadTabChanges,
   } = usePlanner();
   const moving = pageMoving || adjustingNote;
   const entries = records.filter((entry) => !entry.deletedAt);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showRecovery, setShowRecovery] = useState(false);
   const [focusedEditor, setFocusedEditor] = useState(false);
+  const [tabReviewOpen, setTabReviewOpen] = useState(false);
+  const showTabReview = () => {
+    setSelectedId(null);
+    setTabReviewOpen(true);
+  };
   const bookRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (selectedId) document.getElementById(selectedId)?.focus();
@@ -768,6 +780,14 @@ function PlannerEditor() {
             </Hint>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2">
+            <Button
+              id="tab-changes"
+              variant="ghost"
+              disabled={moving || focusedEditor}
+              onClick={showTabReview}
+            >
+              Tab changes
+            </Button>
             <DeletedEntriesDialog
               disabled={moving || focusedEditor}
               listEntries={listDeletedEntries}
@@ -833,10 +853,28 @@ function PlannerEditor() {
             </Dialog>
           </div>
         </div>
+        {otherTabChanged && (
+          <aside
+            aria-label="Other tab changes"
+            aria-live="polite"
+            className="mx-auto mb-4 flex max-w-[1040px] flex-wrap items-center gap-3 rounded-control border border-solid border-line bg-surface p-3 text-xs"
+          >
+            <p className="m-0 flex-1">
+              Writing from another tab is available. Your page has not been
+              replaced.
+            </p>
+            <Button disabled={moving || focusedEditor} onClick={showTabReview}>
+              Review changes
+            </Button>
+          </aside>
+        )}
         {saveState.kind === 'error' && (
           <aside className="storage-alert" role="alert">
             <p>{saveState.message}</p>
             <Button onClick={() => void retry()}>Retry saving</Button>
+            <Button disabled={moving || focusedEditor} onClick={showTabReview}>
+              Review conflicts
+            </Button>
             <Button
               variant="ghost"
               onClick={() => setShowRecovery(!showRecovery)}
@@ -988,7 +1026,7 @@ function PlannerEditor() {
                   await deleteEntry(selected.id);
                   setSelectedId(null);
                   setFocusedEditor(false);
-                  requestAnimationFrame(() => bookRef.current?.focus());
+                  restoreUnclaimedFocus(() => bookRef.current);
                 }}
               />
               <Button
@@ -1019,6 +1057,17 @@ function PlannerEditor() {
             entry={selected}
             edit={edit}
             close={() => setFocusedEditor(false)}
+          />
+        )}
+        {tabReviewOpen && (
+          <TabChangesDialog
+            beginReview={beginTabReview}
+            endReview={endTabReview}
+            refreshReview={reviewSnapshot}
+            resolveConflict={resolveTabConflict}
+            retainDraft={retainTabDraft}
+            loadChanges={loadTabChanges}
+            close={() => setTabReviewOpen(false)}
           />
         )}
         <footer className="workspace-footer">

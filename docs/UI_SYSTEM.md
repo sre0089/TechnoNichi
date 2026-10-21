@@ -175,3 +175,23 @@ Screen-reader descriptions explain handle shortcuts. Other entry actions, view
 changes and navigation are unavailable during a gesture. New notes still begin
 in the lower memo grid; moving a note never assigns a time. Geometry/style changes
 are limited to selected notes, leaving the paper template and writing font intact.
+
+## Tab change review
+
+The toolbar exposes **Tab changes**. A quiet notice offers **Review changes**
+after another tab commits; the storage-error banner also offers **Review conflicts**.
+The page and focused writing stay steady until the user explicitly loads or
+resolves changes. No writing travels through notification channels.
+
+The shared Radix dialog compares formatted local/saved writing, date, placement,
+completion and note dimensions. Versions stack on narrow screens; twenty-entry
+pagination bounds review rendering. The three choices explain their effects:
+**Keep my writing** retains the replaced saved version in Deleted entries;
+**Use saved writing** replaces this tab's reviewed draft; **Keep both** retains
+the draft in Deleted entries and leaves saved writing on the page. Closed-tab
+drafts offer **Save recovery copy**. Refresh re-reads newer versions after a race.
+
+Busy states block duplicate choices/dismissal. Closing an unresolved review retains
+the draft and restores toolbar focus only if the user has not chosen another
+field. **Load saved changes** requires conflicts to be resolved and other pending
+writing to save first. This slice adds no dependency or paper-template changes.

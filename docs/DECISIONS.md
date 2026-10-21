@@ -396,3 +396,63 @@ the failed-save banner shifted the page. Establish the expected Storage problem
 state before clicking, retaining every subsequent recovery assertion. Limit the
 full local browser run to three workers; each multi-tab test still exercises its
 own concurrent tabs.
+
+## 2026-10-20 — Two-tab notices and explicit conflict recovery
+
+The user authorized this bounded slice and continues periodic commits/pushes.
+Track issue #16 on `feat/tab-change-recovery`; merge requires separate approval.
+Publish book metadata after successful commits through BroadcastChannel and a
+storage signal, with focus/visibility checks for missed signals. Notifications
+never contain writing and never automatically replace the page or focused editor.
+
+Review a local draft beside the latest saved version. Decisions check the reviewed
+saved revision in the same transaction as any mutation. Keep my writing preserves
+the replaced saved version as a Deleted entries copy; Keep both keeps the saved
+version on the page and archives the draft there. Explain this placement in the UI.
+Use saved writing explicitly discards this tab's reviewed draft. Refuse resurrection
+or movement into occupied placement, keeping the draft available. Recovery copies
+retain entry fields and flow through existing JSON archives; no schema migration.
+
+Replace the shared auxiliary draft buffer with immutable emergency localStorage
+snapshots and an independent per-tab session copy. Each checkpoint writes a fresh
+key before removing its own previous key. Releasing a reviewed snapshot cannot
+erase a newer draft from its writer. Never clear another editor's current key
+on successful saving. Retained/legacy copies remain reviewable; release a snapshot
+only after verifying equivalent durable content or saving its copy. Leave the
+mutable legacy key untouched because an older app may still write it. Filter
+already-durable or archived equivalents from review, and retain malformed buffers.
+This is best-effort recovery storage, not cloud sync or a replacement for backups.
+
+Browser behavior checked against primary documentation:
+[BroadcastChannel](https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API),
+[sessionStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage),
+and [storage events](https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event).
+Session copies survive reloads, are independent across tabs even when initially
+cloned, and end when the tab closes; the separate emergency keys retain drafts
+for later explicit review. No new dependencies or external services are needed.
+
+Review pauses the save queue and locks page mutations until dismissal. Pending
+drafts retain their actual expected durable revision in recovery checkpoints,
+including after earlier saves whose UI record still has its original revision.
+Decisions accept only the reviewed local draft and latest saved revision. Loading
+changes overlays any remaining drafts and preserves the current spread. Every
+successful choice/copy flows through existing Deleted entries and JSON backups.
+
+Repeated Firefox journeys exposed delayed dialog focus restoration stealing the
+first keystroke from a newly focused field. Restore focus only while it remains
+unclaimed, checking both before and inside the animation-frame callback. Apply
+the same helper to tab review, deletion and enlarged writing. Durable IndexedDB
+assertions and all original writing assertions remain intact; ten repeated
+Firefox journeys passed after the fix.
+
+Implementation checkpoint `20a5050` passed Ubuntu CI (90 units, production build,
+146 browser passes/four intentional skips). The documentation-head run then
+exhausted the existing 30-second total test budget in WebKit's full formatted
+timed-task deletion/rewrite/restoration lifecycle, while reopening its second
+recovery dialog; 145 other browser journeys passed. CI retains no trace artifact
+for this run, so this does not establish a stalled storage operation. Scope a
+60-second total budget to that existing journey, which has four reloads, two
+deletions and three recovery dialogs. Preserve every assertion, ordinary expect
+timeout, retry policy and the rest of the suite's limits. Nine repeated lifecycle
+journeys passed in the three engines, and `npm run check` passed again with 90
+units and production build. Recheck final-head CI before requesting merge.
