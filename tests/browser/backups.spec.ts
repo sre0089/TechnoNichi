@@ -370,6 +370,8 @@ test('failed draft saving prevents a misleading backup download and retains reco
   );
   expect(downloads).toBe(0);
   expect(
-    await page.evaluate(() => localStorage.getItem('daily-book:unsaved-v1')),
+    await page.evaluate(() =>
+      sessionStorage.getItem('daily-book:tab-draft-v1'),
+    ),
   ).toContain('Keep this newest draft');
 });

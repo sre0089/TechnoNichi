@@ -22,11 +22,14 @@ function get(store: RecoveryStorage | undefined, key: string) {
   }
 }
 
-// Every editor instance owns one emergency key. Reloads/duplicated tabs get an
+// Every checkpoint gets an immutable emergency key. Reloads/duplicated tabs get an
 // independent session copy; successful writes can only clear their own key.
 export class TabRecovery implements RecoveryStorage {
   readonly id = crypto.randomUUID();
-  readonly key = `${TAB_RECOVERY_PREFIX}${this.id}`;
+  private currentKey = `${TAB_RECOVERY_PREFIX}${this.id}:${crypto.randomUUID()}`;
+  get key() {
+    return this.currentKey;
+  }
   private memory: string | null;
 
   constructor(
@@ -47,7 +50,13 @@ export class TabRecovery implements RecoveryStorage {
   setItem(_key: string, value: string) {
     this.memory = value;
     try {
-      this.local?.setItem(this.key, value);
+      if (this.local) {
+        const previous = this.currentKey;
+        const next = `${TAB_RECOVERY_PREFIX}${this.id}:${crypto.randomUUID()}`;
+        this.local.setItem(next, value);
+        this.currentKey = next;
+        this.local.removeItem(previous);
+      }
     } catch {
       /* Keep memory/session. */
     }
@@ -105,10 +114,12 @@ export class TabRecovery implements RecoveryStorage {
     return result;
   }
 
-  // Only after a durable copy/same content has been verified. A newer edit in
-  // that tab changes raw, so this review can never erase its updated buffer.
+  // Only after durable preservation. Writers create new keys, never update this
+  // snapshot, so releasing it cannot race with a newer checkpoint in another tab.
   release(retained: RetainedDraft) {
     try {
+      // An older app version may still write its shared legacy key.
+      if (retained.key === RECOVERY_KEY) return;
       if (this.local?.getItem(retained.key) !== retained.raw) return;
       const entries = readRecovery({
         getItem: () => retained.raw,
@@ -120,8 +131,11 @@ export class TabRecovery implements RecoveryStorage {
           entry.id !== retained.entry.id || !sameContent(entry, retained.entry),
       );
       if (remaining.length)
-        this.local.setItem(retained.key, JSON.stringify(remaining));
-      else this.local.removeItem(retained.key);
+        this.local.setItem(
+          `${TAB_RECOVERY_PREFIX}retained:${crypto.randomUUID()}`,
+          JSON.stringify(remaining),
+        );
+      this.local.removeItem(retained.key);
     } catch {
       /* The durable copy already exists; keep this extra copy. */
     }

@@ -187,8 +187,8 @@ rendering and outline filters expose active records only. New hourly and checkli
 entries suffix an occupied ID instead of reusing a deleted record. The whole-book
 recovery query scopes by the book's page manifest. Its dialog renders twenty
 records at a time. JSON archives already include tombstones; no migration or new
-service is required. Other-tab notifications and alternate-placement recovery
-remain separate work.
+service is required. Other-tab notifications are described below;
+alternate-placement recovery remains separate work.
 
 ## Free-note geometry interactions
 
@@ -207,3 +207,26 @@ temporarily makes writing read-only. Handle focus survives editing re-enablement
 Arrow keys and contextual buttons reuse the same pure geometry functions. Failed
 geometry saves use the existing revision-checked queue and recoverable draft path.
 Full text remains available through overflow/focused editing after a resize.
+
+## Local tab changes and recovery
+
+`TabChanges` sends book metadata only after successful entry/deletion/restore
+transactions through BroadcastChannel and a storage signal. Focus/visibility
+checks compare visible durable revisions when signals are unavailable. Notices
+never refresh a live editor. Explicit review reads current IndexedDB records;
+loading saved changes preserves the spread and overlays remaining local drafts.
+
+`TabRecovery` checkpoints immutable localStorage snapshots with independent
+sessionStorage reload buffers. Session ownership guards late cleanup from a
+previous editor instance. A successful save clears only that editor's snapshot;
+closed-tab snapshots remain reviewable. Legacy and invalid buffers are retained.
+`readTabReview` groups retained writing and filters equivalent durable/archive
+copies. Recovery storage remains best effort and is separate from JSON backups.
+
+Review owns the planner operation lock, pauses queued timers and waits for active
+writes. Repository decisions check the reviewed saved revision transactionally.
+Keep my writing archives the replaced version before updating the original;
+Keep both archives the draft and leaves saved writing on the page. Use saved
+writing explicitly drops the reviewed local draft after checking its saved version.
+Occupied placement, concurrent changes and failed transactions retain drafts.
+Copies use existing schema-v1 tombstones, new IDs and the ordinary archive format.

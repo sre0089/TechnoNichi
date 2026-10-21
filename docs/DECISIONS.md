@@ -413,10 +413,14 @@ Use saved writing explicitly discards this tab's reviewed draft. Refuse resurrec
 or movement into occupied placement, keeping the draft available. Recovery copies
 retain entry fields and flow through existing JSON archives; no schema migration.
 
-Replace the shared auxiliary draft buffer with per-editor emergency localStorage
-keys and an independent per-tab session copy. Never clear another editor's key
-on successful saving. Retained/legacy copies remain reviewable; only release an
-unchanged snapshot after verifying equivalent durable content or saving its copy.
+Replace the shared auxiliary draft buffer with immutable emergency localStorage
+snapshots and an independent per-tab session copy. Each checkpoint writes a fresh
+key before removing its own previous key. Releasing a reviewed snapshot cannot
+erase a newer draft from its writer. Never clear another editor's current key
+on successful saving. Retained/legacy copies remain reviewable; release a snapshot
+only after verifying equivalent durable content or saving its copy. Leave the
+mutable legacy key untouched because an older app may still write it. Filter
+already-durable or archived equivalents from review, and retain malformed buffers.
 This is best-effort recovery storage, not cloud sync or a replacement for backups.
 
 Browser behavior checked against primary documentation:
@@ -426,3 +430,17 @@ and [storage events](https://developer.mozilla.org/en-US/docs/Web/API/Window/sto
 Session copies survive reloads, are independent across tabs even when initially
 cloned, and end when the tab closes; the separate emergency keys retain drafts
 for later explicit review. No new dependencies or external services are needed.
+
+Review pauses the save queue and locks page mutations until dismissal. Pending
+drafts retain their actual expected durable revision in recovery checkpoints,
+including after earlier saves whose UI record still has its original revision.
+Decisions accept only the reviewed local draft and latest saved revision. Loading
+changes overlays any remaining drafts and preserves the current spread. Every
+successful choice/copy flows through existing Deleted entries and JSON backups.
+
+Repeated Firefox journeys exposed delayed dialog focus restoration stealing the
+first keystroke from a newly focused field. Restore focus only while it remains
+unclaimed, checking both before and inside the animation-frame callback. Apply
+the same helper to tab review, deletion and enlarged writing. Durable IndexedDB
+assertions and all original writing assertions remain intact; ten repeated
+Firefox journeys passed after the fix.

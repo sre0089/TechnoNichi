@@ -15,9 +15,17 @@ import {
   RestoreRefused,
   RevisionConflict,
   EntryRestoreRefused,
+  type ConflictChoice,
 } from '../local/repository';
 import { readRecovery, SaveQueue, type SaveState } from '../local/save-queue';
 import { serializeBackup, type PlannerBackup } from '../local/backup';
+import { TabRecovery } from '../local/tab-recovery';
+import { TabChanges } from '../local/tab-changes';
+import {
+  readTabReview,
+  type DraftConflict,
+  type RetainedDraftGroup,
+} from '../local/tab-review';
 
 interface View {
   book: Book;
@@ -32,10 +40,19 @@ export function usePlanner() {
   const [openingError, setOpeningError] = useState(false);
   const [moving, setMoving] = useState(false);
   const [adjustingNote, setAdjustingNote] = useState(false);
+  const [otherTabChanged, setOtherTabChanged] = useState(false);
   const db = useRef<PlannerDB | null>(null);
   const writer = useRef<SaveQueue | null>(null);
   const moveLock = useRef(false);
   const noteGestureLock = useRef(false);
+  const reviewLock = useRef(false);
+  const currentView = useRef<View | null>(null);
+  const recoveryStore = useRef<TabRecovery | null>(null);
+  const changes = useRef<TabChanges | null>(null);
+  const changeVersion = useRef(0);
+  useEffect(() => {
+    currentView.current = view;
+  }, [view]);
 
   const beginNoteGesture = useCallback(() => {
     if (moveLock.current || noteGestureLock.current) return false;
@@ -53,18 +70,72 @@ export function usePlanner() {
     const database = new PlannerDB();
     db.current = database;
     let queue: SaveQueue | undefined;
+    const bus = new TabChanges((bookId) => {
+      if (active && bookId === currentView.current?.book.id) {
+        changeVersion.current += 1;
+        setOtherTabChanged(true);
+      }
+    });
+    changes.current = bus;
+    const checkChanges = async () => {
+      const current = currentView.current;
+      if (!active || !current || !queue) return;
+      try {
+        const stored = await database.readPages(
+          current.pages
+            .slice(
+              current.preferences.pageIndex,
+              current.preferences.pageIndex + 2,
+            )
+            .map((page) => page.id),
+          true,
+        );
+        if (
+          !(await database.books.get(current.book.id)) ||
+          stored.some((entry) => entry.revision !== queue!.revision(entry.id))
+        ) {
+          if (active) {
+            changeVersion.current += 1;
+            setOtherTabChanged(true);
+          }
+        }
+      } catch {
+        /* Review still reads fresh data when explicitly opened. */
+      }
+    };
+    const onFocus = () => {
+      void checkChanges();
+    };
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void checkChanges();
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisible);
     void (async () => {
       try {
         const { book, preferences: savedPreferences } =
           await database.initialize();
         const pages = manifest(book);
         let recovery: Entry[] = [];
-        let storage: Storage | undefined;
+        let local: Storage | undefined;
+        let session: Storage | undefined;
         try {
-          storage = window.localStorage;
+          local = window.localStorage;
+        } catch {
+          /* Optional recovery storage. */
+        }
+        try {
+          session = window.sessionStorage;
+        } catch {
+          /* Optional recovery storage. */
+        }
+        const storage = new TabRecovery(local, session);
+        let recoveryReadable = true;
+        try {
           recovery = readRecovery(storage);
         } catch {
-          /* The durable store can still open when localStorage is denied. */
+          recoveryReadable = false;
+          /* Preserve invalid buffers for manual recovery. */
         }
         const recoveryIndex = recovery.length
           ? pages.findIndex((p) => p.id === recovery[0].pageId)
@@ -87,7 +158,11 @@ export function usePlanner() {
           return;
         }
         queue = new SaveQueue(
-          (e, revision) => database.save(e, revision),
+          async (e, revision) => {
+            const saved = await database.save(e, revision);
+            bus.publish(currentView.current?.book.id ?? book.id);
+            return saved;
+          },
           (state) => {
             if (active) setSaveState(state);
           },
@@ -95,6 +170,7 @@ export function usePlanner() {
         );
         queue.seed(loaded);
         writer.current = queue;
+        recoveryStore.current = storage;
         const visible = new Map(loaded.map((entry) => [entry.id, entry]));
         for (const draft of recovery) {
           const current = await database.entries.get(draft.id);
@@ -113,7 +189,23 @@ export function usePlanner() {
         if (!active) return;
         setEntries([...visible.values()]);
         setView({ book, pages, preferences });
-        if (!queue.unsaved().length) setSaveState({ kind: 'saved' });
+        currentView.current = { book, pages, preferences };
+        if (!queue.unsaved().length) {
+          if (recoveryReadable) storage.removeItem();
+          setSaveState({ kind: 'saved' });
+        }
+        try {
+          const review = await readTabReview(
+            database,
+            queue,
+            storage,
+            pages.map((page) => page.id),
+          );
+          if (active && review.retained.length) setOtherTabChanged(true);
+        } catch {
+          /* Explicit review can retry; opening the saved book remains useful. */
+        }
+        void checkChanges();
       } catch {
         if (active) {
           setOpeningError(true);
@@ -127,6 +219,9 @@ export function usePlanner() {
     })();
     return () => {
       active = false;
+      bus.close();
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisible);
       queue?.dispose();
       if (queue) void queue.flush().finally(() => database.close());
       else database.close();
@@ -253,6 +348,9 @@ export function usePlanner() {
         );
       }
       const { book, pages, preferences } = restored;
+      if (view?.book.id !== book.id && view)
+        changes.current?.publish(view.book.id);
+      changes.current?.publish(book.id);
       const visibleIds = new Set(
         pages
           .slice(preferences.pageIndex, preferences.pageIndex + 2)
@@ -289,6 +387,7 @@ export function usePlanner() {
         );
       }
       queue.seed([deleted]);
+      if (view) changes.current?.publish(view.book.id);
       setEntries((current) =>
         current.map((entry) => (entry.id === id ? deleted : entry)),
       );
@@ -311,6 +410,7 @@ export function usePlanner() {
         );
       }
       queue.seed([restored]);
+      if (view) changes.current?.publish(view.book.id);
       if (
         view?.pages
           .slice(view.preferences.pageIndex, view.preferences.pageIndex + 2)
@@ -322,6 +422,146 @@ export function usePlanner() {
         ]);
     });
 
+  const reviewSnapshot = useCallback(async () => {
+    const current = currentView.current;
+    if (!reviewLock.current || !current || !db.current || !writer.current)
+      throw new Error('Open the tab review before continuing.');
+    return readTabReview(
+      db.current,
+      writer.current,
+      recoveryStore.current,
+      current.pages.map((page) => page.id),
+    );
+  }, []);
+
+  const beginTabReview = useCallback(async () => {
+    if (
+      !db.current ||
+      !writer.current ||
+      moveLock.current ||
+      noteGestureLock.current
+    )
+      throw new Error('Please finish the current operation first.');
+    moveLock.current = true;
+    reviewLock.current = true;
+    setMoving(true);
+    await writer.current.pause();
+    return reviewSnapshot();
+  }, [reviewSnapshot]);
+
+  const endTabReview = useCallback(() => {
+    if (!reviewLock.current) return;
+    reviewLock.current = false;
+    moveLock.current = false;
+    setMoving(false);
+    writer.current?.resume();
+    if (writer.current?.unsaved().length) void writer.current.flush();
+  }, []);
+
+  const refreshVisible = useCallback(async () => {
+    const observedVersion = changeVersion.current;
+    const current = currentView.current;
+    const database = db.current;
+    const queue = writer.current;
+    if (!current || !database || !queue)
+      throw new Error('Please wait for the book.');
+    if (!(await database.books.get(current.book.id)))
+      throw new Error(
+        'The book was replaced in another tab. Save or recover your drafts before reopening.',
+      );
+    const loaded = await database.readPages(
+      current.pages
+        .slice(current.preferences.pageIndex, current.preferences.pageIndex + 2)
+        .map((page) => page.id),
+      true,
+    );
+    const pending = queue.unsaved();
+    const pendingIds = new Set(pending.map((entry) => entry.id));
+    queue.seed(loaded.filter((entry) => !pendingIds.has(entry.id)));
+    const combined = new Map(loaded.map((entry) => [entry.id, entry]));
+    for (const entry of pending)
+      if (
+        current.pages
+          .slice(
+            current.preferences.pageIndex,
+            current.preferences.pageIndex + 2,
+          )
+          .some((page) => page.id === entry.pageId)
+      )
+        combined.set(entry.id, entry);
+    setEntries([...combined.values()]);
+    setOtherTabChanged(changeVersion.current !== observedVersion);
+  }, []);
+
+  const resolveTabConflict = useCallback(
+    async (conflict: DraftConflict, choice: ConflictChoice) => {
+      if (!reviewLock.current || !db.current || !writer.current)
+        throw new Error('Please open the review.');
+      const queue = writer.current;
+      const draft = queue
+        .unsaved()
+        .find((entry) => entry.id === conflict.draft.id);
+      if (
+        !draft ||
+        draft.revision !== conflict.draft.revision ||
+        !sameContent(draft, conflict.draft)
+      )
+        throw new Error('Your draft changed. Refresh this review.');
+      const result = await db.current.resolveConflict(
+        draft,
+        conflict.saved?.revision,
+        choice,
+      );
+      queue.accept(conflict.draft, result.entry);
+      if (result.changed && currentView.current)
+        changes.current?.publish(currentView.current.book.id);
+      await refreshVisible();
+      return reviewSnapshot();
+    },
+    [refreshVisible, reviewSnapshot],
+  );
+
+  const retainTabDraft = useCallback(
+    async (retained: RetainedDraftGroup) => {
+      if (!reviewLock.current || !db.current)
+        throw new Error('Please open the review.');
+      await db.current.retainDraftCopy(retained.entry);
+      for (const source of retained.sources)
+        recoveryStore.current?.release(source);
+      if (currentView.current)
+        changes.current?.publish(currentView.current.book.id);
+      await refreshVisible();
+      return reviewSnapshot();
+    },
+    [refreshVisible, reviewSnapshot],
+  );
+
+  const loadTabChanges = useCallback(async () => {
+    if (!reviewLock.current || !writer.current || !db.current)
+      throw new Error('Please open the review.');
+    if (!(await writer.current.flush()))
+      throw new Error(
+        'Your writing could not save. Resolve conflicts or retry saving before loading changes.',
+      );
+    const current = currentView.current;
+    if (current && !(await db.current.books.get(current.book.id))) {
+      const { book, preferences } = await db.current.initialize();
+      const pages = manifest(book);
+      const loaded = await db.current.readPages(
+        pages
+          .slice(preferences.pageIndex, preferences.pageIndex + 2)
+          .map((page) => page.id),
+        true,
+      );
+      writer.current.seed(loaded);
+      currentView.current = { book, pages, preferences };
+      setView(currentView.current);
+      setEntries(loaded);
+      setOtherTabChanged(false);
+    } else await refreshVisible();
+    return reviewSnapshot();
+  }, [refreshVisible, reviewSnapshot]);
+
   return {
     view,
     entries,
@@ -331,6 +571,13 @@ export function usePlanner() {
     adjustingNote,
     beginNoteGesture,
     endNoteGesture,
+    otherTabChanged,
+    beginTabReview,
+    endTabReview,
+    reviewSnapshot,
+    resolveTabConflict,
+    retainTabDraft,
+    loadTabChanges,
     edit,
     navigate,
     updatePreferences,

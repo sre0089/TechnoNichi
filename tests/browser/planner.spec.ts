@@ -1105,10 +1105,18 @@ test('a second tab cannot silently overwrite a stale checklist entry', async ({
     other.getByRole('alert').filter({ hasText: 'Another tab changed' }),
   ).toContainText('Your draft is retained');
   await page.reload();
-  // Local recovery is shared by these tabs; the stale draft remains visible and recoverable.
-  await expect(page.getByRole('status')).toHaveText('Storage problem');
+  // A successful tab must not adopt another tab's stale recovery draft.
+  await saved(page);
   await expect(
     leftDay(page).getByRole('textbox', {
+      name: 'Task 1 on 2026-10-06',
+      exact: true,
+    }),
+  ).toHaveWriting('First tab writing');
+  await other.reload();
+  await expect(other.getByRole('status')).toHaveText('Storage problem');
+  await expect(
+    leftDay(other).getByRole('textbox', {
       name: 'Task 1 on 2026-10-06',
       exact: true,
     }),

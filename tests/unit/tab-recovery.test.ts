@@ -314,7 +314,27 @@ describe('queue review and isolated recovery', () => {
     recovery.release(retained);
     expect(local.getItem(RECOVERY_KEY)).toContain('Newer writing');
     recovery.release(recovery.retained()[0]);
-    expect(local.getItem(RECOVERY_KEY)).toBeNull();
+    expect(local.getItem(RECOVERY_KEY)).toContain('Newer writing');
+  });
+
+  it('uses immutable emergency snapshots so releasing an old review cannot erase a newer checkpoint', () => {
+    const local = new MemoryStorage();
+    const writer = new TabRecovery(local, new MemoryStorage());
+    const reviewer = new TabRecovery(local, new MemoryStorage());
+    const entry = {
+      ...newEntry('page', { type: 'task', slot: 0 }),
+      text: 'Reviewed draft',
+    };
+    writer.setItem(RECOVERY_KEY, JSON.stringify([entry]));
+    const oldKey = writer.key;
+    const reviewed = reviewer.retained()[0];
+    writer.setItem(
+      RECOVERY_KEY,
+      JSON.stringify([{ ...entry, text: 'Newer draft' }]),
+    );
+    expect(writer.key).not.toBe(oldKey);
+    reviewer.release(reviewed);
+    expect(local.getItem(writer.key)).toContain('Newer draft');
   });
 
   it('keeps memory usable when optional recovery stores are denied and leaves invalid legacy data untouched', () => {

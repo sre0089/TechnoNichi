@@ -83,9 +83,14 @@ On 2026-10-20 the user authorized two-tab change notices and conflict recovery,
 continuing periodic commits/pushes. Work is on `feat/tab-change-recovery`, based
 on merged main `ed6ef3f` plus the note merge closeout `eb897d1`, tracked by
 [issue #16](https://github.com/sre0089/TechnoNichi/issues/16). The first checkpoint
-adds transactional decisions/recovery copies, isolated recovery buffers and
-metadata-only notifications. All 22 new unit tests pass; UI integration and
-browser validation follow. Merge remains a separate approval.
+`eb7e5de` adds transactional decisions/recovery copies, isolated recovery buffers
+and metadata-only notifications. UI integration now includes explicit review,
+three conflict choices, retained-draft copies and saved-change loading. All 90
+unit tests and all 39 new three-engine browser journeys pass. Ten repeated
+Firefox journeys also pass after correcting delayed dialog focus restoration.
+Lint, strict types, startup-buffer preservation and failed-save notification checks
+pass. Full application checks and regression validation follow this UI checkpoint.
+Merge remains a separate approval.
 
 ## Completed work
 
@@ -114,6 +119,8 @@ browser validation follow. Merge remains a separate approval.
   whole-book recovery and transactional refusal to overwrite occupied placement.
 - Added grid-snapped free-note movement/resizing, pointer and keyboard controls,
   cancellation, bounds and retained geometry/text across reload and backups.
+- Implemented local two-tab notices and explicit conflict review on the active
+  feature branch, with per-tab draft recovery and transactional archive copies.
 
 ## Git status and publication
 
@@ -623,8 +630,9 @@ There are no duration blocks, full rich text or book-wide undo,
 cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
 are available on `main`; they do not merge/replace a populated planner.
 
-Stale writes are blocked rather than silently overwriting; rich conflict resolution,
-cross-tab change notifications, and richer recovery/archives remain deferred. Browser eviction
+Stale writes are blocked rather than silently overwriting. Explicit conflict review
+and cross-tab notices are implemented on `feat/tab-change-recovery`, pending final
+checks, review and separately approved merge. Richer archives remain deferred. Browser eviction
 can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
@@ -638,7 +646,7 @@ moving and resizing work in their manual check. The device/browser and input
 method were not specified; broader touch, pen and accessibility coverage remains
 unverified. The active slice is two-tab change notifications and stale-edit
 recovery, authorized on 2026-10-20. Complete its UI and meaningful validation before
-proposing a merge; other M2 features remain deferred.
+merging with separate approval; other M2 features remain deferred.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.
