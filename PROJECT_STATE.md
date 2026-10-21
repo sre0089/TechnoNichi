@@ -1,5 +1,42 @@
 # Project state
 
+## Tab recovery validation — 2026-10-20
+
+Current bounded slice: issue #16, PR #17, `feat/tab-change-recovery`.
+Implementation checkpoints `eb7e5de` and `20a5050` are pushed; main remains
+`ed6ef3f`. No merge, deployment, service or dependency change was performed.
+
+- Other-tab notices preserve live page writing. Explicit review compares local
+  and saved versions, checks revisions transactionally, and offers Keep my writing,
+  Use saved writing or Keep both. Preserved versions use existing Deleted entries
+  and JSON backups. Closed-tab snapshots offer Save recovery copy.
+- Immutable emergency snapshots and independent tab reload buffers prevent
+  successful saves from clearing another draft. Malformed/legacy buffers remain
+  available; equivalent durable/archive copies are filtered from review.
+- `npm run check`: passed format, lint, strict types, all 90 unit tests across
+  nine files, and optimized production build on project-specific Node 24.21.0.
+- `npm run test:browser -- tests/browser/tab-changes.spec.ts --workers=3`:
+  all 39 new browser journeys passed across Chromium, Firefox and WebKit.
+- `npm run test:browser -- tests/browser/tab-changes.spec.ts --project=firefox
+--grep "notices committed|edit versus" --repeat-each=5 --workers=1`:
+  ten passed after conditional dialog focus restoration, with durable-writing
+  assertions and original timeouts retained.
+- `npm run test:browser -- --workers=3`: 146 passed, four intentional skips.
+  Existing phone-touch and visual-fixture cases remain Chromium-only. Production
+  build and browser runs were sequential to avoid local CPU contention.
+- Reviewed synthetic `artifacts/tab-conflict-desktop.png` and
+  `artifacts/tab-conflict-phone.png`; snapshots/traces remain ignored and local.
+  Staged path review and whitespace checks pass. Private source documents and
+  application data are excluded from publication.
+- Final-head CI is available through PR #17's Checks tab. Physical tablet, real
+  IME and assistive-technology behavior remains unverified for this slice. Recovery
+  buffers remain best effort and same-device only; JSON exports remain necessary
+  for independent backups.
+
+Next bounded action: verify final PR CI and request separate merge approval under
+AGENTS.md. A manual two-tab review on the user's browser is still useful; no next
+M2 feature has begun.
+
 ## Current stage
 
 M1, including the reviewed UI, timed-writing refinements, hourly keyboard
@@ -88,9 +125,12 @@ and metadata-only notifications. UI integration now includes explicit review,
 three conflict choices, retained-draft copies and saved-change loading. All 90
 unit tests and all 39 new three-engine browser journeys pass. Ten repeated
 Firefox journeys also pass after correcting delayed dialog focus restoration.
-Lint, strict types, startup-buffer preservation and failed-save notification checks
-pass. Full application checks and regression validation follow this UI checkpoint.
-Merge remains a separate approval.
+UI checkpoint `20a5050` is pushed in
+[PR #17](https://github.com/sre0089/TechnoNichi/pull/17). Full `npm run check`
+passes formatting, lint, strict types, 90 unit tests and production build.
+The complete browser suite passes: 146 passed and four intentional skips.
+Final-head GitHub CI is reported by the PR's Checks tab. Merge remains a separate
+approval; main is still `ed6ef3f`.
 
 ## Completed work
 
@@ -126,7 +166,8 @@ Merge remains a separate approval.
 
 - Integrated branch: `main` at `ed6ef3f`; documentation closeout:
   `docs/note-merge-state`. Current work: `feat/tab-change-recovery`, issue #16;
-  periodic commits/pushes continue under the user's instruction.
+  [PR #17](https://github.com/sre0089/TechnoNichi/pull/17), implementation checkpoints
+  `eb7e5de` and `20a5050`. Periodic commits/pushes continue under the user's instruction.
   Merged PR #15, closed issue #14, final checked head `32be44e`.
   Source checkpoints `69bcf9a` and `05e9084` are retained.
   Deletion/recovery implementation: `9f21f69`, merged PR #13, closed issue #12.
@@ -631,8 +672,9 @@ cached offline reopening, search, accounts, sync, or deployment. Local JSON back
 are available on `main`; they do not merge/replace a populated planner.
 
 Stale writes are blocked rather than silently overwriting. Explicit conflict review
-and cross-tab notices are implemented on `feat/tab-change-recovery`, pending final
-checks, review and separately approved merge. Richer archives remain deferred. Browser eviction
+and cross-tab notices are implemented and locally validated on
+`feat/tab-change-recovery`, pending final CI, review and separately approved merge.
+Richer archives remain deferred. Browser eviction
 can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
 profiling remain pending; no FPS claims were made.
@@ -645,8 +687,9 @@ Free-note movement/resizing is merged, and the user confirmed on 2026-10-20 that
 moving and resizing work in their manual check. The device/browser and input
 method were not specified; broader touch, pen and accessibility coverage remains
 unverified. The active slice is two-tab change notifications and stale-edit
-recovery, authorized on 2026-10-20. Complete its UI and meaningful validation before
-merging with separate approval; other M2 features remain deferred.
+recovery, authorized on 2026-10-20. Its implementation and local validation are
+complete; verify final CI and request separate merge approval. Other M2 features
+remain deferred.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.
