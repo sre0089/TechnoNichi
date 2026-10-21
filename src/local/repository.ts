@@ -18,6 +18,51 @@ export class RevisionConflict extends Error {
 
 export class RestoreRefused extends Error {}
 export class EntryRestoreRefused extends Error {}
+export type ConflictChoice = 'mine' | 'saved' | 'both';
+
+function occupiesPlace(target: Entry, entry: Entry) {
+  if (target.type === 'task')
+    return entry.type === 'task' && target.slot === entry.slot;
+  if (target.type === 'scheduled-line')
+    return (
+      entry.type === 'scheduled-line' &&
+      hourForTime(target.minute, target.dayOffset) ===
+        hourForTime(entry.minute, entry.dayOffset)
+    );
+  return (
+    entry.type === 'note' &&
+    entry.x < target.x + target.width &&
+    entry.x + entry.width > target.x &&
+    entry.y < target.y + target.height &&
+    entry.y + entry.height > target.y
+  );
+}
+
+function samePlacement(a: Entry, b: Entry) {
+  if (a.type === 'task') return b.type === 'task' && a.slot === b.slot;
+  if (a.type === 'scheduled-line')
+    return (
+      b.type === 'scheduled-line' &&
+      a.minute === b.minute &&
+      a.dayOffset === b.dayOffset
+    );
+  return (
+    b.type === 'note' &&
+    a.x === b.x &&
+    a.y === b.y &&
+    a.width === b.width &&
+    a.height === b.height
+  );
+}
+
+function recoveryCopy(entry: Entry): Entry {
+  return {
+    ...entry,
+    id: crypto.randomUUID(),
+    revision: 1,
+    deletedAt: new Date().toISOString(),
+  };
+}
 
 export class PlannerDB extends Dexie {
   books!: Table<Book, string>;
@@ -127,23 +172,7 @@ export class PlannerDB extends Dexie {
       if (!(await this.pages.get(current.pageId)))
         throw new Error('Unknown page');
       const active = await this.readPages([current.pageId]);
-      const occupied = active.some((entry) => {
-        if (current.type === 'task')
-          return entry.type === 'task' && entry.slot === current.slot;
-        if (current.type === 'scheduled-line')
-          return (
-            entry.type === 'scheduled-line' &&
-            hourForTime(entry.minute, entry.dayOffset) ===
-              hourForTime(current.minute, current.dayOffset)
-          );
-        return (
-          entry.type === 'note' &&
-          entry.x < current.x + current.width &&
-          entry.x + entry.width > current.x &&
-          entry.y < current.y + current.height &&
-          entry.y + entry.height > current.y
-        );
-      });
+      const occupied = active.some((entry) => occupiesPlace(current, entry));
       if (occupied)
         throw new EntryRestoreRefused(
           'The original space is occupied. Delete the entry there before restoring. Your deleted writing is still retained.',
@@ -184,6 +213,69 @@ export class PlannerDB extends Dexie {
         });
       },
     );
+  }
+
+  async resolveConflict(
+    value: Entry,
+    savedRevision: number | undefined,
+    choice: ConflictChoice,
+  ) {
+    const draft = structuredClone(value);
+    assertEntry(draft);
+    return this.transaction('rw', this.entries, this.pages, async () => {
+      const current = await this.entries.get(draft.id);
+      if (current?.revision !== savedRevision) throw new RevisionConflict();
+      if (current) {
+        assertEntry(current);
+        if (current.pageId !== draft.pageId || current.type !== draft.type)
+          throw new Error(
+            'The saved entry changed kind or page. Your draft is retained.',
+          );
+      }
+      if (choice === 'saved') return { entry: current, changed: false };
+      if (!(await this.pages.get(draft.pageId)))
+        throw new Error(
+          'The original page is no longer available. Your draft is retained.',
+        );
+      if (choice === 'both') {
+        await this.entries.add(recoveryCopy(draft));
+        return { entry: current, changed: true };
+      }
+      if (!current || current.deletedAt || !samePlacement(current, draft)) {
+        const active = await this.readPages([draft.pageId]);
+        if (
+          active.some(
+            (entry) => entry.id !== draft.id && occupiesPlace(draft, entry),
+          )
+        )
+          throw new EntryRestoreRefused(
+            'The original space is occupied. Choose Keep both to retain your draft as a recovery copy.',
+          );
+      }
+      // Preserve the version explicitly being replaced in the same transaction.
+      if (current) await this.entries.add(recoveryCopy(current));
+      const saved = {
+        ...draft,
+        revision: (current?.revision ?? 0) + 1,
+        deletedAt: null,
+      };
+      await this.entries.put(saved);
+      return { entry: saved, changed: true };
+    });
+  }
+
+  async retainDraftCopy(value: Entry) {
+    const draft = structuredClone(value);
+    assertEntry(draft);
+    return this.transaction('rw', this.entries, this.pages, async () => {
+      if (!(await this.pages.get(draft.pageId)))
+        throw new Error(
+          'The original page is no longer available. Your retained writing has not been cleared.',
+        );
+      const copy = recoveryCopy(draft);
+      await this.entries.add(copy);
+      return copy;
+    });
   }
 
   async restoreBackup(value: unknown): Promise<PlannerBackup> {

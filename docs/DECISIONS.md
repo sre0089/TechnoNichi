@@ -396,3 +396,33 @@ the failed-save banner shifted the page. Establish the expected Storage problem
 state before clicking, retaining every subsequent recovery assertion. Limit the
 full local browser run to three workers; each multi-tab test still exercises its
 own concurrent tabs.
+
+## 2026-10-20 — Two-tab notices and explicit conflict recovery
+
+The user authorized this bounded slice and continues periodic commits/pushes.
+Track issue #16 on `feat/tab-change-recovery`; merge requires separate approval.
+Publish book metadata after successful commits through BroadcastChannel and a
+storage signal, with focus/visibility checks for missed signals. Notifications
+never contain writing and never automatically replace the page or focused editor.
+
+Review a local draft beside the latest saved version. Decisions check the reviewed
+saved revision in the same transaction as any mutation. Keep my writing preserves
+the replaced saved version as a Deleted entries copy; Keep both keeps the saved
+version on the page and archives the draft there. Explain this placement in the UI.
+Use saved writing explicitly discards this tab's reviewed draft. Refuse resurrection
+or movement into occupied placement, keeping the draft available. Recovery copies
+retain entry fields and flow through existing JSON archives; no schema migration.
+
+Replace the shared auxiliary draft buffer with per-editor emergency localStorage
+keys and an independent per-tab session copy. Never clear another editor's key
+on successful saving. Retained/legacy copies remain reviewable; only release an
+unchanged snapshot after verifying equivalent durable content or saving its copy.
+This is best-effort recovery storage, not cloud sync or a replacement for backups.
+
+Browser behavior checked against primary documentation:
+[BroadcastChannel](https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API),
+[sessionStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage),
+and [storage events](https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event).
+Session copies survive reloads, are independent across tabs even when initially
+cloned, and end when the tab closes; the separate emergency keys retain drafts
+for later explicit review. No new dependencies or external services are needed.

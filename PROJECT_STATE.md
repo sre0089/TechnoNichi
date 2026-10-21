@@ -79,6 +79,14 @@ checked head. This documentation closeout is maintained on `docs/note-merge-stat
 under the existing commit/push authorization. Cloud services and other M2 features
 remain deferred.
 
+On 2026-10-20 the user authorized two-tab change notices and conflict recovery,
+continuing periodic commits/pushes. Work is on `feat/tab-change-recovery`, based
+on merged main `ed6ef3f` plus the note merge closeout `eb897d1`, tracked by
+[issue #16](https://github.com/sre0089/TechnoNichi/issues/16). The first checkpoint
+adds transactional decisions/recovery copies, isolated recovery buffers and
+metadata-only notifications. All 22 new unit tests pass; UI integration and
+browser validation follow. Merge remains a separate approval.
+
 ## Completed work
 
 - Public GitHub repository: https://github.com/sre0089/TechnoNichi.
@@ -110,7 +118,8 @@ remain deferred.
 ## Git status and publication
 
 - Integrated branch: `main` at `ed6ef3f`; documentation closeout:
-  `docs/note-merge-state`. Periodic commits/pushes authorized for this feature.
+  `docs/note-merge-state`. Current work: `feat/tab-change-recovery`, issue #16;
+  periodic commits/pushes continue under the user's instruction.
   Merged PR #15, closed issue #14, final checked head `32be44e`.
   Source checkpoints `69bcf9a` and `05e9084` are retained.
   Deletion/recovery implementation: `9f21f69`, merged PR #13, closed issue #12.
@@ -624,10 +633,12 @@ The user confirmed on 2026-10-19 that backup recovery works in their manual chec
 The device/browser and individual scenarios were not specified; this confirmation
 does not establish completion of the separate deletion/occupied-slot checks.
 
-Free-note movement/resizing is merged and verified as recorded above. Next action:
-review note gestures on the actual device. Real-device note gestures remain
-unverified. The next proposed coding slice is two-tab change notifications and
-stale-edit recovery; define and authorize its scope before implementation.
+Free-note movement/resizing is merged, and the user confirmed on 2026-10-20 that
+moving and resizing work in their manual check. The device/browser and input
+method were not specified; broader touch, pen and accessibility coverage remains
+unverified. The active slice is two-tab change notifications and stale-edit
+recovery, authorized on 2026-10-20. Complete its UI and meaningful validation before
+proposing a merge; other M2 features remain deferred.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.
@@ -692,3 +703,5 @@ after the first real GitHub CI run and verification of available repository feat
   checks remain pending. New notes are created below 03:00; movement may use the
   printed grid, including legacy upper-grid notes. No dependency/schema change,
   duration blocks, book-wide undo, cloud work or deployment is included.
+- On 2026-10-20 the user confirmed moving and resizing work in their manual
+  check. Device/browser, input method and individual scenarios were not specified.
