@@ -271,3 +271,21 @@ repository validates expected content/revision and placement in one transaction.
 `usePlanner` flushes drafts before history commands and observes own durable saves.
 Focused rich writing owns text undo; page commands retain current words/styles.
 History resets on reload/import/explicit external reconciliation, not navigation.
+
+### Offline shell and search
+
+`scripts/build-worker.mjs` derives an ignored `public/sw.js` from the reviewed
+worker template, production static HTML and local hashed assets. This assumes
+the root is statically rendered; a future dynamic root must revisit the strategy.
+`OfflineStatus` registers only in production, queries cache completeness and can
+repair from the build snapshot. Explicit updates use the same save-operation
+lock and refuse multiple open windows before activation. No journal/API response
+is cached. Current/previous shell caches support an explicit reload; IndexedDB
+schema/archive remain unchanged. Production browser tests use port 3100 and a
+separate ignored artifact directory, with all engines and real offline emulation.
+
+`search/find-entries.ts` is pure derived matching/sorting. The search dialog reads
+active current-book entries after flushing drafts, filters locally, renders 20
+results and opens original identities through guarded manifest navigation. Only
+the current spread has live editors even with a full-year book. Queries and
+journal text never become URLs, analytics or server requests.

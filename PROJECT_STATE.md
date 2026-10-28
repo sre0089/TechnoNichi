@@ -2,33 +2,39 @@
 
 ## Five preapproved steps — 2026-10-28
 
-The user authorized continuing with automatic approval for the next five steps,
-including their commits, pushes, PRs and checked merges. This supersedes the
-usual milestone stop/merge-approval gates for this batch only. The scope and
-progress ledger are in [APPROVED_FIVE_STEPS.md](docs/APPROVED_FIVE_STEPS.md):
-duration movement/resizing (#20), page undo/redo (#21), date navigation (#22),
-book interactions (#23), and offline/search readiness (#24). No spending,
-external account/service setup, deployment, destructive history changes or
-unbounded later work is authorized. Physical-device/week-of-use gates remain
-manual and unverified. Step 1 merged via PR #25 as `7959f1a` after all CI jobs passed; issue #20 closed.
-The merged tree exactly matches its reviewed head. Step 2 is in PR #26 awaiting final CI. Step 3 is active on
-`feat/date-navigation`; steps 4–5 are pending.
-Step 1 checkpoint `a99cbb5` is pushed. `npm run check` passed format/lint/strict
-types, all 115 unit tests and production build. Full local browser regression
-passed: 179 journeys and four intentional skips across Chromium/Firefox/WebKit,
-including all nine new duration-placement cases. Synthetic
-`artifacts/duration-placement.png` was inspected locally. Final PR CI passed
-all common and three browser-matrix jobs before the preapproved merge. Source,
-test and staged-path reviews/whitespace checks pass; private inputs stay excluded.
+The user authorized five bounded implementation steps with commits, pushes, PRs
+and checked merges. [APPROVED_FIVE_STEPS.md](docs/APPROVED_FIVE_STEPS.md) records
+the scope; ordinary stop/approval gates resume after this batch. No deployment,
+spending, external services, destructive history changes or private-data uploads.
 
-Step 2 adds 50-action current-tab page undo/redo with revision/content checks,
-occupied-placement refusal, recoverable creation undo, and native word undo priority.
-New page-history journeys passed all nine engine cases; 120 unit tests passed.
-An initial full browser run found dialog autofocus and competing-tab test ordering
-races (185 passes, three failures, four intentional skips). The focus lifecycle
-and durable-write prerequisite were corrected; all six affected engine cases
-passed afterward. Synthetic page-history screenshot was inspected. Final-head
-CI, including the complete suite, remains required before merge.
+| Step | Result                                                   | Merge / final CI                                 |
+| ---- | -------------------------------------------------------- | ------------------------------------------------ |
+| 1    | Duration movement/resizing; issue #20 closed             | PR #25, `7959f1a`; run 40672628651               |
+| 2    | Revision-safe page undo/redo; issue #21 closed           | PR #26, `1df47ca`; run 40675794003               |
+| 3    | Today/date/month navigation; issue #22 closed            | PR #27, `d2ee98c`; run 40677290268               |
+| 4    | Cover and safe book transitions; issue #23 closed        | PR #28, `65ba796`; run 40677449250               |
+| 5    | Offline/search/readiness implemented and locally checked | `feat/offline-search`; issue #24 tracks PR/merge |
+
+All four merged trees exactly match their final reviewed heads. Final CI passed
+all common and three-engine jobs for each: step 1 had 179 browser passes/four
+intentional skips; step 2 had 188/four; step 3 had 200/four; step 4 had 212/four.
+Their unit totals were 115, 120, 123 and 124 respectively. Focus and test ordering
+races exposed during intermediate runs were corrected before the green merges.
+
+Step 5 implements a generated production shell worker, saved explicit updates,
+other-tab update refusal, online cache repair, optional browser storage protection
+and book-local search with original-entry navigation. No data/schema change.
+Playwright 1.64.0 is pinned after official review to fix the 1.63 WebKit offline
+emulation bug. `npm run check` passes format/lint/strict types, 128 units and build.
+The full browser run passed 221 journeys with four existing intentional skips.
+All six search-focus cases and all nine final production offline cases passed.
+A repeated update case exposed focus returning to the old row after unlocking;
+writing now claims focus once per selection and a refused update retains its
+button focus. All three engines verify refusal, retry, offline search and repair.
+The synthetic-year measurement passed in all three engines and was recorded in
+PERSONAL_ALPHA.md. Final-head CI is required before merge; issue #24 links the
+publication and merge record. Physical device,
+real IME, assistive technology and a week of actual planning remain unverified.
 
 ## Approved duration-task merge — 2026-10-28
 
@@ -931,14 +937,12 @@ miniature-calendar trigger. Stable manifest order selects spread/side; timezone
 and out-of-book behavior are explicit. Navigation flushes drafts before loading
 and refuses failed saves. Browser validation covers phone resume, first/last
 pages, Today at timezone midnight, month browsing and save failure. Leap-day,
-DST and manifest-parity checks are in the new navigation unit tests. Final CI is
-required before the preapproved merge; no deployment/service configuration.
+DST and manifest-parity checks are in the new navigation unit tests. PR #27 subsequently merged as `d2ee98c` after final CI passed; no deployment/service configuration.
 
 Step 3 local checks passed: format/lint/strict types, 123 units and production
 build. The combined navigation/editor suite passed 64 browser journeys with two
 intentional visual-fixture skips; all 12 new navigation cases passed across the
-three engines. Synthetic date-navigation screenshot was inspected. Final PR CI
-will run the complete suite before merge.
+three engines. Synthetic date-navigation screenshot was inspected. Final PR CI subsequently passed the complete suite before merge.
 
 ## Approved batch — book interactions
 
@@ -948,7 +952,6 @@ and an optional saved No animation preference. No cloned editors or curl library
 Resize/blur settles motion; input/placement controls lock during transitions.
 All 21 book/history engine cases passed locally after the final cover-only
 visibility polish. `npm run check` passed format/lint/strict types, 124 unit tests
-and production build. Synthetic cover screenshot was inspected. Final CI remains
-required before merge. Earlier steps
-remain in PRs #26/#27; the WebKit history test ordering correction is pushed as
+and production build. Synthetic cover screenshot was inspected. Final CI subsequently passed before PR #28 merged as `65ba796`. Earlier steps
+merged through PRs #26/#27; the WebKit history test ordering correction is pushed as
 `51439cb` and included in #27. Physical device/motion approval remains manual.

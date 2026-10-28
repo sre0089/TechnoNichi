@@ -44,5 +44,6 @@ Thumbs.db
 /playwright-report/
 /artifacts/
 /next-env.d.ts
+/public/sw.js
 
 # Keep intentional assets, sanitized fixtures, lockfiles, and migrations tracked.

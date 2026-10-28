@@ -9,3 +9,4 @@ docs/PRD.md
 test-results
 playwright-report
 artifacts
+public/sw.js

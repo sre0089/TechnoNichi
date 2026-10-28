@@ -6,6 +6,25 @@ import nextPlugin from '@next/eslint-plugin-next';
 
 export default defineConfig([
   {
+    files: ['scripts/**/*.mjs'],
+    extends: [js.configs.recommended],
+    languageOptions: { globals: { process: 'readonly' } },
+  },
+  {
+    files: ['src/offline/**/*.js'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      globals: {
+        self: 'readonly',
+        caches: 'readonly',
+        Request: 'readonly',
+        Response: 'readonly',
+        URL: 'readonly',
+        fetch: 'readonly',
+      },
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, tseslint.configs.recommended],
     plugins: { 'react-hooks': reactHooks, '@next/next': nextPlugin },
