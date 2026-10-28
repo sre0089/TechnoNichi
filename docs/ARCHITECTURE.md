@@ -98,8 +98,9 @@ the imported preferences/book; startup reads that book instead of creating anoth
 default. The UI reviews a chosen file before an explicit restore action.
 
 Concurrent restores serialize through IndexedDB; revision checks continue after
-restoration. Other tabs are not refreshed automatically. Cross-tab notifications,
-replacement/merge flows, automatic backups and the rest of M2 remain deferred.
+restoration. Restore commits publish book-change notices; other tabs load changes
+only through explicit review. Populated-book replacement/merge flows and automatic
+backups remain deferred.
 
 ## Reversible defaults
 

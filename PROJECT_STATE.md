@@ -1,6 +1,6 @@
 # Project state
 
-## Duration tasks — active slice, 2026-10-28
+## Duration tasks — implemented and locally validated, 2026-10-28
 
 The user confirmed the manual two-tab recovery check works on 2026-10-28. Browser,
 device and individual choices were not specified; broader device/IME/accessibility
@@ -13,22 +13,42 @@ Work is on `feat/duration-tasks`, based on merged main `7a12c7e` plus merge clos
 Continue periodic commits/pushes under the user's standing instruction; merge
 requires separate approval.
 
-Implemented locally: scheduled-block records with explicit start/end day offsets,
-half-open overlap lanes in the time gutter, existing writing coordinates retained,
-a readable chooser for entries sharing an hour, Add/Remove duration and a keyboard
-accessible interval dialog. Archived/deleted versions retain endpoints; line/block
+Implementation checkpoint `fb931a9` is pushed. Scheduled-block records retain
+explicit start/end day offsets. The page derives overlap lanes in the time gutter,
+retains existing writing coordinates and offers a readable chooser for entries
+sharing an hour, Add/Remove duration and a keyboard accessible interval dialog.
+Archived/deleted versions retain endpoints; line/block
 conversion conflicts are resolved explicitly. New exports use JSON archive v2;
 both v1 and v2 are accepted, and v1 rejects duration records. No dependencies or
 IndexedDB stores/indexes change. Existing entry records are not rewritten.
 
-All 111 unit tests pass, including 21 new interval/geometry/archive/recovery cases.
-All 24 new three-engine browser journeys pass, including phone keyboard selection.
-`npm run check` passes format, lint, strict types, units and production build.
-The desktop and phone captures were inspected locally; full regression checks
-follow the implementation checkpoint.
+Validation of application checkpoint `fb931a9`:
+
+- `npm run check`: passed formatting, lint, strict types, 111 unit tests across
+  ten files, and optimized production build. Twenty-one new unit cases cover
+  valid/invalid and overnight intervals, pure lane projection, archive versions,
+  deletion/restore and reviewed range/type-conversion conflicts.
+- `npm run test:browser -- tests/browser/durations.spec.ts --workers=3`:
+  24 passed across Chromium, Firefox and WebKit. Final phone chooser/interval
+  refinements also passed their three-engine journeys before publication.
+- `npm run test:browser -- --workers=3`: 170 passed, four intentional skips.
+  Production build and browser suite ran sequentially. Existing Chromium-only
+  touch and visual fixtures retain their skips in Firefox/WebKit.
+- Inspected ignored synthetic `artifacts/durations-overlap-desktop.png`,
+  `artifacts/durations-phone-controls.png` and `artifacts/durations-phone-chooser.png`.
+  Verified paper-relative writing placement, current/other chooser focus, explicit
+  overnight validation, failure/retry, full v2 restore and endpoint conflict copies.
+- Reviewed source and staged paths; whitespace checks passed. No private inputs,
+  screenshots, credentials, application data, dependencies or lockfile changes are
+  published. Final PR/CI evidence is linked through tracking issue #18 and its PR.
+
 Runtime for this slice: existing local Node 24.16.0 (project PATH only); the global
 Node installation is unchanged. Pointer movement/resizing of duration blocks,
 broader undo/redo and the next milestone remain deferred.
+
+Next bounded action: verify final-head GitHub CI and request separate merge
+approval. Duration appearance and physical tablet/IME/accessibility behavior
+still need the user's manual review. No next feature or deployment has begun.
 
 ## Approved tab recovery merge — 2026-10-21
 
