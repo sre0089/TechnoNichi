@@ -10,15 +10,25 @@ duration movement/resizing (#20), page undo/redo (#21), date navigation (#22),
 book interactions (#23), and offline/search readiness (#24). No spending,
 external account/service setup, deployment, destructive history changes or
 unbounded later work is authorized. Physical-device/week-of-use gates remain
-manual and unverified. Step 1 is active on `feat/duration-placement`, based on
-main `9d96a99` plus closeout `62e033f`; steps 2–5 are pending.
+manual and unverified. Step 1 merged via PR #25 as `7959f1a` after all CI jobs passed; issue #20 closed.
+The merged tree exactly matches its reviewed head. Step 2 is active on
+`feat/page-history`; steps 3–5 are pending.
 Step 1 checkpoint `a99cbb5` is pushed. `npm run check` passed format/lint/strict
 types, all 115 unit tests and production build. Full local browser regression
 passed: 179 journeys and four intentional skips across Chromium/Firefox/WebKit,
 including all nine new duration-placement cases. Synthetic
-`artifacts/duration-placement.png` was inspected locally. Final PR CI must pass
+`artifacts/duration-placement.png` was inspected locally. Final PR CI passed
 all common and three browser-matrix jobs before the preapproved merge. Source,
 test and staged-path reviews/whitespace checks pass; private inputs stay excluded.
+
+Step 2 adds 50-action current-tab page undo/redo with revision/content checks,
+occupied-placement refusal, recoverable creation undo, and native word undo priority.
+New page-history journeys passed all nine engine cases; 120 unit tests passed.
+An initial full browser run found dialog autofocus and competing-tab test ordering
+races (185 passes, three failures, four intentional skips). The focus lifecycle
+and durable-write prerequisite were corrected; all six affected engine cases
+passed afterward. Synthetic page-history screenshot was inspected. Final-head
+CI, including the complete suite, remains required before merge.
 
 ## Approved duration-task merge — 2026-10-28
 

@@ -12,13 +12,13 @@ final-head CI before merge. Record each completed merge here in the next step's
 documentation; stop after step 5. Physical-device, assistive-technology and a full
 week of actual planning remain manual gates, not automatically verified work.
 
-| Step | Bounded implementation                                                                                | Status                                            |
-| ---- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| 1    | Selected duration move/end-resize handles, keyboard alternatives, cancellation and save/recovery      | Local checks passed, issue #20; awaiting CI/merge |
-| 2    | Page undo/redo for document actions; preserve focused text editor history and refuse stale overwrites | Pending, issue #21                                |
-| 3    | Today/date/month navigation through the stable yearly manifest, retaining save guards                 | Pending, issue #22                                |
-| 4    | Cover/open/close and restrained page transitions with reduced/no-motion fallback and safe input       | Pending, issue #23                                |
-| 5    | Production offline shell opening, local search, update readiness and personal-alpha checks            | Pending, issue #24                                |
+| Step | Bounded implementation                                                                                | Status                                       |
+| ---- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| 1    | Selected duration move/end-resize handles, keyboard alternatives, cancellation and save/recovery      | Merged PR #25 as `7959f1a`; issue #20 closed |
+| 2    | Page undo/redo for document actions; preserve focused text editor history and refuse stale overwrites | Implemented; validation active, issue #21    |
+| 3    | Today/date/month navigation through the stable yearly manifest, retaining save guards                 | Pending, issue #22                           |
+| 4    | Cover/open/close and restrained page transitions with reduced/no-motion fallback and safe input       | Pending, issue #23                           |
+| 5    | Production offline shell opening, local search, update readiness and personal-alpha checks            | Pending, issue #24                           |
 
 ## Acceptance boundaries
 
@@ -43,3 +43,21 @@ retaining the installed action pins and minimal permissions. All jobs must pass
 before the approved merge. Primary references:
 [GitHub matrix jobs](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations)
 and [Playwright CI](https://playwright.dev/docs/ci-intro).
+
+## Step 1 completion
+
+PR #25 merged on 2026-10-28 as `7959f1a71649ce934517cfbd98134407d9791142`.
+The merged tree equals reviewed head `507cc54d6fde174d6f99db9272b2e2b2b496dd20`.
+[Final CI](https://github.com/sre0089/TechnoNichi/actions/runs/40672628651)
+passed common checks and all three browser jobs. Local validation was 115 units,
+179 browser passes and four intentional skips. Issue #20 closed automatically.
+
+## Step 2 behavior
+
+Page history retains at most 50 current-tab document actions. Creation, completion,
+submission, geometry/time/type changes, deletion and restoration are undoable.
+Typing/word styles stay with Tiptap's focused editor history; page undo preserves
+newer own words/styles. Toolbar buttons or Cmd/Ctrl+Z outside text fields perform
+page undo (Shift+Z for redo, Ctrl+Y also supported). Undo writes a new revision,
+refuses stale/occupied changes, and retains history on failure. Reload, import and
+explicit tab reconciliation reset this ephemeral history. Navigation alone does not.

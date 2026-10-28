@@ -218,3 +218,13 @@ decorative. Up/Down adjusts 15 minutes (Shift one hour), with Earlier/Later and
 Shorter/Longer contextual buttons. Previews disable unrelated placement/navigation
 actions and save once on release. Escape/interruption cancels, and clicking an
 unsnapped range handle does not alter it. Coarse-pointer handles are larger.
+
+## Page action undo
+
+The toolbar provides Undo/Redo page action buttons with the next action in their
+title. Cmd/Ctrl+Z outside writing or dialogs reverses page actions; Shift+Z redoes,
+and Ctrl+Y is also accepted. Focused Tiptap writing retains its own native word
+history. Page history retains current wording/marks and reverses placement,
+completion, creation, deletion or restoration through revision-checked writes.
+The enlarged editor focuses once after mount rather than scheduling a delayed
+focus that could steal a user's subsequent dialog-button focus.

@@ -69,6 +69,7 @@ async function pair(page: Page, context: BrowserContext) {
   const other = await context.newPage();
   await ready(other);
   await task(page).fill('Saved writing');
+  await durableWriting(page, task(page), 'Saved writing');
   await saved(page);
   await task(other).fill('Local draft');
   await expect(other.getByRole('status')).toHaveText('Storage problem');

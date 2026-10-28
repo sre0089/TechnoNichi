@@ -19,6 +19,7 @@ async function setup() {
     },
     0,
   );
+  if (entry.type !== 'task') throw new Error('Expected task');
   return { db, entry, history: new PageHistory() };
 }
 afterEach(async () => {
