@@ -381,6 +381,31 @@
   transform: translateX(calc(var(--grid-stroke) * 0.5 - 50%));
   pointer-events: none;
 }
+.duration-span {
+  position: absolute;
+  border-left: max(1px, 0.25cqw) solid var(--ink);
+  transform: translateX(calc(var(--grid-stroke) * 0.5 - 50%));
+  opacity: 0.65;
+  pointer-events: none;
+}
+.duration-span::before,
+.duration-span::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 0.5cqw;
+  border-top: max(1px, 0.2cqw) solid var(--ink);
+}
+.duration-span::before {
+  top: 0;
+}
+.duration-span::after {
+  bottom: 0;
+}
+.duration-selected {
+  opacity: 1;
+  border-left-width: max(2px, 0.4cqw);
+}
 .writing-item {
   position: absolute;
   display: flex;

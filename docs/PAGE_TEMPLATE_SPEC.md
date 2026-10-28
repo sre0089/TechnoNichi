@@ -87,6 +87,15 @@ the unmerged M1 template v1, with no database schema migration or record rewrite
 
 ## Typography and themes
 
+Duration tasks use the same hourly writing font, baseline and x position. Their
+start/end cap bracket spans exact timetable coordinates with the same one-row
+writing offset used by occupied lines. Half-open interval lanes extend leftward
+from x 21.1 in quarter-square steps, compressing within the gutter for dense sets;
+printed numbers are left clear. Caps distinguish ranges from occupied-hour lines.
+A selected range has a stronger stroke. These spans are decorative, with accessible
+time editing and complete text in the contextual controls, same-hour chooser and
+day outline. No paper coordinates or existing entries change for overlap layout.
+
 Paper `#f7f2e7`, writing `#514560`, October accent `#897293`, faint grid
 `rgba(99, 82, 71, 0.105)`. These are original approximations, not sampled print colors.
 Entered page writing uses a system monospace stack (SFMono-Regular, Consolas,

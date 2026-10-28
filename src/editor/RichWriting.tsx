@@ -19,7 +19,7 @@ import Italic from '@tiptap/extension-italic';
 import Underline from '@tiptap/extension-underline';
 import HardBreak from '@tiptap/extension-hard-break';
 import { UndoRedo } from '@tiptap/extensions/undo-redo';
-import type { Entry } from '../domain/model';
+import { isScheduled, type Entry } from '../domain/model';
 import { textSegments, textRuns } from '../domain/formatted-text';
 import { formatForKey, type WritingFormat } from './writing-keys';
 import { documentFor, contentForDocument } from './rich-document';
@@ -304,7 +304,7 @@ export function RichWriting({
         const changed = {
           ...current.entry,
           ...content,
-          ...(current.entry.type === 'scheduled-line' && !content.text.trim()
+          ...(isScheduled(current.entry) && !content.text.trim()
             ? { submitted: false, completed: false }
             : {}),
         };

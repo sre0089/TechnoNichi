@@ -1,10 +1,96 @@
 # Project state
 
-## Tab recovery validation — 2026-10-20
+## Duration tasks — implemented and locally validated, 2026-10-28
+
+The user confirmed the manual two-tab recovery check works on 2026-10-28. Browser,
+device and individual choices were not specified; broader device/IME/accessibility
+coverage remains unverified. The user then authorized the next bounded M2 slice:
+duration tasks with start/end controls, subtle spans, readable overlaps and the
+existing saving/backup/conflict-recovery guarantees.
+
+Work is on `feat/duration-tasks`, based on merged main `7a12c7e` plus merge closeout
+`9854b4a`, tracked by [issue #18](https://github.com/sre0089/TechnoNichi/issues/18).
+Continue periodic commits/pushes under the user's standing instruction; merge
+requires separate approval.
+
+Implementation checkpoint `fb931a9` is pushed. Scheduled-block records retain
+explicit start/end day offsets. The page derives overlap lanes in the time gutter,
+retains existing writing coordinates and offers a readable chooser for entries
+sharing an hour, Add/Remove duration and a keyboard accessible interval dialog.
+Archived/deleted versions retain endpoints; line/block
+conversion conflicts are resolved explicitly. New exports use JSON archive v2;
+both v1 and v2 are accepted, and v1 rejects duration records. No dependencies or
+IndexedDB stores/indexes change. Existing entry records are not rewritten.
+
+Validation of application checkpoint `fb931a9`:
+
+- `npm run check`: passed formatting, lint, strict types, 111 unit tests across
+  ten files, and optimized production build. Twenty-one new unit cases cover
+  valid/invalid and overnight intervals, pure lane projection, archive versions,
+  deletion/restore and reviewed range/type-conversion conflicts.
+- `npm run test:browser -- tests/browser/durations.spec.ts --workers=3`:
+  24 passed across Chromium, Firefox and WebKit. Final phone chooser/interval
+  refinements also passed their three-engine journeys before publication.
+- `npm run test:browser -- --workers=3`: 170 passed, four intentional skips.
+  Production build and browser suite ran sequentially. Existing Chromium-only
+  touch and visual fixtures retain their skips in Firefox/WebKit.
+- Inspected ignored synthetic `artifacts/durations-overlap-desktop.png`,
+  `artifacts/durations-phone-controls.png` and `artifacts/durations-phone-chooser.png`.
+  Verified paper-relative writing placement, current/other chooser focus, explicit
+  overnight validation, failure/retry, full v2 restore and endpoint conflict copies.
+- Reviewed source and staged paths; whitespace checks passed. No private inputs,
+  screenshots, credentials, application data, dependencies or lockfile changes are
+  published. Final PR/CI evidence is linked through tracking issue #18 and its PR.
+
+Runtime for this slice: existing local Node 24.16.0 (project PATH only); the global
+Node installation is unchanged. Pointer movement/resizing of duration blocks,
+broader undo/redo and the next milestone remain deferred.
+
+Next bounded action: verify final-head GitHub CI and request separate merge
+approval. Duration appearance and physical tablet/IME/accessibility behavior
+still need the user's manual review. No next feature or deployment has begun.
+
+Published [PR #19](https://github.com/sre0089/TechnoNichi/pull/19) on this branch.
+Initial [CI](https://github.com/sre0089/TechnoNichi/actions/runs/40655541897) passed
+format/lint/types, 111 units, production build and 169 browser journeys, including
+all new duration cases; four cases skipped intentionally. One existing Firefox
+notification check failed after its one-shot fault could permit a later successful
+text write. An isolated synthetic reproduction verified an empty focus-write
+failing followed by a committed text-write and legitimate notice. The corrected
+fixture keeps storage failed through both writes until Retry, confirms the latest
+text was attempted/retained and preserves all original assertions and timeouts.
+Application source remains identical to `fb931a9`; final CI follows the fixture
+correction rather than treating the first run as success.
+`npm run test:browser -- tests/browser/tab-changes.spec.ts --grep "failed saves do not announce" --repeat-each=3 --workers=3`
+passed all nine strengthened checks. `npm run check` passed again with 111 units
+and production build. The PR's Checks tab reports CI for this final correction.
+
+## Approved tab recovery merge — 2026-10-21
+
+The user separately approved merging PR #17 on 2026-10-21.
+[PR #17](https://github.com/sre0089/TechnoNichi/pull/17) merged into `main` as
+`7a12c7e` at 04:40:04 UTC (00:40:04 America/New_York); issue #16 closed automatically.
+Local `main` was fast-forwarded to the same commit. A full tree comparison with
+the reviewed head `b9df802` is identical, including source, tests, dependencies,
+workflow and README; no application changes were made during merge.
+
+Final head `b9df802` passed [GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/39534041958):
+format, lint, strict types, 90 unit tests, production build and 146 browser tests
+with four intentional skips. Those checks were not rerun locally for this
+identical-tree merge. Only this project-state closeout changes afterward;
+formatting and whitespace checks are recorded for it on `docs/tab-merge-state`,
+published under the user's continuing periodic commit/push instruction.
+
+The two-tab review is now integrated, and the user confirmed it works manually
+on 2026-10-28. The newly authorized duration slice is recorded above. Physical
+tablet, real IME and assistive-technology checks remain unverified. No deployment,
+new service or dependency change has begun.
+
+## Tab recovery validation — 2026-10-20 publication history
 
 Current bounded slice: issue #16, PR #17, `feat/tab-change-recovery`.
-Implementation checkpoints `eb7e5de` and `20a5050` are pushed; main remains
-`ed6ef3f`. No merge, deployment, service or dependency change was performed.
+Implementation checkpoints `eb7e5de` and `20a5050` were pushed while main was
+`ed6ef3f`. No merge, deployment, service or dependency change had occurred yet.
 
 - Other-tab notices preserve live page writing. Explicit review compares local
   and saved versions, checks revisions transactionally, and offers Keep my writing,
@@ -33,9 +119,9 @@ Implementation checkpoints `eb7e5de` and `20a5050` are pushed; main remains
   buffers remain best effort and same-device only; JSON exports remain necessary
   for independent backups.
 
-Next bounded action: verify final PR CI and request separate merge approval under
-AGENTS.md. A manual two-tab review on the user's browser is still useful; no next
-M2 feature has begun.
+The publication gate was final PR CI and separate merge approval under AGENTS.md;
+both are now satisfied as recorded above. A manual two-tab review on the user's
+browser is still useful; no next M2 feature has begun.
 
 Implementation `20a5050` passed [Ubuntu CI](https://github.com/sre0089/TechnoNichi/actions/runs/39532807634)
 with 90 unit tests, production build and 146 browser passes/four intentional skips.
@@ -131,7 +217,7 @@ under the existing commit/push authorization. Cloud services and other M2 featur
 remain deferred.
 
 On 2026-10-20 the user authorized two-tab change notices and conflict recovery,
-continuing periodic commits/pushes. Work is on `feat/tab-change-recovery`, based
+continuing periodic commits/pushes. Work was on `feat/tab-change-recovery`, based
 on merged main `ed6ef3f` plus the note merge closeout `eb897d1`, tracked by
 [issue #16](https://github.com/sre0089/TechnoNichi/issues/16). The first checkpoint
 `eb7e5de` adds transactional decisions/recovery copies, isolated recovery buffers
@@ -143,8 +229,11 @@ UI checkpoint `20a5050` is pushed in
 [PR #17](https://github.com/sre0089/TechnoNichi/pull/17). Full `npm run check`
 passes formatting, lint, strict types, 90 unit tests and production build.
 The complete browser suite passes: 146 passed and four intentional skips.
-Final-head GitHub CI is reported by the PR's Checks tab. Merge remains a separate
-approval; main is still `ed6ef3f`.
+Final reviewed head `b9df802` passed GitHub CI with the same counts. The user
+separately approved merging on 2026-10-21; PR #17 merged as `7a12c7e` at
+04:40:04 UTC, and issue #16 closed automatically. Local main matches the merge
+and the reviewed head's complete file tree. This closeout is maintained on
+`docs/tab-merge-state`.
 
 ## Completed work
 
@@ -173,15 +262,15 @@ approval; main is still `ed6ef3f`.
   whole-book recovery and transactional refusal to overwrite occupied placement.
 - Added grid-snapped free-note movement/resizing, pointer and keyboard controls,
   cancellation, bounds and retained geometry/text across reload and backups.
-- Implemented local two-tab notices and explicit conflict review on the active
-  feature branch, with per-tab draft recovery and transactional archive copies.
+- Integrated local two-tab notices and explicit conflict review into main, with
+  per-tab draft recovery and transactional archive copies.
 
 ## Git status and publication
 
-- Integrated branch: `main` at `ed6ef3f`; documentation closeout:
-  `docs/note-merge-state`. Current work: `feat/tab-change-recovery`, issue #16;
-  [PR #17](https://github.com/sre0089/TechnoNichi/pull/17), implementation checkpoints
-  `eb7e5de` and `20a5050`. Periodic commits/pushes continue under the user's instruction.
+- Integrated branch: `main` at `7a12c7e`; documentation closeout:
+  `docs/tab-merge-state`. Merged [PR #17](https://github.com/sre0089/TechnoNichi/pull/17),
+  closed issue #16, checked head `b9df802`; implementation checkpoints `eb7e5de`
+  and `20a5050`. Periodic commits/pushes continue under the user's instruction.
   Merged PR #15, closed issue #14, final checked head `32be44e`.
   Source checkpoints `69bcf9a` and `05e9084` are retained.
   Deletion/recovery implementation: `9f21f69`, merged PR #13, closed issue #12.
@@ -681,13 +770,14 @@ those early failures.
 The visual template is independently drawn and estimated, not an exact measured
 copy. The initial book is 2026, opening on October 6–7; navigation stays within
 that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
-There are no duration blocks, full rich text or book-wide undo,
+Duration tasks are being implemented on `feat/duration-tasks` (issue #18).
+There is no full rich text or book-wide undo,
 cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
 are available on `main`; they do not merge/replace a populated planner.
 
 Stale writes are blocked rather than silently overwriting. Explicit conflict review
-and cross-tab notices are implemented and locally validated on
-`feat/tab-change-recovery`, pending final CI, review and separately approved merge.
+and cross-tab notices are integrated on main through approved PR #17, with final
+head `b9df802` validated locally and by GitHub CI.
 Richer archives remain deferred. Browser eviction
 can still remove local data, and the auxiliary draft buffer is best effort.
 A local save is not a cloud sync or backup. Device checks and full performance
@@ -700,10 +790,11 @@ does not establish completion of the separate deletion/occupied-slot checks.
 Free-note movement/resizing is merged, and the user confirmed on 2026-10-20 that
 moving and resizing work in their manual check. The device/browser and input
 method were not specified; broader touch, pen and accessibility coverage remains
-unverified. The active slice is two-tab change notifications and stale-edit
-recovery, authorized on 2026-10-20. Its implementation and local validation are
-complete; verify final CI and request separate merge approval. Other M2 features
-remain deferred.
+unverified. Two-tab change notifications and stale-edit recovery, authorized on
+2026-10-20, are complete and merged after separate approval on 2026-10-21.
+The user confirmed the two-tab check works on 2026-10-28 and authorized duration
+tasks next. This slice is active on `feat/duration-tasks`; other M2 features remain
+deferred.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.

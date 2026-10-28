@@ -456,3 +456,50 @@ deletions and three recovery dialogs. Preserve every assertion, ordinary expect
 timeout, retry policy and the rest of the suite's limits. Nine repeated lifecycle
 journeys passed in the three engines, and `npm run check` passed again with 90
 units and production build. Recheck final-head CI before requesting merge.
+
+## 2026-10-28 — Bounded duration-task slice
+
+After confirming manual two-tab recovery works, the user authorized duration tasks
+with time controls, subtle spans, readable overlaps and persistence/recovery.
+Track issue #18 on `feat/duration-tasks`, carrying the approved merge closeout
+`9854b4a` above main `7a12c7e`. Periodic commits/pushes remain authorized; merging
+is separate. Duration dragging/resizing and broad undo/redo are later slices.
+
+Implement `scheduled-block` with start minute/dayOffset and endMinute/endDayOffset,
+validated as a positive range entirely inside 06:00–03:00 (+1). Use explicit day
+choices in the interval editor; never infer a following day from a reversed range.
+Add/Remove duration preserves identity, text, marks, completion and start time.
+Page creation defaults to an editable 12:00–13:00 task; contextual Add duration
+defaults to one hour or the remaining timetable, disabled at 03:00 (+1).
+
+Derived half-open overlap lanes reuse space only when the earlier task ends at or
+before the next start. Place brackets in the existing time gutter, bounded away
+from printed time numbers. Keep text in its existing containing-hour row and at
+the same x position. Multiple entries in an hour offer a full-text chooser; retain
+the existing cycling control for point-only duplicates. Never rewrite times,
+move unrelated writing or render duplicate live editors to resolve an overlap.
+
+Duration tasks deliberately permit overlap during restoration. Existing point,
+checklist and note occupancy rules remain. Reviewed line/block conversion races
+use the same revision checks and archive copies as other tab conflicts. Both
+endpoints flow through all existing records, recovery snapshots and tombstones.
+
+Write archive version 2 and accept versions 1 and 2, keeping v1 strict about its
+original entry kinds/fields. This prevents an older app silently treating a duration
+archive as point tasks. IndexedDB's unchanged id/pageId indexes need no migration;
+old records stay untouched. Use installed React/Radix/Tiptap/Tailwind and existing
+local Node 24.16.0, with no new dependency or service. Installed Next.js client
+component guidance was read before the UI changes.
+
+The first hosted run passed all duration journeys and 169 browser tests overall,
+but an existing Firefox failed-save notification fixture expected no notice after
+a one-shot write failure. A synthetic reproduction demonstrated that the empty
+focus-write can consume that fault, after which the new text commits successfully
+and correctly announces its change. Hold entry-write failures until the test
+explicitly permits Retry, force both focus and text writes through the failure,
+and verify the latest text actually reached the failed write and recovery buffer.
+Retain the original no-notice/no-signal, retry, durable-text and recipient-only
+notice assertions, with unchanged timeouts/retries. This correction changes test
+setup only; the application source remains `fb931a9`. Nine strengthened repetitions
+passed across the three engines, and `npm run check` passed again with 111 units
+and production build. Final-head CI validates the correction before merge review.

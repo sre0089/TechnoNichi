@@ -1,6 +1,7 @@
 import Dexie, { type Table } from 'dexie';
 import {
   assertEntry,
+  isScheduled,
   manifest,
   type Book,
   type Entry,
@@ -21,6 +22,8 @@ export class EntryRestoreRefused extends Error {}
 export type ConflictChoice = 'mine' | 'saved' | 'both';
 
 function occupiesPlace(target: Entry, entry: Entry) {
+  // Duration tasks permit overlap and do not reserve a single writing slot.
+  if (target.type === 'scheduled-block') return false;
   if (target.type === 'task')
     return entry.type === 'task' && target.slot === entry.slot;
   if (target.type === 'scheduled-line')
@@ -39,6 +42,14 @@ function occupiesPlace(target: Entry, entry: Entry) {
 }
 
 function samePlacement(a: Entry, b: Entry) {
+  if (a.type === 'scheduled-block')
+    return (
+      b.type === 'scheduled-block' &&
+      a.minute === b.minute &&
+      a.dayOffset === b.dayOffset &&
+      a.endMinute === b.endMinute &&
+      a.endDayOffset === b.endDayOffset
+    );
   if (a.type === 'task') return b.type === 'task' && a.slot === b.slot;
   if (a.type === 'scheduled-line')
     return (
@@ -204,7 +215,7 @@ export class PlannerDB extends Dexie {
         const preferences = await this.preferences.get('local');
         return validateBackup({
           format: 'daily-book-backup',
-          version: 1,
+          version: 2,
           exportedAt: new Date().toISOString(),
           book,
           pages,
@@ -227,7 +238,11 @@ export class PlannerDB extends Dexie {
       if (current?.revision !== savedRevision) throw new RevisionConflict();
       if (current) {
         assertEntry(current);
-        if (current.pageId !== draft.pageId || current.type !== draft.type)
+        if (
+          current.pageId !== draft.pageId ||
+          (current.type !== draft.type &&
+            !(isScheduled(current) && isScheduled(draft)))
+        )
           throw new Error(
             'The saved entry changed kind or page. Your draft is retained.',
           );

@@ -123,7 +123,7 @@ describe('versioned backup validation', () => {
     [
       'unknown version',
       (b: PlannerBackup) => {
-        b.version = 2 as 1;
+        b.version = 99 as 1;
       },
     ],
     [
@@ -244,6 +244,7 @@ describe('transactional book restoration', () => {
       entries: [...result.entries].sort((a, b) => a.id.localeCompare(b.id)),
     }).toEqual({
       ...original,
+      version: 2,
       entries: [...original.entries].sort((a, b) => a.id.localeCompare(b.id)),
     });
     expect(await target.books.count()).toBe(1);
