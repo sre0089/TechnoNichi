@@ -1,6 +1,47 @@
 # Project state
 
-## Duration tasks — implemented and locally validated, 2026-10-28
+## Five preapproved steps — 2026-10-28
+
+The user authorized continuing with automatic approval for the next five steps,
+including their commits, pushes, PRs and checked merges. This supersedes the
+usual milestone stop/merge-approval gates for this batch only. The scope and
+progress ledger are in [APPROVED_FIVE_STEPS.md](docs/APPROVED_FIVE_STEPS.md):
+duration movement/resizing (#20), page undo/redo (#21), date navigation (#22),
+book interactions (#23), and offline/search readiness (#24). No spending,
+external account/service setup, deployment, destructive history changes or
+unbounded later work is authorized. Physical-device/week-of-use gates remain
+manual and unverified. Step 1 is active on `feat/duration-placement`, based on
+main `9d96a99` plus closeout `62e033f`; steps 2–5 are pending.
+Step 1 checkpoint `a99cbb5` is pushed. `npm run check` passed format/lint/strict
+types, all 115 unit tests and production build. Full local browser regression
+passed: 179 journeys and four intentional skips across Chromium/Firefox/WebKit,
+including all nine new duration-placement cases. Synthetic
+`artifacts/duration-placement.png` was inspected locally. Final PR CI must pass
+all common and three browser-matrix jobs before the preapproved merge. Source,
+test and staged-path reviews/whitespace checks pass; private inputs stay excluded.
+
+## Approved duration-task merge — 2026-10-28
+
+The user separately approved merging PR #19 on 2026-10-28.
+[PR #19](https://github.com/sre0089/TechnoNichi/pull/19) merged into `main` as
+`9d96a99` at 09:34:13 UTC (05:34:13 America/New_York); issue #18 closed automatically.
+Local `main` was fast-forwarded to the same commit. Its complete file tree matches
+the reviewed head `17710a9`, including source, tests, dependencies, workflow and
+README. No application changes were made during the merge.
+
+Final head `17710a9` passed [GitHub CI](https://github.com/sre0089/TechnoNichi/actions/runs/40658098900):
+format, lint, strict types, 111 unit tests, production build and 170 browser tests
+with four intentional skips. Those checks were not rerun locally for this
+identical-tree merge. Only this project-state record changes afterward on
+`docs/duration-merge-state`, with formatting and whitespace checks; publication
+continues under the user's standing periodic commit/push instruction.
+
+Duration tasks, overlap selection and archive v2 support are now integrated.
+Next bounded action: manually review the duration controls, then scope movement
+and resizing of duration tasks. Physical tablet, real IME and assistive-technology
+checks remain unverified. No next feature, deployment or service work has begun.
+
+## Duration tasks — implementation and validation history, 2026-10-28
 
 The user confirmed the manual two-tab recovery check works on 2026-10-28. Browser,
 device and individual choices were not specified; broader device/IME/accessibility
@@ -8,10 +49,10 @@ coverage remains unverified. The user then authorized the next bounded M2 slice:
 duration tasks with start/end controls, subtle spans, readable overlaps and the
 existing saving/backup/conflict-recovery guarantees.
 
-Work is on `feat/duration-tasks`, based on merged main `7a12c7e` plus merge closeout
+Work was on `feat/duration-tasks`, based on merged main `7a12c7e` plus merge closeout
 `9854b4a`, tracked by [issue #18](https://github.com/sre0089/TechnoNichi/issues/18).
-Continue periodic commits/pushes under the user's standing instruction; merge
-requires separate approval.
+Periodic commits/pushes continued under the user's standing instruction; the user
+separately approved merging on 2026-10-28 as recorded above.
 
 Implementation checkpoint `fb931a9` is pushed. Scheduled-block records retain
 explicit start/end day offsets. The page derives overlap lanes in the time gutter,
@@ -46,9 +87,9 @@ Runtime for this slice: existing local Node 24.16.0 (project PATH only); the glo
 Node installation is unchanged. Pointer movement/resizing of duration blocks,
 broader undo/redo and the next milestone remain deferred.
 
-Next bounded action: verify final-head GitHub CI and request separate merge
-approval. Duration appearance and physical tablet/IME/accessibility behavior
-still need the user's manual review. No next feature or deployment has begun.
+Final-head CI and separate merge approval are complete as recorded above.
+Duration appearance and physical tablet/IME/accessibility behavior still need
+the user's manual review. No next feature or deployment has begun.
 
 Published [PR #19](https://github.com/sre0089/TechnoNichi/pull/19) on this branch.
 Initial [CI](https://github.com/sre0089/TechnoNichi/actions/runs/40655541897) passed
@@ -64,6 +105,8 @@ correction rather than treating the first run as success.
 `npm run test:browser -- tests/browser/tab-changes.spec.ts --grep "failed saves do not announce" --repeat-each=3 --workers=3`
 passed all nine strengthened checks. `npm run check` passed again with 111 units
 and production build. The PR's Checks tab reports CI for this final correction.
+Final corrected head `17710a9` passed all checks with 111 unit tests, production
+build and 170 browser tests/four intentional skips before the approved merge.
 
 ## Approved tab recovery merge — 2026-10-21
 
@@ -264,11 +307,18 @@ and the reviewed head's complete file tree. This closeout is maintained on
   cancellation, bounds and retained geometry/text across reload and backups.
 - Integrated local two-tab notices and explicit conflict review into main, with
   per-tab draft recovery and transactional archive copies.
+- Integrated duration tasks with explicit start/end controls, overlap brackets
+  and selection, completion/deletion/conflict recovery, and v2 JSON backups with
+  continued support for v1 imports.
 
 ## Git status and publication
 
-- Integrated branch: `main` at `7a12c7e`; documentation closeout:
-  `docs/tab-merge-state`. Merged [PR #17](https://github.com/sre0089/TechnoNichi/pull/17),
+- Integrated branch: `main` at `9d96a99`; documentation closeout:
+  `docs/duration-merge-state`. Merged [PR #19](https://github.com/sre0089/TechnoNichi/pull/19),
+  closed issue #18, checked head `17710a9`; implementation checkpoint `fb931a9`
+  and validation checkpoint `b1ef36c`. Periodic commits/pushes continue under the
+  user's standing instruction.
+  Merged [PR #17](https://github.com/sre0089/TechnoNichi/pull/17) as `7a12c7e`,
   closed issue #16, checked head `b9df802`; implementation checkpoints `eb7e5de`
   and `20a5050`. Periodic commits/pushes continue under the user's instruction.
   Merged PR #15, closed issue #14, final checked head `32be44e`.
@@ -770,7 +820,8 @@ those early failures.
 The visual template is independently drawn and estimated, not an exact measured
 copy. The initial book is 2026, opening on October 6–7; navigation stays within
 that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
-Duration tasks are being implemented on `feat/duration-tasks` (issue #18).
+Duration tasks are integrated on main through approved PR #19 (closed issue #18).
+Pointer dragging/resizing of duration tasks remains a separate slice.
 There is no full rich text or book-wide undo,
 cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
 are available on `main`; they do not merge/replace a populated planner.
@@ -793,7 +844,8 @@ method were not specified; broader touch, pen and accessibility coverage remains
 unverified. Two-tab change notifications and stale-edit recovery, authorized on
 2026-10-20, are complete and merged after separate approval on 2026-10-21.
 The user confirmed the two-tab check works on 2026-10-28 and authorized duration
-tasks next. This slice is active on `feat/duration-tasks`; other M2 features remain
+tasks next. PR #19 merged after separate approval on 2026-10-28. Next: manual
+duration review, then scope duration movement/resizing. Other M2 features remain
 deferred.
 Physical device checks remain pending as described above.
 Recommend branch protections only

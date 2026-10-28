@@ -6,6 +6,35 @@ export const absoluteStart = (entry: ScheduledEntry) =>
 export const absoluteEnd = (entry: DurationEntry) =>
   entry.endMinute + entry.endDayOffset * 1440;
 
+export type DurationAdjustment = 'move' | 'end';
+export function sameRange(a: DurationEntry, b: DurationEntry) {
+  return (
+    absoluteStart(a) === absoluteStart(b) && absoluteEnd(a) === absoluteEnd(b)
+  );
+}
+export function adjustDuration(
+  entry: DurationEntry,
+  mode: DurationAdjustment,
+  minutes: number,
+): DurationEntry {
+  if (!Number.isFinite(minutes)) throw new Error('Invalid time adjustment');
+  const delta = Math.round(minutes / 15) * 15;
+  let start = absoluteStart(entry);
+  let end = absoluteEnd(entry);
+  if (mode === 'move') {
+    const shift = Math.max(360 - start, Math.min(1620 - end, delta));
+    start += shift;
+    end += shift;
+  } else end = Math.max(start + 1, Math.min(1620, end + delta));
+  return {
+    ...entry,
+    minute: start % 1440,
+    dayOffset: Math.floor(start / 1440),
+    endMinute: end % 1440,
+    endDayOffset: Math.floor(end / 1440),
+  };
+}
+
 export function scheduledLabel(entry: ScheduledEntry) {
   const start = timeLabel(entry.minute, entry.dayOffset);
   return entry.type === 'scheduled-block'

@@ -211,3 +211,10 @@ writing, the small alternate-entry control opens a scrollable formatted-text
 chooser. Choosing an item focuses its one live editor; Escape returns to the
 trigger. The day outline, deletion history and conflict review all show both
 endpoints, including +1 for following-day times. No dependency or font changes.
+
+Selected durations also expose a move handle above the range and an end-resize
+handle below it. Handles alone own pointer gestures; the range stroke remains
+decorative. Up/Down adjusts 15 minutes (Shift one hour), with Earlier/Later and
+Shorter/Longer contextual buttons. Previews disable unrelated placement/navigation
+actions and save once on release. Escape/interruption cancels, and clicking an
+unsnapped range handle does not alter it. Coarse-pointer handles are larger.

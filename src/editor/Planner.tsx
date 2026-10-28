@@ -19,6 +19,7 @@ import {
   newTaskEntry,
   isScheduled,
   type Entry,
+  type DurationEntry,
   type PageRecord,
 } from '../domain/model';
 import {
@@ -36,6 +37,7 @@ import {
   scheduledLabel,
 } from '../domain/durations';
 import { ScheduleControls } from './ScheduleControls';
+import { DurationRange, DurationPlacementControls } from './DurationRange';
 import { HourWritingMenu } from './HourWritingMenu';
 import {
   ChevronLeft,
@@ -438,7 +440,13 @@ function DailyPage({
   selectedId: string | null;
   noteGesture: NoteGestureControls;
 }) {
-  const entries = records.filter((entry) => !entry.deletedAt);
+  const [durationPreview, setDurationPreview] = useState<DurationEntry | null>(
+    null,
+  );
+  const originals = records.filter((entry) => !entry.deletedAt);
+  const entries = originals.map((entry) =>
+    entry.id === durationPreview?.id ? durationPreview : entry,
+  );
   const durations = durationLanes(
     entries.filter((e) => e.type === 'scheduled-block'),
   );
@@ -557,20 +565,23 @@ function DailyPage({
         />
       ))}
       {durations.map((span) => (
-        <span
+        <DurationRange
           key={span.entry.id}
-          className={`duration-span${selectedId === span.entry.id ? ' duration-selected' : ''}`}
-          data-entry-id={span.entry.id}
-          data-start={absoluteStart(span.entry)}
-          data-end={span.entry.endMinute + span.entry.endDayOffset * 1440}
-          data-lane={span.lane}
-          style={box(
-            template.scheduleLineX - span.lane * laneStep,
-            span.y,
-            0,
-            span.height,
-          )}
-          aria-hidden="true"
+          entry={
+            originals.find(
+              (entry) => entry.id === span.entry.id,
+            ) as DurationEntry
+          }
+          display={span.entry}
+          lane={span.lane}
+          x={template.scheduleLineX - span.lane * laneStep}
+          y={span.y}
+          height={span.height}
+          selected={selectedId === span.entry.id}
+          disabled={moving}
+          edit={edit}
+          preview={setDurationPreview}
+          {...noteGesture}
         />
       ))}
       {hourlyRows.map((row, index) => {
@@ -1041,6 +1052,13 @@ function PlannerEditor() {
             )}
             {isScheduled(selected) && (
               <ScheduleControls
+                entry={selected}
+                edit={edit}
+                disabled={moving || focusedEditor}
+              />
+            )}
+            {selected.type === 'scheduled-block' && (
+              <DurationPlacementControls
                 entry={selected}
                 edit={edit}
                 disabled={moving || focusedEditor}
