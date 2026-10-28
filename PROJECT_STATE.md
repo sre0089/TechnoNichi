@@ -12,9 +12,13 @@ external account/service setup, deployment, destructive history changes or
 unbounded later work is authorized. Physical-device/week-of-use gates remain
 manual and unverified. Step 1 is active on `feat/duration-placement`, based on
 main `9d96a99` plus closeout `62e033f`; steps 2–5 are pending.
-Step 1's local format/lint/strict types, 115 unit tests and production build pass.
-Three new Chromium gesture journeys pass; the full 183-case browser regression
-is running. Synthetic `artifacts/duration-placement.png` was inspected locally.
+Step 1 checkpoint `a99cbb5` is pushed. `npm run check` passed format/lint/strict
+types, all 115 unit tests and production build. Full local browser regression
+passed: 179 journeys and four intentional skips across Chromium/Firefox/WebKit,
+including all nine new duration-placement cases. Synthetic
+`artifacts/duration-placement.png` was inspected locally. Final PR CI must pass
+all common and three browser-matrix jobs before the preapproved merge. Source,
+test and staged-path reviews/whitespace checks pass; private inputs stay excluded.
 
 ## Approved duration-task merge — 2026-10-28
 

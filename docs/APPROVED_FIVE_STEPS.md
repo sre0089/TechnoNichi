@@ -12,13 +12,13 @@ final-head CI before merge. Record each completed merge here in the next step's
 documentation; stop after step 5. Physical-device, assistive-technology and a full
 week of actual planning remain manual gates, not automatically verified work.
 
-| Step | Bounded implementation                                                                                | Status                 |
-| ---- | ----------------------------------------------------------------------------------------------------- | ---------------------- |
-| 1    | Selected duration move/end-resize handles, keyboard alternatives, cancellation and save/recovery      | In progress, issue #20 |
-| 2    | Page undo/redo for document actions; preserve focused text editor history and refuse stale overwrites | Pending, issue #21     |
-| 3    | Today/date/month navigation through the stable yearly manifest, retaining save guards                 | Pending, issue #22     |
-| 4    | Cover/open/close and restrained page transitions with reduced/no-motion fallback and safe input       | Pending, issue #23     |
-| 5    | Production offline shell opening, local search, update readiness and personal-alpha checks            | Pending, issue #24     |
+| Step | Bounded implementation                                                                                | Status                                            |
+| ---- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| 1    | Selected duration move/end-resize handles, keyboard alternatives, cancellation and save/recovery      | Local checks passed, issue #20; awaiting CI/merge |
+| 2    | Page undo/redo for document actions; preserve focused text editor history and refuse stale overwrites | Pending, issue #21                                |
+| 3    | Today/date/month navigation through the stable yearly manifest, retaining save guards                 | Pending, issue #22                                |
+| 4    | Cover/open/close and restrained page transitions with reduced/no-motion fallback and safe input       | Pending, issue #23                                |
+| 5    | Production offline shell opening, local search, update readiness and personal-alpha checks            | Pending, issue #24                                |
 
 ## Acceptance boundaries
 
