@@ -35,7 +35,9 @@ export function ViewSettings({
   moving,
 }: {
   preferences: Preferences;
-  change: (changes: Partial<Pick<Preferences, 'zoom' | 'toolbarSide'>>) => void;
+  change: (
+    changes: Partial<Pick<Preferences, 'zoom' | 'toolbarSide' | 'motion'>>,
+  ) => void;
   moving: boolean;
 }) {
   return (
@@ -81,6 +83,22 @@ export function ViewSettings({
           </div>
         </div>
       </fieldset>
+      <label className="flex flex-col items-start gap-2 text-xs font-semibold">
+        Book motion
+        <NativeSelect
+          value={preferences.motion ?? 'system'}
+          disabled={moving}
+          onChange={(event) =>
+            change({ motion: event.target.value as 'system' | 'none' })
+          }
+        >
+          <option value="system">Follow device preference</option>
+          <option value="none">No animation</option>
+        </NativeSelect>
+        <span className="font-normal text-ui-muted">
+          Brief transitions respect reduced motion on your device.
+        </span>
+      </label>
       <p className="m-0 rounded-control bg-wash/60 p-3 text-xs leading-relaxed text-ui-muted">
         Your preferences apply as you choose and stay with this browser.
       </p>

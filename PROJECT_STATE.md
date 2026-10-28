@@ -939,3 +939,16 @@ build. The combined navigation/editor suite passed 64 browser journeys with two
 intentional visual-fixture skips; all 12 new navigation cases passed across the
 three engines. Synthetic date-navigation screenshot was inspected. Final PR CI
 will run the complete suite before merge.
+
+## Approved batch — book interactions
+
+Step 4 is implemented on `feat/book-experience`: original cover, save-before-close,
+same-date open/resume, explicit 180ms CSS spread transitions, device reduced motion
+and an optional saved No animation preference. No cloned editors or curl library.
+Resize/blur settles motion; input/placement controls lock during transitions.
+All 21 book/history engine cases passed locally after the final cover-only
+visibility polish. `npm run check` passed format/lint/strict types, 124 unit tests
+and production build. Synthetic cover screenshot was inspected. Final CI remains
+required before merge. Earlier steps
+remain in PRs #26/#27; the WebKit history test ordering correction is pushed as
+`51439cb` and included in #27. Physical device/motion approval remains manual.

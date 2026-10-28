@@ -760,6 +760,102 @@
 .turning {
   opacity: 0.85;
 }
+.book[hidden],
+.focus-tabs[hidden],
+.book-toolbar[hidden],
+.workspace-footer[hidden] {
+  display: none;
+}
+.book-cover {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: min(90%, 480px);
+  min-height: 570px;
+  margin: 28px auto;
+  padding: 50px 24px;
+  border: 1px solid #61585b;
+  border-left: 12px solid #3c363d;
+  border-radius: 6px 15px 15px 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    #514954 0px,
+    #514954 2px,
+    #534b55 2px,
+    #534b55 4px
+  );
+  color: #eee6d7;
+  box-shadow:
+    6px 9px 0 -3px #d3c9b9,
+    8px 12px 0 -4px #a79a87,
+    0 24px 40px -18px #382d385e;
+  text-align: center;
+}
+.book-cover h1 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-weight: normal;
+  font-size: clamp(28px, 4vw, 42px);
+}
+.book-cover p {
+  margin: 0 0 20px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+.cover-year {
+  font-size: 14px;
+  letter-spacing: 0.3em;
+}
+.cover-resume {
+  font-size: 11px;
+  color: #e3dacb;
+}
+.book-opening {
+  animation: book-open 180ms ease-out both;
+}
+.book-closing {
+  animation: book-close 180ms ease-in both;
+}
+.book-turning {
+  animation: book-turn 180ms ease-out both;
+}
+.no-book-motion {
+  animation: none;
+  transition: none;
+}
+@keyframes book-open {
+  from {
+    opacity: 0.2;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes book-close {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+}
+@keyframes book-turn {
+  from {
+    opacity: 0.6;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 .book {
   transition: opacity 0.12s ease;
 }

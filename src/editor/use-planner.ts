@@ -321,7 +321,9 @@ export function usePlanner() {
   };
 
   const updatePreferences = async (
-    changes: Partial<Pick<Preferences, 'focusSide' | 'toolbarSide' | 'zoom'>>,
+    changes: Partial<
+      Pick<Preferences, 'focusSide' | 'toolbarSide' | 'zoom' | 'motion'>
+    >,
   ) => {
     if (!view || !db.current || moveLock.current || noteGestureLock.current)
       return;
@@ -679,6 +681,7 @@ export function usePlanner() {
     },
     updatePreferences,
     exportBackup,
+    prepareBookClose: () => withOperationLock(async () => true),
     restoreBackup,
     listDeletedEntries,
     deleteEntry,

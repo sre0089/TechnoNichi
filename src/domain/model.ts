@@ -84,6 +84,7 @@ export interface Preferences {
   focusSide: 0 | 1;
   toolbarSide: 'left' | 'right';
   zoom: number;
+  motion?: 'system' | 'none';
 }
 
 export function manifest(book: Book): PageRecord[] {

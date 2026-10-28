@@ -32,6 +32,7 @@ import {
 import { usePlanner } from './use-planner';
 import { PageHistoryControls } from './PageHistoryControls';
 import { DateNavigation } from './DateNavigation';
+import { useBookMotion } from '../book/use-book-motion';
 import { scheduledRuns } from '../domain/schedule';
 import {
   absoluteStart,
@@ -769,6 +770,7 @@ function PlannerEditor() {
     retry,
     unsaved,
     exportBackup,
+    prepareBookClose,
     restoreBackup,
     listDeletedEntries,
     deleteEntry,
@@ -781,7 +783,10 @@ function PlannerEditor() {
     retainTabDraft,
     loadTabChanges,
   } = usePlanner();
-  const moving = pageMoving || adjustingNote;
+  const { state: bookState, play: playBookMotion } = useBookMotion();
+  const closed = bookState === 'closed';
+  const moving = pageMoving || adjustingNote || bookState !== 'open';
+  const [bookError, setBookError] = useState('');
   const entries = records.filter((entry) => !entry.deletedAt);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showRecovery, setShowRecovery] = useState(false);
@@ -794,6 +799,12 @@ function PlannerEditor() {
     setTabReviewOpen(true);
   };
   const bookRef = useRef<HTMLDivElement>(null);
+  const openBookRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (bookState === 'closed') openBookRef.current?.focus();
+    else if (bookState === 'opening' || bookState === 'open')
+      restoreUnclaimedFocus(() => bookRef.current);
+  }, [bookState]);
   useEffect(() => {
     if (selectedId) document.getElementById(selectedId)?.focus();
   }, [selectedId]);
@@ -823,8 +834,10 @@ function PlannerEditor() {
     timeZone: 'UTC',
   }).format(dateObject(visible[0].date));
   const turn = async (direction: number) => {
+    if (moving) return;
     if (await navigate(preferences.pageIndex + direction * 2)) {
       setSelectedId(null);
+      playBookMotion('turning', preferences.motion);
       bookRef.current?.focus();
     } else if (selectedId) {
       document.getElementById(selectedId)?.focus();
@@ -853,7 +866,8 @@ function PlannerEditor() {
             {historyMessage}
           </span>
         )}
-        <div className="book-toolbar">
+        {bookError && <p role="alert">{bookError}</p>}
+        <div className="book-toolbar" hidden={closed}>
           <div className="spread-navigation">
             <Hint label="Previous two days">
               <Button
@@ -886,6 +900,28 @@ function PlannerEditor() {
             </Hint>
           </div>
           <div className="toolbar-actions flex flex-wrap items-center justify-center gap-2">
+            <Button
+              variant="ghost"
+              disabled={moving || focusedEditor}
+              onClick={() => {
+                void (async () => {
+                  setBookError('');
+                  try {
+                    await prepareBookClose();
+                    setSelectedId(null);
+                    playBookMotion('closing', preferences.motion);
+                  } catch (error) {
+                    setBookError(
+                      error instanceof Error
+                        ? error.message
+                        : 'Your writing could not save. The book remains open.',
+                    );
+                  }
+                })();
+              }}
+            >
+              Close book
+            </Button>
             <DateNavigation
               key={`${visible[preferences.focusSide]?.date ?? visible[0].date}:${calendarVersion}`}
               book={view.book}
@@ -1043,7 +1079,30 @@ function PlannerEditor() {
             )}
           </aside>
         )}
-        <div className="focus-tabs" aria-label="Focused page">
+        {closed && (
+          <section className="book-cover" aria-label="Book cover">
+            <span className="cover-year">{view.book.year}</span>
+            <h1>{view.book.title}</h1>
+            <p>A place for your day</p>
+            <Button
+              ref={openBookRef}
+              variant="primary"
+              onClick={() => {
+                playBookMotion('opening', preferences.motion);
+                bookRef.current?.focus();
+              }}
+            >
+              Open book
+            </Button>
+            <span className="cover-resume">
+              Resume{' '}
+              {labelDate(
+                visible[preferences.focusSide]?.date ?? visible[0].date,
+              )}
+            </span>
+          </section>
+        )}
+        <div className="focus-tabs" aria-label="Focused page" hidden={closed}>
           {visible.map((page, side) => (
             <Button
               key={page.id}
@@ -1059,7 +1118,8 @@ function PlannerEditor() {
           ))}
         </div>
         <div
-          className={`book focus-${preferences.focusSide}${pageMoving ? ' turning' : ''}`}
+          className={`book focus-${preferences.focusSide} book-${bookState}${pageMoving ? ' turning' : ''}${preferences.motion === 'none' ? ' no-book-motion' : ''}`}
+          hidden={closed}
           id="book"
           ref={bookRef}
           tabIndex={-1}
@@ -1207,13 +1267,13 @@ function PlannerEditor() {
             close={() => setTabReviewOpen(false)}
           />
         )}
-        <footer className="workspace-footer">
+        <footer className="workspace-footer" hidden={closed}>
           <p>
             Write directly in an hourly row. Use the lower grid for free notes.
           </p>
           <span>{view.book.year} · local book</span>
         </footer>
-        <details className="day-outline">
+        <details className="day-outline" hidden={closed}>
           <summary>Day outline</summary>
           {visible.map((page) => (
             <section key={page.id}>

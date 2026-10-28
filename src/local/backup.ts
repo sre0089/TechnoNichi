@@ -130,6 +130,7 @@ export function validateBackup(value: unknown): PlannerBackup {
     'focusSide',
     'toolbarSide',
     'zoom',
+    'motion',
   ]);
   if (
     preferences.id !== 'local' ||
@@ -143,6 +144,9 @@ export function validateBackup(value: unknown): PlannerBackup {
     !['left', 'right'].includes(String(preferences.toolbarSide)) ||
     ![0.85, 1, 1.15].includes(Number(preferences.zoom)) ||
     typeof preferences.zoom !== 'number' ||
+    (preferences.motion !== undefined &&
+      (typeof preferences.motion !== 'string' ||
+        !['system', 'none'].includes(preferences.motion))) ||
     (preferences.focusSide === 1 &&
       Number(preferences.pageIndex) + 1 >= expected.length)
   )

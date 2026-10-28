@@ -104,6 +104,25 @@ function fixture(): PlannerBackup {
   );
 }
 
+it('round-trips optional motion preferences and refuses invalid values', () => {
+  const archive = fixture();
+  expect(validateBackup(archive).preferences.motion).toBeUndefined();
+  for (const motion of ['system', 'none'] as const) {
+    archive.preferences.motion = motion;
+    expect(parseBackup(serializeBackup(archive)).preferences.motion).toBe(
+      motion,
+    );
+  }
+  for (const motion of [null, ['none'], 'fast', 0]) {
+    expect(() =>
+      validateBackup({
+        ...archive,
+        preferences: { ...archive.preferences, motion },
+      }),
+    ).toThrow();
+  }
+});
+
 async function snapshot(db: PlannerDB) {
   return {
     books: await db.books.toArray(),
