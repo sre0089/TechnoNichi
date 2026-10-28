@@ -201,7 +201,21 @@ export function RichWriting({
       enablePasteRules: false,
       content: documentFor(entry),
       editable: !readOnly,
-      autofocus: enlarged ? 'end' : false,
+      autofocus: false,
+      onCreate: ({ editor }) => {
+        if (!enlarged) return;
+        const node = editor.view.dom;
+        const dialog = node.closest('[role="dialog"]');
+        // The mounted editor is ready here. Never steal focus from a control
+        // the user has already reached inside this dialog.
+        if (
+          dialog?.contains(document.activeElement) &&
+          document.activeElement?.matches('button, input, select')
+        )
+          return;
+        editor.commands.setTextSelection(editor.state.doc.content.size - 1);
+        editor.view.focus();
+      },
       editorProps: {
         handleDOMEvents: {
           // Let the browser commit IME text without running ProseMirror's Enter

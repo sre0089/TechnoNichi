@@ -525,3 +525,13 @@ The preceding single job took over thirteen minutes; per-engine jobs keep the
 growing suite bounded and all three must pass before merge. Preserve installed
 action SHAs, minimal contents:read permissions, test assertions/timeouts/retries
 and explicit two-worker browser limits. References are in the batch ledger.
+
+## Page action history — 2026-10-28
+
+Use bounded current-tab history (50 actions), separate from focused Tiptap word
+undo. Metadata undo preserves latest own text/marks/ink and writes through a fresh
+revision/content compare-and-swap transaction. Creation undo is a recoverable
+soft-delete; redo restores the same identity and checks occupied placement.
+Observe only own completed saves as history baselines; loading remote records must
+not legitimize stale undo. Reset on import and explicit tab reconciliation, retain
+on navigation and on failed undo. No new database schema or archive fields.

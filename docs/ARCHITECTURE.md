@@ -252,9 +252,8 @@ chooser and day outline retain every task's text and exact interval.
 Deletion, backups and retained tab snapshots already store full entry objects.
 Repository conflict decisions permit reviewed conversion between scheduled kinds
 while retaining type/page checks for other kinds. Duration restores allow overlap;
-point/checklist/note occupied-placement refusal stays intact. Drag creation,
-pointer movement/resizing is described below; application-wide undo follows in
-the approved batch.
+point/checklist/note occupied-placement refusal stays intact. Drag creation remains deferred. Pointer movement/resizing and
+page action history are described below.
 
 Selected `DurationRange` move/end-resize handles preview range changes through
 the same placement lock as notes. Deltas snap to 15 minutes; movement retains
@@ -264,3 +263,11 @@ Escape, lost capture, blur, scroll and resize cancel. Up/Down changes 15 minutes
 Shift changes 60; contextual buttons and the interval dialog provide alternatives.
 Writing remains read-only during preview and handle focus survives release.
 No new schema/archive/dependency change is required.
+
+### Page action history
+
+`local/page-history.ts` bounds current-tab document history; `applyHistory` in the
+repository validates expected content/revision and placement in one transaction.
+`usePlanner` flushes drafts before history commands and observes own durable saves.
+Focused rich writing owns text undo; page commands retain current words/styles.
+History resets on reload/import/explicit external reconciliation, not navigation.

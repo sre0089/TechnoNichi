@@ -3,6 +3,7 @@ import {
   assertEntry,
   isScheduled,
   manifest,
+  sameContent,
   type Book,
   type Entry,
   type PageRecord,
@@ -290,6 +291,64 @@ export class PlannerDB extends Dexie {
       const copy = recoveryCopy(draft);
       await this.entries.add(copy);
       return copy;
+    });
+  }
+
+  async applyHistory(
+    expectedValue: Entry,
+    targetValue: Entry | null,
+  ): Promise<Entry> {
+    const expected = structuredClone(expectedValue);
+    const target = targetValue ? structuredClone(targetValue) : null;
+    assertEntry(expected);
+    if (target) assertEntry(target);
+    return this.transaction('rw', this.entries, this.pages, async () => {
+      const current = await this.entries.get(expected.id);
+      if (
+        !current ||
+        current.revision !== expected.revision ||
+        !sameContent(current, expected)
+      )
+        throw new RevisionConflict();
+      if (
+        target &&
+        (target.id !== current.id ||
+          target.pageId !== current.pageId ||
+          (target.type !== current.type &&
+            !(isScheduled(target) && isScheduled(current))))
+      )
+        throw new Error('History changed entry identity.');
+      const saved: Entry = target
+        ? {
+            ...target,
+            text: current.text,
+            formatRuns: current.formatRuns,
+            style: current.style,
+            revision: current.revision + 1,
+            deletedAt: target.deletedAt ? new Date().toISOString() : null,
+          }
+        : {
+            ...current,
+            deletedAt: new Date().toISOString(),
+            revision: current.revision + 1,
+          };
+      assertEntry(saved);
+      if (!(await this.pages.get(saved.pageId)))
+        throw new Error('The original page is no longer available.');
+      if (
+        !saved.deletedAt &&
+        (current.deletedAt || !samePlacement(current, saved))
+      ) {
+        const occupied = (await this.readPages([saved.pageId])).some(
+          (entry) => entry.id !== saved.id && occupiesPlace(saved, entry),
+        );
+        if (occupied)
+          throw new EntryRestoreRefused(
+            'The original space is occupied. Your writing and history are retained.',
+          );
+      }
+      await this.entries.put(saved);
+      return saved;
     });
   }
 
