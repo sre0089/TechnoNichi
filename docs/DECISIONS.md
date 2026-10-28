@@ -503,3 +503,25 @@ notice assertions, with unchanged timeouts/retries. This correction changes test
 setup only; the application source remains `fb931a9`. Nine strengthened repetitions
 passed across the three engines, and `npm run check` passed again with 111 units
 and production build. Final-head CI validates the correction before merge review.
+
+## 2026-10-28 — Five-step approval and duration placement
+
+The user authorized automatic approval for the next five bounded steps. Their
+scope, exclusions and progress are recorded in `APPROVED_FIVE_STEPS.md`; this
+supersedes the usual stop/commit/push/PR/merge approval gates for these five steps.
+All final-head checks still precede each merge. Stop when the batch is complete;
+physical-device and week-of-use gates remain manual. No spending or deployment.
+
+Step 1 (#20) adds selected duration move/end-resize handles and non-drag controls.
+Snap deltas to 15 minutes, Shift to one hour; preserve exact starting minutes and
+duration when moving. End resizing keeps a positive range within 06:00–03:00 (+1).
+Preview through the note placement lock, then queue exactly one changed entry at
+release. A click never snaps an imported interval. Interruption cancels. Keep
+native text arrows and focus distinct from handle shortcuts. No schema/dependency
+change. Reuse existing saving, revisions, deletion/recovery and archive v2.
+
+Split browser CI by engine after the common format/lint/types/unit/build job.
+The preceding single job took over thirteen minutes; per-engine jobs keep the
+growing suite bounded and all three must pass before merge. Preserve installed
+action SHAs, minimal contents:read permissions, test assertions/timeouts/retries
+and explicit two-worker browser limits. References are in the batch ledger.

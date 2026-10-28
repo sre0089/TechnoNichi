@@ -1,5 +1,21 @@
 # Project state
 
+## Five preapproved steps — 2026-10-28
+
+The user authorized continuing with automatic approval for the next five steps,
+including their commits, pushes, PRs and checked merges. This supersedes the
+usual milestone stop/merge-approval gates for this batch only. The scope and
+progress ledger are in [APPROVED_FIVE_STEPS.md](docs/APPROVED_FIVE_STEPS.md):
+duration movement/resizing (#20), page undo/redo (#21), date navigation (#22),
+book interactions (#23), and offline/search readiness (#24). No spending,
+external account/service setup, deployment, destructive history changes or
+unbounded later work is authorized. Physical-device/week-of-use gates remain
+manual and unverified. Step 1 is active on `feat/duration-placement`, based on
+main `9d96a99` plus closeout `62e033f`; steps 2–5 are pending.
+Step 1's local format/lint/strict types, 115 unit tests and production build pass.
+Three new Chromium gesture journeys pass; the full 183-case browser regression
+is running. Synthetic `artifacts/duration-placement.png` was inspected locally.
+
 ## Approved duration-task merge — 2026-10-28
 
 The user separately approved merging PR #19 on 2026-10-28.

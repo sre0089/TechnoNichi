@@ -370,7 +370,9 @@ export function RichWriting({
       !editor.isDestroyed &&
       selected &&
       !readOnly &&
-      !document.activeElement?.closest('[data-note-handle]') &&
+      !document.activeElement?.closest(
+        '[data-note-handle], [data-duration-handle]',
+      ) &&
       !editor.isFocused
     )
       editor.commands.focus();
