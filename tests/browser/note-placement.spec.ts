@@ -350,6 +350,9 @@ test('a failed geometry save retains the changed note for retry and blocks navig
   await page.getByRole('button', { name: 'Next spread', exact: true }).click();
   await expect(day(page)).toBeVisible();
   await expect(writing).toHaveText('Keep this note');
+  await expect(
+    page.getByRole('button', { name: 'Next spread', exact: true }),
+  ).toBeEnabled();
   await page.evaluate(() =>
     (
       window as typeof window & { restoreNoteStorage: () => void }
