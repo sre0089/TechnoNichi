@@ -21,6 +21,7 @@ import { readRecovery, SaveQueue, type SaveState } from '../local/save-queue';
 import { serializeBackup, type PlannerBackup } from '../local/backup';
 import { TabRecovery } from '../local/tab-recovery';
 import { TabChanges } from '../local/tab-changes';
+import { PageHistory, type HistoryDirection } from '../local/page-history';
 import {
   readTabReview,
   type DraftConflict,
@@ -35,7 +36,33 @@ interface View {
 
 export function usePlanner() {
   const [view, setView] = useState<View | null>(null);
-  const [entries, setEntries] = useState<Entry[]>([]);
+  const [entries, setEntryState] = useState<Entry[]>([]);
+  const currentEntries = useRef<Entry[]>([]);
+  const setEntries = useCallback(
+    (value: Entry[] | ((current: Entry[]) => Entry[])) => {
+      const next =
+        typeof value === 'function' ? value(currentEntries.current) : value;
+      currentEntries.current = next;
+      setEntryState(next);
+    },
+    [],
+  );
+  const history = useRef(new PageHistory());
+  const [historyInfo, setHistoryInfo] = useState(() =>
+    new PageHistory().info(),
+  );
+  const [historyMessage, setHistoryMessage] = useState('');
+  const [historyError, setHistoryError] = useState('');
+  const publishHistory = useCallback(
+    () => setHistoryInfo(history.current.info()),
+    [],
+  );
+  const resetHistory = useCallback(() => {
+    history.current.reset();
+    publishHistory();
+    setHistoryMessage('');
+    setHistoryError('');
+  }, [publishHistory]);
   const [saveState, setSaveState] = useState<SaveState>({ kind: 'saving' });
   const [openingError, setOpeningError] = useState(false);
   const [moving, setMoving] = useState(false);
@@ -160,6 +187,7 @@ export function usePlanner() {
         queue = new SaveQueue(
           async (e, revision) => {
             const saved = await database.save(e, revision);
+            history.current.observe(saved);
             bus.publish(currentView.current?.book.id ?? book.id);
             return saved;
           },
@@ -226,16 +254,24 @@ export function usePlanner() {
       if (queue) void queue.flush().finally(() => database.close());
       else database.close();
     };
-  }, []);
+  }, [setEntries]);
 
-  const edit = useCallback((entry: Entry) => {
-    if (!writer.current || moveLock.current) return;
-    setEntries((current) => [
-      ...current.filter((e) => e.id !== entry.id),
-      entry,
-    ]);
-    writer.current.edit(entry);
-  }, []);
+  const edit = useCallback(
+    (entry: Entry) => {
+      if (!writer.current || moveLock.current) return;
+      history.current.edit(
+        currentEntries.current.find((item) => item.id === entry.id),
+        entry,
+      );
+      publishHistory();
+      setEntries((current) => [
+        ...current.filter((e) => e.id !== entry.id),
+        entry,
+      ]);
+      writer.current.edit(entry);
+    },
+    [setEntries, publishHistory],
+  );
 
   const navigate = async (index: number) => {
     if (
@@ -360,6 +396,7 @@ export function usePlanner() {
         visibleIds.has(entry.pageId),
       );
       queue.seed(loaded);
+      resetHistory();
       setEntries(loaded);
       setView({ book, pages, preferences });
       setSaveState({ kind: 'saved' });
@@ -377,6 +414,7 @@ export function usePlanner() {
       if (revision === undefined)
         throw new Error('Please select a saved entry.');
       let deleted: Entry;
+      const before = await database.entries.get(id);
       try {
         deleted = await database.deleteEntry(id, revision);
       } catch (error) {
@@ -387,6 +425,8 @@ export function usePlanner() {
         );
       }
       queue.seed([deleted]);
+      history.current.record(before ?? null, deleted, 'Delete entry');
+      publishHistory();
       if (view) changes.current?.publish(view.book.id);
       setEntries((current) =>
         current.map((entry) => (entry.id === id ? deleted : entry)),
@@ -410,6 +450,8 @@ export function usePlanner() {
         );
       }
       queue.seed([restored]);
+      history.current.record(entry, restored, 'Restore entry');
+      publishHistory();
       if (view) changes.current?.publish(view.book.id);
       if (
         view?.pages
@@ -491,7 +533,7 @@ export function usePlanner() {
         combined.set(entry.id, entry);
     setEntries([...combined.values()]);
     setOtherTabChanged(changeVersion.current !== observedVersion);
-  }, []);
+  }, [setEntries]);
 
   const resolveTabConflict = useCallback(
     async (conflict: DraftConflict, choice: ConflictChoice) => {
@@ -513,12 +555,13 @@ export function usePlanner() {
         choice,
       );
       queue.accept(conflict.draft, result.entry);
+      resetHistory();
       if (result.changed && currentView.current)
         changes.current?.publish(currentView.current.book.id);
       await refreshVisible();
       return reviewSnapshot();
     },
-    [refreshVisible, reviewSnapshot],
+    [refreshVisible, reviewSnapshot, resetHistory],
   );
 
   const retainTabDraft = useCallback(
@@ -526,6 +569,7 @@ export function usePlanner() {
       if (!reviewLock.current || !db.current)
         throw new Error('Please open the review.');
       await db.current.retainDraftCopy(retained.entry);
+      resetHistory();
       for (const source of retained.sources)
         recoveryStore.current?.release(source);
       if (currentView.current)
@@ -533,7 +577,7 @@ export function usePlanner() {
       await refreshVisible();
       return reviewSnapshot();
     },
-    [refreshVisible, reviewSnapshot],
+    [refreshVisible, reviewSnapshot, resetHistory],
   );
 
   const loadTabChanges = useCallback(async () => {
@@ -559,12 +603,56 @@ export function usePlanner() {
       setEntries(loaded);
       setOtherTabChanged(false);
     } else await refreshVisible();
+    resetHistory();
     return reviewSnapshot();
-  }, [refreshVisible, reviewSnapshot]);
+  }, [refreshVisible, reviewSnapshot, resetHistory, setEntries]);
+
+  const applyPageHistory = async (direction: HistoryDirection) => {
+    setHistoryError('');
+    try {
+      return await withOperationLock(async (database, queue) => {
+        const request = history.current.request(direction);
+        if (!request) return undefined;
+        const saved = await database.applyHistory(
+          request.expected,
+          request.target,
+        );
+        history.current.complete(direction, saved);
+        publishHistory();
+        queue.seed([saved]);
+        if (view) changes.current?.publish(view.book.id);
+        if (
+          view?.pages
+            .slice(view.preferences.pageIndex, view.preferences.pageIndex + 2)
+            .some((page) => page.id === saved.pageId)
+        )
+          setEntries((current) => [
+            ...current.filter((entry) => entry.id !== saved.id),
+            saved,
+          ]);
+        setHistoryMessage(
+          `${direction === 'undo' ? 'Undid' : 'Redid'} ${request.label.toLowerCase()}.`,
+        );
+        return saved;
+      });
+    } catch (error) {
+      setHistoryError(
+        error instanceof Error
+          ? error.message
+          : 'This action could not be undone. Your writing is retained.',
+      );
+      return undefined;
+    }
+  };
 
   return {
     view,
     entries,
+    historyInfo,
+    historyMessage,
+    historyError,
+    undoPage: () => applyPageHistory('undo'),
+    redoPage: () => applyPageHistory('redo'),
     saveState,
     openingError,
     moving,

@@ -30,6 +30,7 @@ import {
   snapNote,
 } from '../templates/daily-v1';
 import { usePlanner } from './use-planner';
+import { PageHistoryControls } from './PageHistoryControls';
 import { scheduledRuns } from '../domain/schedule';
 import {
   absoluteStart,
@@ -738,6 +739,11 @@ function MiniCalendar({
 function PlannerEditor() {
   const {
     view,
+    historyInfo,
+    historyMessage,
+    historyError,
+    undoPage,
+    redoPage,
     entries: records,
     saveState,
     openingError,
@@ -826,6 +832,13 @@ function PlannerEditor() {
           </a>
           <SaveStatus state={saveState} />
         </header>
+        {historyError ? (
+          <p role="alert">{historyError}</p>
+        ) : (
+          <span className="sr-only" aria-live="polite">
+            {historyMessage}
+          </span>
+        )}
         <div className="book-toolbar">
           <div className="spread-navigation">
             <Hint label="Previous two days">
@@ -859,6 +872,29 @@ function PlannerEditor() {
             </Hint>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2">
+            <PageHistoryControls
+              info={historyInfo}
+              disabled={moving || focusedEditor}
+              apply={(direction) => {
+                void (async () => {
+                  const saved = await (direction === 'undo'
+                    ? undoPage()
+                    : redoPage());
+                  if (saved) {
+                    setSelectedId(null);
+                    const index = pages.findIndex(
+                      (page) => page.id === saved.pageId,
+                    );
+                    if (
+                      index >= 0 &&
+                      !visible.some((page) => page.id === saved.pageId)
+                    )
+                      await navigate(index);
+                    bookRef.current?.focus();
+                  }
+                })();
+              }}
+            />
             <Button
               id="tab-changes"
               variant="ghost"
