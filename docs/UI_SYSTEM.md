@@ -228,3 +228,11 @@ history. Page history retains current wording/marks and reverses placement,
 completion, creation, deletion or restoration through revision-checked writes.
 The enlarged editor focuses once after mount rather than scheduling a delayed
 focus that could steal a user's subsequent dialog-button focus.
+
+## Date navigation
+
+Today, Date and the miniature calendar share the existing save-safe navigator.
+Date opens a native date field and a month browser with 44-pixel day targets.
+The miniature calendar remains visually small but acts as one trigger to that
+larger control. The selected date determines phone focus; resume persists it.
+Today uses the stored book timezone and reports out-of-book dates in place.

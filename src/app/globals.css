@@ -108,12 +108,22 @@
 }
 .book-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   max-width: 1040px;
   margin: 0 auto 22px;
   min-height: 42px;
   gap: 20px;
+}
+.toolbar-actions {
+  flex-shrink: 0;
+  max-width: 100%;
+  margin-left: auto;
+}
+.toolbar-left .toolbar-actions {
+  margin-left: 0;
+  margin-right: auto;
 }
 .spread-navigation {
   display: flex;
@@ -625,6 +635,10 @@
   background: #f7f2e7;
 }
 .mini-calendar {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
   position: absolute;
   top: 90.48%;
   height: 7.62%;
@@ -636,7 +650,15 @@
   color: #786c80;
   font-size: clamp(5px, 0.55vw, 8px);
   text-align: center;
-  pointer-events: none;
+  pointer-events: auto;
+}
+.mini-calendar:focus-visible {
+  outline: 2px solid var(--color-ink, #55475d);
+  outline-offset: 4px;
+}
+.mini-calendar:disabled {
+  cursor: default;
+  opacity: 0.5;
 }
 .mini-calendar span {
   display: flex;

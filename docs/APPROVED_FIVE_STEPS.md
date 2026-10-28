@@ -15,8 +15,8 @@ week of actual planning remain manual gates, not automatically verified work.
 | Step | Bounded implementation                                                                                | Status                                       |
 | ---- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | 1    | Selected duration move/end-resize handles, keyboard alternatives, cancellation and save/recovery      | Merged PR #25 as `7959f1a`; issue #20 closed |
-| 2    | Page undo/redo for document actions; preserve focused text editor history and refuse stale overwrites | Implemented; validation active, issue #21    |
-| 3    | Today/date/month navigation through the stable yearly manifest, retaining save guards                 | Pending, issue #22                           |
+| 2    | Page undo/redo for document actions; preserve focused text editor history and refuse stale overwrites | PR #26; final CI pending, issue #21          |
+| 3    | Today/date/month navigation through the stable yearly manifest, retaining save guards                 | Implemented; validation active, issue #22    |
 | 4    | Cover/open/close and restrained page transitions with reduced/no-motion fallback and safe input       | Pending, issue #23                           |
 | 5    | Production offline shell opening, local search, update readiness and personal-alpha checks            | Pending, issue #24                           |
 
@@ -61,3 +61,12 @@ newer own words/styles. Toolbar buttons or Cmd/Ctrl+Z outside text fields perfor
 page undo (Shift+Z for redo, Ctrl+Y also supported). Undo writes a new revision,
 refuses stale/occupied changes, and retains history on failure. Reload, import and
 explicit tab reconciliation reset this ephemeral history. Navigation alone does not.
+
+## Step 3 behavior
+
+Today derives a civil date from the book's stored timezone. Date navigation uses
+manifest position for spread and focused side, retains save/gesture locks, and
+persists resume. Dates outside the book are reported without silently clamping.
+The date dialog has a native date field, month selection/previous/next and
+44-pixel day buttons. The miniature calendar opens that same readable calendar
+rather than exposing tiny individual day targets. No data/schema change.
