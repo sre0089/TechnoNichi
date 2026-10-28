@@ -12,13 +12,13 @@ final-head CI before merge. Record each completed merge here in the next step's
 documentation; stop after step 5. Physical-device, assistive-technology and a full
 week of actual planning remain manual gates, not automatically verified work.
 
-| Step | Bounded implementation                                                                                | Status                                       |
-| ---- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| 1    | Selected duration move/end-resize handles, keyboard alternatives, cancellation and save/recovery      | Merged PR #25 as `7959f1a`; issue #20 closed |
-| 2    | Page undo/redo for document actions; preserve focused text editor history and refuse stale overwrites | PR #26; final CI pending, issue #21          |
-| 3    | Today/date/month navigation through the stable yearly manifest, retaining save guards                 | Implemented; validation active, issue #22    |
-| 4    | Cover/open/close and restrained page transitions with reduced/no-motion fallback and safe input       | Implemented; validation active, issue #23    |
-| 5    | Production offline shell opening, local search, update readiness and personal-alpha checks            | Pending, issue #24                           |
+| Step | Bounded implementation                                                                                | Status                                                     |
+| ---- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 1    | Selected duration move/end-resize handles, keyboard alternatives, cancellation and save/recovery      | Merged PR #25 as `7959f1a`; issue #20 closed               |
+| 2    | Page undo/redo for document actions; preserve focused text editor history and refuse stale overwrites | Merged PR #26 as `1df47ca`; issue #21 closed               |
+| 3    | Today/date/month navigation through the stable yearly manifest, retaining save guards                 | Merged PR #27 as `d2ee98c`; issue #22 closed               |
+| 4    | Cover/open/close and restrained page transitions with reduced/no-motion fallback and safe input       | Merged PR #28 as `65ba796`; issue #23 closed               |
+| 5    | Production offline shell opening, local search, update readiness and personal-alpha checks            | Implemented and locally checked; issue #24 tracks PR/merge |
 
 ## Acceptance boundaries
 
@@ -82,3 +82,32 @@ blur settles motion safely. Distant date/search jumps remain direct. Device
 reduced-motion and a saved No animation preference bypass motion. No curl library
 or cloned inputs are introduced. Optional motion preference validates in archives;
 old archives without it keep system behavior. No database migration.
+
+## Steps 2–4 completion
+
+Each merged tree equals its reviewed head; all common and three browser jobs passed.
+
+| Step | PR  | Merge     | Reviewed head | Final CI                                                                       | Browsers                        |
+| ---- | --- | --------- | ------------- | ------------------------------------------------------------------------------ | ------------------------------- |
+| 2    | #26 | `1df47ca` | `51439cb`     | [40675794003](https://github.com/sre0089/TechnoNichi/actions/runs/40675794003) | 188 passed, 4 intentional skips |
+| 3    | #27 | `d2ee98c` | `c4bf392`     | [40677290268](https://github.com/sre0089/TechnoNichi/actions/runs/40677290268) | 200 passed, 4 intentional skips |
+| 4    | #28 | `65ba796` | `25696ff`     | [40677449250](https://github.com/sre0089/TechnoNichi/actions/runs/40677449250) | 212 passed, 4 intentional skips |
+
+Issues #21/#22/#23 closed automatically. Intermediate WebKit input/test ordering
+failures were addressed before these final successful runs. No checks were bypassed.
+
+## Step 5 implementation and validation
+
+Production shell opening, explicit saved updates, other-window update refusal,
+cache repair, storage protection and local search are implemented. The build
+embeds static public HTML and a hashed-asset allowlist; no journal/API response is
+cached. Searches stay local and open original identities. Updates preserve the
+existing database/archive schema. See [PERSONAL_ALPHA.md](PERSONAL_ALPHA.md) for
+origin-specific use, backup transfer, update behavior, measurements and manual gates.
+
+Local checks passed 128 unit tests, format/lint/strict types and production build.
+The full browser run passed 221 journeys with four existing intentional skips.
+All nine production offline cases passed across three engines. The final search-focus improvement passed all six engine cases; the expanded
+offline-search/update/repair journeys passed all nine final production cases
+after fixing operation-unlock focus and retaining update-button focus on refusal. Final-head CI must pass common checks, every browser job and its
+production offline cases before the preapproved merge. No sixth feature follows.

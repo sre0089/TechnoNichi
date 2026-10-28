@@ -245,3 +245,15 @@ without an opening sequence. Explicit spread turns/open/close use 180ms CSS
 motion with no cloned editor layers. Reduced motion or View settings → Book
 motion → No animation bypasses transitions. Inputs and placement handles stay
 locked during motion; resize/window blur settles it. Date jumps remain direct.
+
+## Offline and search controls
+
+Production shows cache/connectivity separately from the local-save pill. Available
+offline follows complete shell caching; Save and update flushes drafts and refuses
+other open planner windows. Protect local storage optionally requests browser
+persistence without claiming backup permanence. Development hides offline controls.
+
+Search book opens a Radix dialog with local text/date/type filters, refresh and
+20-result pagination. Read/open failures remain visible. A result returns to its
+original editor with focus/selection styling and existing formatting. No separate
+editable search copy or calendar-card surface is used.

@@ -33,6 +33,8 @@ import { usePlanner } from './use-planner';
 import { PageHistoryControls } from './PageHistoryControls';
 import { DateNavigation } from './DateNavigation';
 import { useBookMotion } from '../book/use-book-motion';
+import { OfflineStatus } from '../offline/OfflineStatus';
+import { SearchDialog } from './SearchDialog';
 import { scheduledRuns } from '../domain/schedule';
 import {
   absoluteStart,
@@ -771,6 +773,9 @@ function PlannerEditor() {
     unsaved,
     exportBackup,
     prepareBookClose,
+    saveAndUpdate,
+    readSearchEntries,
+    openSearchEntry,
     restoreBackup,
     listDeletedEntries,
     deleteEntry,
@@ -867,6 +872,10 @@ function PlannerEditor() {
           </span>
         )}
         {bookError && <p role="alert">{bookError}</p>}
+        <OfflineStatus
+          disabled={moving || focusedEditor}
+          saveAndUpdate={saveAndUpdate}
+        />
         <div className="book-toolbar" hidden={closed}>
           <div className="spread-navigation">
             <Hint label="Previous two days">
@@ -900,6 +909,17 @@ function PlannerEditor() {
             </Hint>
           </div>
           <div className="toolbar-actions flex flex-wrap items-center justify-center gap-2">
+            <SearchDialog
+              book={view.book}
+              pages={pages}
+              disabled={moving || focusedEditor}
+              readEntries={readSearchEntries}
+              openEntry={async (entry) => {
+                const opened = await openSearchEntry(entry);
+                if (opened) setSelectedId(entry.id);
+                return opened;
+              }}
+            />
             <Button
               variant="ghost"
               disabled={moving || focusedEditor}

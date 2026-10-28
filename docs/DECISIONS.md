@@ -555,3 +555,50 @@ pointer arbitration risk. Inputs never initiate turns; explicit previous/next do
 Resume is immediate on app load. Reduced motion and optional `motion: none` are
 supported, with old preferences/archives defaulting to device behavior. Close/open
 state is transient, not saved journal content. Resize/blur settles ongoing motion.
+
+## Offline shell and local search — 2026-10-28
+
+Use a small native service worker for the single static production route. The
+build script embeds the public prerendered HTML and an exact static-asset list,
+and hashes those inputs plus worker source for the shell version. This prevents
+mixing a later server HTML response with an older asset manifest and avoids
+caching any user/API response. Development never registers it. Installation waits
+for all assets; cached root/static responses serve offline. Online cache repair
+uses that same build snapshot. Only this app's shell caches are pruned, retaining
+the previous shell for in-flight chunks. Writing remains entirely in IndexedDB.
+
+Updates wait for an explicit Save and update command, successful draft flush and
+one remaining planner window before skipWaiting/claim/reload. Initial activation
+and ordinary updates do not auto-reload existing editors. Failed updates retain
+writing; optional storage persistence is requested only by a user control and is
+never described as a backup. Separate production port 3100 isolates test/cache
+behavior from development port 3000; origin-local book transfer is explicit JSON
+export/import into an empty store. No deployment, account or paid service.
+
+Search reads current-book active records after a save flush, normalizes Unicode
+and case for matching, filters date/type and renders 20 results per page. Opening
+a result verifies the original active identity in a fresh page load, selects its
+manifest side and focuses that editor. No second editable document or network
+search index is introduced. The full-year synthetic fixture has 1,825 entries.
+
+Pin Playwright 1.64.0 (and matching browsers) after checking its
+[official release](https://github.com/microsoft/playwright/releases/tag/v1.64.0)
+and npm Node engine >=20 compatibility with Node 24. The previous 1.63 WebKit
+build rejects offline service-worker navigation even for literal cached responses;
+[official issue #42775](https://github.com/microsoft/playwright/issues/42775)
+tracks the fix in 1.64. This permits the same offline tests in all three engines
+without a skip or application workaround. No application dependency changes.
+The exact package lock changes only Playwright's three packages.
+
+Worker lifecycle references reviewed:
+[MDN using service workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers),
+[skipWaiting](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/skipWaiting),
+and [Playwright service workers](https://playwright.dev/docs/service-workers).
+Next's installed PWA/client-boundary guides were also read before implementation.
+
+The repeated offline update journey exposed row autofocus after operation unlock.
+Writing now claims automatic focus once per selection/editor instance; unlocking
+an operation does not reclaim an old row. The update control uses an explicitly
+guarded aria-disabled/busy state so native disabling does not discard keyboard
+focus. Refusals restore only unclaimed focus. All three engines assert update
+button focus, retained draft text, retry and the subsequent offline reopening.

@@ -378,7 +378,21 @@ export function RichWriting({
         editor.commands.setContent(content, { emitUpdate: false });
     }
   }, [editor, entry]);
+  const focusClaim = useRef<{ editor: Editor | null; selected: boolean }>({
+    editor: null,
+    selected: false,
+  });
   useEffect(() => {
+    if (!selected) {
+      focusClaim.current = { editor, selected: false };
+      return;
+    }
+    if (!editor || readOnly) return;
+    if (focusClaim.current.editor === editor && focusClaim.current.selected)
+      return;
+    focusClaim.current = { editor, selected: true };
+    // Claim focus once per selection. Unlocking a saved operation must not
+    // refocus the old row over a toolbar control or the user's next input.
     if (
       editor &&
       !editor.isDestroyed &&
@@ -388,8 +402,21 @@ export function RichWriting({
         '[data-note-handle], [data-duration-handle]',
       ) &&
       !editor.isFocused
-    )
-      editor.commands.focus();
+    ) {
+      const previous = document.activeElement;
+      const frame = requestAnimationFrame(() => {
+        // A subsequent click/Tab/fill owns focus. Do not move its caret back
+        // into an earlier selected row when this frame eventually runs.
+        const active = document.activeElement;
+        if (
+          !editor.isDestroyed &&
+          (active === previous || active === document.body) &&
+          !active?.closest('[data-note-handle], [data-duration-handle]')
+        )
+          editor.view.focus();
+      });
+      return () => cancelAnimationFrame(frame);
+    }
   }, [editor, selected, readOnly]);
   return <EditorContent editor={editor} className="writing-field" />;
 }

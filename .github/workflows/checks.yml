@@ -45,3 +45,5 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps ${{ matrix.browser }}
       - run: npm run test:browser -- --project=${{ matrix.browser }} --workers=2
+      - run: npm run build
+      - run: npm run test:offline -- --project=${{ matrix.browser }} --workers=1

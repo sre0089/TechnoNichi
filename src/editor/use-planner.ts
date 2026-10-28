@@ -273,7 +273,11 @@ export function usePlanner() {
     [setEntries, publishHistory],
   );
 
-  const navigate = async (index: number, focusSide: 0 | 1 = 0) => {
+  const navigate = async (
+    index: number,
+    focusSide: 0 | 1 = 0,
+    entryId?: string,
+  ) => {
     if (
       !view ||
       !db.current ||
@@ -287,7 +291,8 @@ export function usePlanner() {
     );
     if (
       nextIndex === view.preferences.pageIndex &&
-      focusSide === view.preferences.focusSide
+      focusSide === view.preferences.focusSide &&
+      !entryId
     )
       return true;
     moveLock.current = true;
@@ -303,6 +308,11 @@ export function usePlanner() {
         pageIndex: nextIndex,
         focusSide,
       };
+      if (
+        entryId &&
+        !loaded.some((entry) => entry.id === entryId && !entry.deletedAt)
+      )
+        return false;
       await db.current.preferences.put(preferences);
       writer.current.seed(loaded);
       setEntries(loaded);
@@ -682,6 +692,20 @@ export function usePlanner() {
     updatePreferences,
     exportBackup,
     prepareBookClose: () => withOperationLock(async () => true),
+    saveAndUpdate: (apply: () => Promise<void>) =>
+      withOperationLock(async () => apply()),
+    readSearchEntries: () =>
+      withOperationLock(async (database) => {
+        if (!view) throw new Error('Please wait for the book.');
+        return database.readPages(view.pages.map((page) => page.id));
+      }),
+    openSearchEntry: async (entry: Entry) => {
+      if (!view) return false;
+      const index = view.pages.findIndex((page) => page.id === entry.pageId);
+      return index >= 0
+        ? navigate(index, (index % 2) as 0 | 1, entry.id)
+        : false;
+    },
     restoreBackup,
     listDeletedEntries,
     deleteEntry,
