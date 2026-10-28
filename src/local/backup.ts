@@ -12,7 +12,7 @@ export const MAX_BACKUP_ENTRIES = 50_000;
 
 export interface PlannerBackup {
   format: 'daily-book-backup';
-  version: 1;
+  version: 1 | 2;
   exportedAt: string;
   book: Book;
   pages: PageRecord[];
@@ -69,7 +69,7 @@ export function validateBackup(value: unknown): PlannerBackup {
     'preferences',
   ]);
   if (archive.format !== 'daily-book-backup') invalid();
-  if (archive.version !== 1)
+  if (archive.version !== 1 && archive.version !== 2)
     throw new Error('This backup version is not supported.');
   if (!timestamp(archive.exportedAt)) invalid();
   const book = record(archive.book, [
@@ -169,6 +169,8 @@ export function validateBackup(value: unknown): PlannerBackup {
       ...baseKeys,
       'minute',
       'dayOffset',
+      'endMinute',
+      'endDayOffset',
       'submitted',
       'completed',
       'x',
@@ -182,9 +184,18 @@ export function validateBackup(value: unknown): PlannerBackup {
         ? ['slot', 'completed']
         : entry.type === 'scheduled-line'
           ? ['minute', 'dayOffset', 'submitted', 'completed']
-          : entry.type === 'note'
-            ? ['x', 'y', 'width', 'height']
-            : [];
+          : entry.type === 'scheduled-block' && archive.version === 2
+            ? [
+                'minute',
+                'dayOffset',
+                'endMinute',
+                'endDayOffset',
+                'submitted',
+                'completed',
+              ]
+            : entry.type === 'note'
+              ? ['x', 'y', 'width', 'height']
+              : [];
     if (
       Object.keys(entry).some(
         (key) => ![...baseKeys, ...variantKeys].includes(key),

@@ -8,14 +8,15 @@ import type {
   RetainedDraftGroup,
   TabReview,
 } from '../local/tab-review';
-import { dailyTemplate, timeLabel } from '../templates/daily-v1';
+import { dailyTemplate } from '../templates/daily-v1';
+import { scheduledLabel } from '../domain/durations';
 import { Button } from '../components/ui/button';
 import { Dialog, DialogContent } from '../components/ui/dialog';
 import { FormattedText } from './RichWriting';
 import { restoreUnclaimedFocus } from './restore-focus';
 
 function place(entry: Entry) {
-  return `${entry.pageId.split(':').at(-1)} · ${entry.type === 'task' ? `Checklist task ${entry.slot + 1}` : entry.type === 'note' ? 'Free note' : `Timed task ${timeLabel(entry.minute, entry.dayOffset)}`}`;
+  return `${entry.pageId.split(':').at(-1)} · ${entry.type === 'task' ? `Checklist task ${entry.slot + 1}` : entry.type === 'note' ? 'Free note' : `${entry.type === 'scheduled-block' ? 'Duration task' : 'Timed task'} ${scheduledLabel(entry)}`}`;
 }
 function Version({ entry, label }: { entry?: Entry; label: string }) {
   return (

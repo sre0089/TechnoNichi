@@ -1,5 +1,35 @@
 # Project state
 
+## Duration tasks — active slice, 2026-10-28
+
+The user confirmed the manual two-tab recovery check works on 2026-10-28. Browser,
+device and individual choices were not specified; broader device/IME/accessibility
+coverage remains unverified. The user then authorized the next bounded M2 slice:
+duration tasks with start/end controls, subtle spans, readable overlaps and the
+existing saving/backup/conflict-recovery guarantees.
+
+Work is on `feat/duration-tasks`, based on merged main `7a12c7e` plus merge closeout
+`9854b4a`, tracked by [issue #18](https://github.com/sre0089/TechnoNichi/issues/18).
+Continue periodic commits/pushes under the user's standing instruction; merge
+requires separate approval.
+
+Implemented locally: scheduled-block records with explicit start/end day offsets,
+half-open overlap lanes in the time gutter, existing writing coordinates retained,
+a readable chooser for entries sharing an hour, Add/Remove duration and a keyboard
+accessible interval dialog. Archived/deleted versions retain endpoints; line/block
+conversion conflicts are resolved explicitly. New exports use JSON archive v2;
+both v1 and v2 are accepted, and v1 rejects duration records. No dependencies or
+IndexedDB stores/indexes change. Existing entry records are not rewritten.
+
+All 111 unit tests pass, including 21 new interval/geometry/archive/recovery cases.
+All 24 new three-engine browser journeys pass, including phone keyboard selection.
+`npm run check` passes format, lint, strict types, units and production build.
+The desktop and phone captures were inspected locally; full regression checks
+follow the implementation checkpoint.
+Runtime for this slice: existing local Node 24.16.0 (project PATH only); the global
+Node installation is unchanged. Pointer movement/resizing of duration blocks,
+broader undo/redo and the next milestone remain deferred.
+
 ## Approved tab recovery merge — 2026-10-21
 
 The user separately approved merging PR #17 on 2026-10-21.
@@ -16,10 +46,10 @@ identical-tree merge. Only this project-state closeout changes afterward;
 formatting and whitespace checks are recorded for it on `docs/tab-merge-state`,
 published under the user's continuing periodic commit/push instruction.
 
-The two-tab review is now integrated. Next bounded action: manually check it in
-the user's browser, then choose the next remaining M2 slice. Physical tablet,
-real IME and assistive-technology checks remain unverified. No next feature,
-deployment, new service or dependency change has begun.
+The two-tab review is now integrated, and the user confirmed it works manually
+on 2026-10-28. The newly authorized duration slice is recorded above. Physical
+tablet, real IME and assistive-technology checks remain unverified. No deployment,
+new service or dependency change has begun.
 
 ## Tab recovery validation — 2026-10-20 publication history
 
@@ -705,7 +735,8 @@ those early failures.
 The visual template is independently drawn and estimated, not an exact measured
 copy. The initial book is 2026, opening on October 6–7; navigation stays within
 that book. Full year-selection/cover/Today/date-jump/month navigation is M3.
-There are no duration blocks, full rich text or book-wide undo,
+Duration tasks are being implemented on `feat/duration-tasks` (issue #18).
+There is no full rich text or book-wide undo,
 cached offline reopening, search, accounts, sync, or deployment. Local JSON backups
 are available on `main`; they do not merge/replace a populated planner.
 
@@ -726,8 +757,9 @@ moving and resizing work in their manual check. The device/browser and input
 method were not specified; broader touch, pen and accessibility coverage remains
 unverified. Two-tab change notifications and stale-edit recovery, authorized on
 2026-10-20, are complete and merged after separate approval on 2026-10-21.
-Next: a manual two-tab check, then scope a remaining M2 slice. Other M2 features
-remain deferred.
+The user confirmed the two-tab check works on 2026-10-28 and authorized duration
+tasks next. This slice is active on `feat/duration-tasks`; other M2 features remain
+deferred.
 Physical device checks remain pending as described above.
 Recommend branch protections only
 after the first real GitHub CI run and verification of available repository features.

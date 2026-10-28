@@ -55,9 +55,27 @@ export type Entry = BaseEntry &
         submitted?: boolean;
         completed?: boolean;
       }
+    | {
+        type: 'scheduled-block';
+        minute: number;
+        dayOffset: number;
+        endMinute: number;
+        endDayOffset: number;
+        submitted?: boolean;
+        completed?: boolean;
+      }
     | { type: 'note'; x: number; y: number; width: number; height: number }
     | { type: 'task'; slot: number; completed: boolean }
   );
+
+export type ScheduledEntry = Extract<
+  Entry,
+  { type: 'scheduled-line' | 'scheduled-block' }
+>;
+export type DurationEntry = Extract<Entry, { type: 'scheduled-block' }>;
+export function isScheduled(entry: Entry): entry is ScheduledEntry {
+  return entry.type === 'scheduled-line' || entry.type === 'scheduled-block';
+}
 
 export interface Preferences {
   id: 'local';
@@ -92,8 +110,25 @@ export function newEntry(
 ): Extract<Entry, { type: 'scheduled-line' }>;
 export function newEntry(
   pageId: string,
+  variant: {
+    type: 'scheduled-block';
+    minute: number;
+    dayOffset: number;
+    endMinute: number;
+    endDayOffset: number;
+  },
+): DurationEntry;
+export function newEntry(
+  pageId: string,
   variant:
     | { type: 'scheduled-line'; minute: number; dayOffset: number }
+    | {
+        type: 'scheduled-block';
+        minute: number;
+        dayOffset: number;
+        endMinute: number;
+        endDayOffset: number;
+      }
     | { type: 'note'; x: number; y: number }
     | { type: 'task'; slot: number },
 ): Entry {
@@ -190,7 +225,7 @@ export function assertEntry(value: unknown): asserts value is Entry {
       typeof e.completed !== 'boolean'
     )
       throw new Error('Invalid task');
-  } else if (e.type === 'scheduled-line') {
+  } else if (e.type === 'scheduled-line' || e.type === 'scheduled-block') {
     if (
       !Number.isInteger(e.minute) ||
       Number(e.minute) < 0 ||
@@ -201,6 +236,18 @@ export function assertEntry(value: unknown): asserts value is Entry {
     const absolute = Number(e.minute) + Number(e.dayOffset) * 1440;
     if (absolute < 360 || absolute > 1620)
       throw new Error('Time outside timetable');
+    if (e.type === 'scheduled-block') {
+      const end = Number(e.endMinute) + Number(e.endDayOffset) * 1440;
+      if (
+        !Number.isInteger(e.endMinute) ||
+        Number(e.endMinute) < 0 ||
+        Number(e.endMinute) >= 1440 ||
+        (e.endDayOffset !== 0 && e.endDayOffset !== 1) ||
+        end <= absolute ||
+        end > 1620
+      )
+        throw new Error('End must be after start, within 06:00–03:00 (+1).');
+    }
     if (
       (e.submitted !== undefined && typeof e.submitted !== 'boolean') ||
       (e.completed !== undefined && typeof e.completed !== 'boolean') ||

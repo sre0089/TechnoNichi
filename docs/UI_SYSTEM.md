@@ -195,3 +195,19 @@ Busy states block duplicate choices/dismissal. Closing an unresolved review reta
 the draft and restores toolbar focus only if the user has not chosen another
 field. **Load saved changes** requires conflicts to be resolved and other pending
 writing to save first. This slice adds no dependency or paper-template changes.
+
+## Duration controls
+
+**+ Duration** creates a task directly in the hourly writing area. A selected point
+task offers **Add duration**; a duration task offers **Edit duration** and **Remove
+duration**. These preserve writing, marks, completion and identity. The shared
+Radix dialog uses native time fields and explicit Same day/Following day (+1)
+selects for both endpoints. Apply validates the complete interval; cancel/Escape
+changes nothing. Errors remain readable and corrected inputs clear the stale error.
+
+Subtle brackets occupy separate time-gutter lanes; they never intercept input.
+Text stays in its normal hourly row. When durations share an hour with other
+writing, the small alternate-entry control opens a scrollable formatted-text
+chooser. Choosing an item focuses its one live editor; Escape returns to the
+trigger. The day outline, deletion history and conflict review all show both
+endpoints, including +1 for following-day times. No dependency or font changes.

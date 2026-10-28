@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import { RotateCcw, Trash2 } from 'lucide-react';
 import type { Entry } from '../domain/model';
-import { timeLabel } from '../templates/daily-v1';
+import { scheduledLabel } from '../domain/durations';
 import { Button } from '../components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '../components/ui/dialog';
 import { FormattedText } from './RichWriting';
@@ -15,7 +15,7 @@ function location(entry: Entry) {
       ? `Checklist task ${entry.slot + 1}`
       : entry.type === 'note'
         ? 'Free note'
-        : `Timed task ${timeLabel(entry.minute, entry.dayOffset)}`;
+        : `${entry.type === 'scheduled-block' ? 'Duration task' : 'Timed task'} ${scheduledLabel(entry)}`;
   return `${date} · ${place}`;
 }
 

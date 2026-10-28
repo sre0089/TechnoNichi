@@ -75,7 +75,8 @@ attachments, handwriting, and a curl adapter are later milestone work.
 
 ## Local backup boundary
 
-`local/backup.ts` defines the strict `daily-book-backup` version-1 JSON envelope:
+`local/backup.ts` defines the strict `daily-book-backup` JSON envelope (new exports
+use version 2 for duration tasks; versions 1 and 2 can be imported):
 export timestamp, book, full ordered page manifest, all entry records (including
 deletion markers), and local preferences. It rejects unknown fields, unsupported
 versions/templates, missing/duplicate dates, duplicate entry IDs/active checklist
@@ -230,3 +231,25 @@ Keep both archives the draft and leaves saved writing on the page. Use saved
 writing explicitly drops the reviewed local draft after checking its saved version.
 Occupied placement, concurrent changes and failed transactions retain drafts.
 Copies use existing schema-v1 tombstones, new IDs and the ordinary archive format.
+
+## Duration tasks and overlap lanes
+
+`scheduled-block` adds explicit endMinute/endDayOffset to the existing timed fields,
+marks, completion and revision/deletion metadata. Validation requires end > start
+inside 06:00–03:00 (+1). IndexedDB indexes and template version remain unchanged.
+Archive v2 includes blocks; v1 continues accepting only its original entry kinds.
+
+`domain/durations.ts` owns conversion, display labels, explicit civil time parsing
+and a deterministic half-open interval-lane projection. `ScheduleControls` edits
+both endpoints together after validation; cancel leaves the entry unchanged.
+Brackets use exact endpoint coordinates minus the template's one-row writing
+offset. Writing stays in the containing hourly row. Separate gutter lanes and
+`HourWritingMenu` expose overlapping/same-hour entries without changing other
+writing or duplicating editors. Dense lanes compress within the gutter; the full
+chooser and day outline retain every task's text and exact interval.
+
+Deletion, backups and retained tab snapshots already store full entry objects.
+Repository conflict decisions permit reviewed conversion between scheduled kinds
+while retaining type/page checks for other kinds. Duration restores allow overlap;
+point/checklist/note occupied-placement refusal stays intact. Drag creation,
+pointer movement/resizing and application-wide undo remain later work.

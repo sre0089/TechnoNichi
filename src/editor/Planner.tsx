@@ -17,6 +17,7 @@ import {
   newEntry,
   newHourlyEntry,
   newTaskEntry,
+  isScheduled,
   type Entry,
   type PageRecord,
 } from '../domain/model';
@@ -26,10 +27,16 @@ import {
   hourForTime,
   screenToDocument,
   snapNote,
-  timeLabel,
 } from '../templates/daily-v1';
 import { usePlanner } from './use-planner';
 import { scheduledRuns } from '../domain/schedule';
+import {
+  absoluteStart,
+  durationLanes,
+  scheduledLabel,
+} from '../domain/durations';
+import { ScheduleControls } from './ScheduleControls';
+import { HourWritingMenu } from './HourWritingMenu';
 import {
   ChevronLeft,
   ChevronRight,
@@ -45,7 +52,7 @@ import {
   Underline,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Input, InkCheckbox, Textarea } from '../components/ui/field';
+import { InkCheckbox, Textarea } from '../components/ui/field';
 import {
   Dialog,
   DialogClose,
@@ -136,7 +143,7 @@ function box(
 }
 
 function finishTimed(entry: Entry, edit: (entry: Entry) => void) {
-  if (entry.type === 'scheduled-line' && entry.text.trim() && !entry.submitted)
+  if (isScheduled(entry) && entry.text.trim() && !entry.submitted)
     edit({ ...entry, submitted: true, completed: false });
 }
 
@@ -299,10 +306,10 @@ function Writing({
   }, [entry.text]);
   const isNote = entry.type === 'note';
   const submitted =
-    entry.type === 'scheduled-line' && entry.submitted && !!entry.text.trim();
+    isScheduled(entry) && entry.submitted && !!entry.text.trim();
   const style = isNote
     ? box(entry.x, entry.y, entry.width, entry.height)
-    : entry.type === 'scheduled-line'
+    : isScheduled(entry)
       ? box(
           template.scheduleX,
           hourlyRows.find(
@@ -315,10 +322,10 @@ function Writing({
       : {};
   const label = isNote
     ? `Note on ${entry.pageId.split(':').at(-1)}`
-    : entry.type === 'scheduled-line'
-      ? `Timed writing ${timeLabel(entry.minute, entry.dayOffset)}`
+    : isScheduled(entry)
+      ? `${entry.type === 'scheduled-block' ? 'Duration writing' : 'Timed writing'} ${scheduledLabel(entry)}`
       : 'Writing';
-  const className = `writing-item ${isNote ? 'note' : 'timed'}${submitted ? ' submitted' : ''}${entry.type === 'scheduled-line' && entry.completed ? ' completed' : ''}${overflow ? ' has-overflow' : ''}`;
+  const className = `writing-item ${isNote ? 'note' : 'timed'}${submitted ? ' submitted' : ''}${isScheduled(entry) && entry.completed ? ' completed' : ''}${overflow ? ' has-overflow' : ''}`;
   const content = (
     <>
       <RichWriting
@@ -339,13 +346,13 @@ function Writing({
         }}
         onFinish={() => finishTimed(entry, edit)}
       />
-      {submitted && entry.type === 'scheduled-line' && (
+      {submitted && isScheduled(entry) && (
         <div className="timed-completion">
           <span className="completion-measure" aria-hidden="true">
             <FormattedText entry={entry} text={entry.text.split('\n')[0]} />
           </span>
           <InkCheckbox
-            aria-label={`Complete timed task ${timeLabel(entry.minute, entry.dayOffset)} on ${entry.pageId.split(':').at(-1)}`}
+            aria-label={`Complete ${entry.type === 'scheduled-block' ? 'duration' : 'timed'} task ${scheduledLabel(entry)} on ${entry.pageId.split(':').at(-1)}`}
             checked={entry.completed ?? false}
             disabled={moving}
             onChange={(event) =>
@@ -354,20 +361,30 @@ function Writing({
           />
         </div>
       )}
-      {otherWriting.length > 1 && (
-        <Button
-          size="paper"
-          className="row-alternatives"
+      {otherWriting.length > 1 &&
+      otherWriting.some((e) => e.type === 'scheduled-block') ? (
+        <HourWritingMenu
+          entries={otherWriting}
+          selectedId={entry.id}
+          select={select}
           disabled={moving}
-          aria-label={`Other writing in this hour (${otherWriting.length} entries)`}
-          title="Cycle through existing writing in this hour"
-          onClick={() => {
-            const index = otherWriting.findIndex((e) => e.id === entry.id);
-            select(otherWriting[(index + 1) % otherWriting.length].id);
-          }}
-        >
-          +{otherWriting.length - 1}
-        </Button>
+        />
+      ) : (
+        otherWriting.length > 1 && (
+          <Button
+            size="paper"
+            className="row-alternatives"
+            disabled={moving}
+            aria-label={`Other writing in this hour (${otherWriting.length} entries)`}
+            title="Cycle through existing writing in this hour"
+            onClick={() => {
+              const index = otherWriting.findIndex((e) => e.id === entry.id);
+              select(otherWriting[(index + 1) % otherWriting.length].id);
+            }}
+          >
+            +{otherWriting.length - 1}
+          </Button>
+        )
       )}
       {overflow && (
         <Button
@@ -422,6 +439,15 @@ function DailyPage({
   noteGesture: NoteGestureControls;
 }) {
   const entries = records.filter((entry) => !entry.deletedAt);
+  const durations = durationLanes(
+    entries.filter((e) => e.type === 'scheduled-block'),
+  );
+  const laneCount = Math.max(1, ...durations.map((span) => span.lane + 1));
+  const laneStep = Math.min(
+    template.grid.pitch / 4,
+    (template.scheduleLineX - template.timelineX - template.grid.pitch / 2) /
+      Math.max(1, laneCount - 1),
+  );
   const parts = parseDate(page.date);
   const object = dateObject(page.date);
   const month = new Intl.DateTimeFormat('en-US', {
@@ -530,14 +556,39 @@ function DailyPage({
           aria-hidden="true"
         />
       ))}
+      {durations.map((span) => (
+        <span
+          key={span.entry.id}
+          className={`duration-span${selectedId === span.entry.id ? ' duration-selected' : ''}`}
+          data-entry-id={span.entry.id}
+          data-start={absoluteStart(span.entry)}
+          data-end={span.entry.endMinute + span.entry.endDayOffset * 1440}
+          data-lane={span.lane}
+          style={box(
+            template.scheduleLineX - span.lane * laneStep,
+            span.y,
+            0,
+            span.height,
+          )}
+          aria-hidden="true"
+        />
+      ))}
       {hourlyRows.map((row, index) => {
         const existing = entries
           .filter(
             (e) =>
-              e.type === 'scheduled-line' &&
+              isScheduled(e) &&
               hourForTime(e.minute, e.dayOffset) === row.absolute,
           )
-          .sort((a, b) => a.id.localeCompare(b.id));
+          .sort(
+            (a, b) =>
+              Number(a.type === 'scheduled-block') -
+                Number(b.type === 'scheduled-block') ||
+              (a.type === 'scheduled-block' && b.type === 'scheduled-block'
+                ? absoluteStart(a) - absoluteStart(b)
+                : 0) ||
+              a.id.localeCompare(b.id),
+          );
         const entry =
           existing.find((e) => e.id === selectedId) ??
           existing[0] ??
@@ -592,6 +643,23 @@ function DailyPage({
         {parts.month}
       </span>
       <div className="page-tools">
+        <Button
+          size="paper"
+          disabled={moving}
+          onClick={() =>
+            create(
+              newEntry(page.id, {
+                type: 'scheduled-block',
+                minute: 720,
+                dayOffset: 0,
+                endMinute: 780,
+                endDayOffset: 0,
+              }),
+            )
+          }
+        >
+          + Duration
+        </Button>
         <Button
           size="paper"
           disabled={moving}
@@ -955,11 +1023,13 @@ function PlannerEditor() {
             aria-label="Writing controls"
           >
             <span className="mr-1 font-semibold text-ink">
-              {selected.type === 'scheduled-line'
-                ? 'Hourly writing'
-                : selected.type === 'note'
-                  ? 'Free note'
-                  : 'Checklist task'}
+              {selected.type === 'scheduled-block'
+                ? 'Duration task'
+                : selected.type === 'scheduled-line'
+                  ? 'Hourly writing'
+                  : selected.type === 'note'
+                    ? 'Free note'
+                    : 'Checklist task'}
             </span>
             <FormattingControls entry={selected} disabled={moving} />
             {selected.type === 'note' && (
@@ -969,37 +1039,12 @@ function PlannerEditor() {
                 disabled={moving || focusedEditor}
               />
             )}
-            {selected.type === 'scheduled-line' && (
-              <>
-                <label className="flex items-center gap-2 text-ui-muted">
-                  Time
-                  <Input
-                    type="time"
-                    aria-label="Exact time"
-                    value={timeLabel(selected.minute, 0)}
-                    onChange={(event) => {
-                      const [hour, minute] = event.target.value
-                        .split(':')
-                        .map(Number);
-                      const total = hour * 60 + minute;
-                      const offset = total < 360 ? 1 : 0;
-                      if (
-                        Number.isFinite(total) &&
-                        (total >= 360 || total <= 180)
-                      )
-                        edit({
-                          ...selected,
-                          minute: total,
-                          dayOffset: offset,
-                        });
-                    }}
-                  />
-                </label>
-                <small className="text-ui-muted">
-                  {selected.dayOffset ? 'Following day (+1)' : 'Same day'} ·
-                  06:00–03:00
-                </small>
-              </>
+            {isScheduled(selected) && (
+              <ScheduleControls
+                entry={selected}
+                edit={edit}
+                disabled={moving || focusedEditor}
+              />
             )}
             <div className="ml-auto flex flex-wrap items-center gap-1">
               <Popover>
@@ -1088,7 +1133,7 @@ function PlannerEditor() {
                     const key = (e: Entry) =>
                       e.type === 'task'
                         ? e.slot
-                        : e.type === 'scheduled-line'
+                        : isScheduled(e)
                           ? 100 + e.minute + e.dayOffset * 1440
                           : 2000 + e.y;
                     return key(a) - key(b);
@@ -1108,8 +1153,8 @@ function PlannerEditor() {
                           setSelectedId(entry.id);
                         }}
                       >
-                        {entry.type === 'scheduled-line'
-                          ? `${timeLabel(entry.minute, entry.dayOffset)} · ${entry.submitted ? (entry.completed ? '✓ ' : '□ ') : ''}`
+                        {isScheduled(entry)
+                          ? `${scheduledLabel(entry)} · ${entry.submitted ? (entry.completed ? '✓ ' : '□ ') : ''}`
                           : entry.type === 'task'
                             ? `${entry.completed ? '✓' : '□'} `
                             : 'Note · '}
