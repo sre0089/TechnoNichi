@@ -62,3 +62,26 @@ export function labelDate(date: CivilDate): string {
 export function spreadIndex(pageIndex: number): number {
   return Math.floor(pageIndex / 2) * 2;
 }
+
+export function todayInZone(timeZone: string, now = new Date()): CivilDate {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone,
+  }).formatToParts(now);
+  const part = (type: string) =>
+    parts.find((value) => value.type === type)!.value;
+  return `${part('year')}-${part('month')}-${part('day')}`;
+}
+
+export function dateDestination(pages: { date: CivilDate }[], date: CivilDate) {
+  parseDate(date);
+  const index = pages.findIndex((page) => page.date === date);
+  if (index < 0) throw new Error('That date is outside this book.');
+  return {
+    index,
+    pageIndex: spreadIndex(index),
+    focusSide: (index % 2) as 0 | 1,
+  };
+}

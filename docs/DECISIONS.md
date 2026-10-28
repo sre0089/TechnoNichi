@@ -535,3 +535,12 @@ soft-delete; redo restores the same identity and checks occupied placement.
 Observe only own completed saves as history baselines; loading remote records must
 not legitimize stale undo. Reset on import and explicit tab reconciliation, retain
 on navigation and on failed undo. No new database schema or archive fields.
+
+## Date navigation — 2026-10-28
+
+Use the existing yearly manifest for date destinations and page side. Today uses
+the book's existing `todayTimeZone`; report out-of-year dates instead of moving
+to an unrelated boundary. The miniature calendar is one accessible trigger into
+a larger native-field/month-button dialog, retaining readable pointer targets.
+Reuse Radix/native controls without adding a calendar dependency. Date jumps
+flush current drafts and share the existing navigation lock.

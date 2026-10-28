@@ -11,8 +11,8 @@ book interactions (#23), and offline/search readiness (#24). No spending,
 external account/service setup, deployment, destructive history changes or
 unbounded later work is authorized. Physical-device/week-of-use gates remain
 manual and unverified. Step 1 merged via PR #25 as `7959f1a` after all CI jobs passed; issue #20 closed.
-The merged tree exactly matches its reviewed head. Step 2 is active on
-`feat/page-history`; steps 3–5 are pending.
+The merged tree exactly matches its reviewed head. Step 2 is in PR #26 awaiting final CI. Step 3 is active on
+`feat/date-navigation`; steps 4–5 are pending.
 Step 1 checkpoint `a99cbb5` is pushed. `npm run check` passed format/lint/strict
 types, all 115 unit tests and production build. Full local browser regression
 passed: 179 journeys and four intentional skips across Chromium/Firefox/WebKit,
@@ -923,3 +923,19 @@ after the first real GitHub CI run and verification of available repository feat
   duration blocks, book-wide undo, cloud work or deployment is included.
 - On 2026-10-20 the user confirmed moving and resizing work in their manual
   check. Device/browser, input method and individual scenarios were not specified.
+
+## Approved batch — date navigation
+
+Step 3 adds Today, native date entry, a keyboard-accessible month calendar and a
+miniature-calendar trigger. Stable manifest order selects spread/side; timezone
+and out-of-book behavior are explicit. Navigation flushes drafts before loading
+and refuses failed saves. Browser validation covers phone resume, first/last
+pages, Today at timezone midnight, month browsing and save failure. Leap-day,
+DST and manifest-parity checks are in the new navigation unit tests. Final CI is
+required before the preapproved merge; no deployment/service configuration.
+
+Step 3 local checks passed: format/lint/strict types, 123 units and production
+build. The combined navigation/editor suite passed 64 browser journeys with two
+intentional visual-fixture skips; all 12 new navigation cases passed across the
+three engines. Synthetic date-navigation screenshot was inspected. Final PR CI
+will run the complete suite before merge.

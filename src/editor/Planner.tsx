@@ -31,6 +31,7 @@ import {
 } from '../templates/daily-v1';
 import { usePlanner } from './use-planner';
 import { PageHistoryControls } from './PageHistoryControls';
+import { DateNavigation } from './DateNavigation';
 import { scheduledRuns } from '../domain/schedule';
 import {
   absoluteStart,
@@ -710,15 +711,25 @@ function DailyPage({
 function MiniCalendar({
   date,
   selectedDates,
+  open,
+  disabled,
 }: {
   date: string;
   selectedDates: string[];
+  open: () => void;
+  disabled: boolean;
 }) {
   const { year, month } = parseDate(date);
   const dates = datesInYear(year).filter((d) => parseDate(d).month === month);
   const offset = (dateObject(dates[0]).getUTCDay() + 6) % 7;
   return (
-    <div className="mini-calendar" aria-hidden="true">
+    <button
+      type="button"
+      className="mini-calendar"
+      aria-label="Open miniature calendar"
+      disabled={disabled}
+      onClick={open}
+    >
       {'MTWTFSS'.split('').map((day, i) => (
         <span className="mini-heading" key={`heading-${i}`}>
           {day}
@@ -732,7 +743,7 @@ function MiniCalendar({
           {parseDate(d).day}
         </span>
       ))}
-    </div>
+    </button>
   );
 }
 
@@ -753,6 +764,7 @@ function PlannerEditor() {
     endNoteGesture,
     edit,
     navigate,
+    jumpToDate,
     updatePreferences,
     retry,
     unsaved,
@@ -775,6 +787,8 @@ function PlannerEditor() {
   const [showRecovery, setShowRecovery] = useState(false);
   const [focusedEditor, setFocusedEditor] = useState(false);
   const [tabReviewOpen, setTabReviewOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarVersion, setCalendarVersion] = useState(0);
   const showTabReview = () => {
     setSelectedId(null);
     setTabReviewOpen(true);
@@ -871,7 +885,26 @@ function PlannerEditor() {
               </Button>
             </Hint>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="toolbar-actions flex flex-wrap items-center justify-center gap-2">
+            <DateNavigation
+              key={`${visible[preferences.focusSide]?.date ?? visible[0].date}:${calendarVersion}`}
+              book={view.book}
+              pages={pages}
+              currentDate={
+                visible[preferences.focusSide]?.date ?? visible[0].date
+              }
+              disabled={moving || focusedEditor}
+              open={calendarOpen}
+              setOpen={setCalendarOpen}
+              jump={async (date) => {
+                const opened = await jumpToDate(date);
+                if (opened) {
+                  setSelectedId(null);
+                  bookRef.current?.focus();
+                }
+                return opened;
+              }}
+            />
             <PageHistoryControls
               info={historyInfo}
               disabled={moving || focusedEditor}
@@ -1060,6 +1093,11 @@ function PlannerEditor() {
             <MiniCalendar
               date={visible[1].date}
               selectedDates={visible.map((p) => p.date)}
+              disabled={moving || focusedEditor}
+              open={() => {
+                setCalendarVersion((version) => version + 1);
+                setCalendarOpen(true);
+              }}
             />
           )}
           <span className="gutter" aria-hidden="true" />

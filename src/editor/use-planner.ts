@@ -9,7 +9,7 @@ import {
   type PageRecord,
   type Preferences,
 } from '../domain/model';
-import { spreadIndex } from '../domain/calendar';
+import { spreadIndex, dateDestination } from '../domain/calendar';
 import {
   PlannerDB,
   RestoreRefused,
@@ -273,7 +273,7 @@ export function usePlanner() {
     [setEntries, publishHistory],
   );
 
-  const navigate = async (index: number) => {
+  const navigate = async (index: number, focusSide: 0 | 1 = 0) => {
     if (
       !view ||
       !db.current ||
@@ -285,7 +285,11 @@ export function usePlanner() {
     const nextIndex = spreadIndex(
       Math.max(0, Math.min(view.pages.length - 1, index)),
     );
-    if (nextIndex === view.preferences.pageIndex) return false;
+    if (
+      nextIndex === view.preferences.pageIndex &&
+      focusSide === view.preferences.focusSide
+    )
+      return true;
     moveLock.current = true;
     setMoving(true);
     try {
@@ -297,7 +301,7 @@ export function usePlanner() {
       const preferences = {
         ...view.preferences,
         pageIndex: nextIndex,
-        focusSide: 0 as const,
+        focusSide,
       };
       await db.current.preferences.put(preferences);
       writer.current.seed(loaded);
@@ -668,6 +672,11 @@ export function usePlanner() {
     loadTabChanges,
     edit,
     navigate,
+    jumpToDate: async (date: string) => {
+      if (!view) return false;
+      const destination = dateDestination(view.pages, date);
+      return navigate(destination.index, destination.focusSide);
+    },
     updatePreferences,
     exportBackup,
     restoreBackup,
