@@ -82,6 +82,16 @@ test('document keyboard undo follows its page while focused writing retains nati
   await expect(checkbox(page)).toBeChecked();
   await row(page).press('Escape');
   await page.getByRole('button', { name: 'Next spread', exact: true }).click();
+  await expect(
+    page.getByRole('region', {
+      name: 'Thursday, October 8',
+      exact: true,
+      includeHidden: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Undo page action', exact: true }),
+  ).toBeEnabled();
   await page.locator('#book').press('ControlOrMeta+z');
   await expect(row(page)).toHaveText('Plan');
   await expect(checkbox(page)).not.toBeChecked();
