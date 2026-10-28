@@ -131,17 +131,39 @@ test('failed saves do not announce changes, while retry announces only to the ot
   await ready(other);
   await page.evaluate(() => {
     const put = IDBObjectStore.prototype.put;
+    // Focusing an empty field and entering text can produce separate writes.
+    // Keep storage unavailable for both until this test explicitly permits Retry.
+    window.addEventListener(
+      'test:allow-entry-writes',
+      () => {
+        IDBObjectStore.prototype.put = put;
+      },
+      { once: true },
+    );
     IDBObjectStore.prototype.put = function (
       ...args: Parameters<IDBObjectStore['put']>
     ) {
       if (this.name === 'entries') {
-        IDBObjectStore.prototype.put = put;
+        Reflect.set(
+          window,
+          Symbol.for('test:blocked-entry-text'),
+          args[0].text,
+        );
         throw new DOMException('Synthetic quota failure', 'QuotaExceededError');
       }
       return put.apply(this, args);
     };
   });
+  await task(page).click();
+  await expect(page.getByRole('status')).toHaveText('Storage problem');
   await task(page).fill('Writing waiting to save');
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        Reflect.get(window, Symbol.for('test:blocked-entry-text')),
+      ),
+    )
+    .toBe('Writing waiting to save');
   await expect(page.getByRole('status')).toHaveText('Storage problem');
   await expect(
     other.getByLabel('Other tab changes', { exact: true }),
@@ -151,6 +173,14 @@ test('failed saves do not announce changes, while retry announces only to the ot
       localStorage.getItem('daily-book:committed-change-v1'),
     ),
   ).toBeNull();
+  expect(
+    await page.evaluate(() =>
+      sessionStorage.getItem('daily-book:tab-draft-v1'),
+    ),
+  ).toContain('Writing waiting to save');
+  await page.evaluate(() =>
+    window.dispatchEvent(new Event('test:allow-entry-writes')),
+  );
   await page.getByRole('button', { name: 'Retry saving', exact: true }).click();
   await saved(page);
   await durableWriting(page, task(page), 'Writing waiting to save');

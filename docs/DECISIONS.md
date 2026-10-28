@@ -490,3 +490,16 @@ archive as point tasks. IndexedDB's unchanged id/pageId indexes need no migratio
 old records stay untouched. Use installed React/Radix/Tiptap/Tailwind and existing
 local Node 24.16.0, with no new dependency or service. Installed Next.js client
 component guidance was read before the UI changes.
+
+The first hosted run passed all duration journeys and 169 browser tests overall,
+but an existing Firefox failed-save notification fixture expected no notice after
+a one-shot write failure. A synthetic reproduction demonstrated that the empty
+focus-write can consume that fault, after which the new text commits successfully
+and correctly announces its change. Hold entry-write failures until the test
+explicitly permits Retry, force both focus and text writes through the failure,
+and verify the latest text actually reached the failed write and recovery buffer.
+Retain the original no-notice/no-signal, retry, durable-text and recipient-only
+notice assertions, with unchanged timeouts/retries. This correction changes test
+setup only; the application source remains `fb931a9`. Nine strengthened repetitions
+passed across the three engines, and `npm run check` passed again with 111 units
+and production build. Final-head CI validates the correction before merge review.

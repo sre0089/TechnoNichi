@@ -50,6 +50,21 @@ Next bounded action: verify final-head GitHub CI and request separate merge
 approval. Duration appearance and physical tablet/IME/accessibility behavior
 still need the user's manual review. No next feature or deployment has begun.
 
+Published [PR #19](https://github.com/sre0089/TechnoNichi/pull/19) on this branch.
+Initial [CI](https://github.com/sre0089/TechnoNichi/actions/runs/40655541897) passed
+format/lint/types, 111 units, production build and 169 browser journeys, including
+all new duration cases; four cases skipped intentionally. One existing Firefox
+notification check failed after its one-shot fault could permit a later successful
+text write. An isolated synthetic reproduction verified an empty focus-write
+failing followed by a committed text-write and legitimate notice. The corrected
+fixture keeps storage failed through both writes until Retry, confirms the latest
+text was attempted/retained and preserves all original assertions and timeouts.
+Application source remains identical to `fb931a9`; final CI follows the fixture
+correction rather than treating the first run as success.
+`npm run test:browser -- tests/browser/tab-changes.spec.ts --grep "failed saves do not announce" --repeat-each=3 --workers=3`
+passed all nine strengthened checks. `npm run check` passed again with 111 units
+and production build. The PR's Checks tab reports CI for this final correction.
+
 ## Approved tab recovery merge — 2026-10-21
 
 The user separately approved merging PR #17 on 2026-10-21.
