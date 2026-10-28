@@ -236,3 +236,12 @@ Date opens a native date field and a month browser with 44-pixel day targets.
 The miniature calendar remains visually small but acts as one trigger to that
 larger control. The selected date determines phone focus; resume persists it.
 Today uses the stored book timezone and reports out-of-book dates in place.
+
+## Book cover and motion
+
+Close book flushes current drafts before showing the independent cloth-style
+cover; Open book resumes the same date and focused side. Initial load resumes
+without an opening sequence. Explicit spread turns/open/close use 180ms CSS
+motion with no cloned editor layers. Reduced motion or View settings → Book
+motion → No animation bypasses transitions. Inputs and placement handles stay
+locked during motion; resize/window blur settles it. Date jumps remain direct.

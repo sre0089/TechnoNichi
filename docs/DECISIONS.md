@@ -544,3 +544,14 @@ to an unrelated boundary. The miniature calendar is one accessible trigger into
 a larger native-field/month-button dialog, retaining readable pointer targets.
 Reuse Radix/native controls without adding a calendar dependency. Date jumps
 flush current drafts and share the existing navigation lock.
+
+## Book interaction renderer — 2026-10-28
+
+Use the existing editable HTML/CSS renderer with a replaceable small book-state
+hook and 180ms CSS transitions. Preserve one editor tree; hide it behind the cover
+only after a successful draft flush. Do not add a curl dependency at this stage:
+restrained CSS satisfies the PRD fallback without duplicate editing surfaces or
+pointer arbitration risk. Inputs never initiate turns; explicit previous/next do.
+Resume is immediate on app load. Reduced motion and optional `motion: none` are
+supported, with old preferences/archives defaulting to device behavior. Close/open
+state is transient, not saved journal content. Resize/blur settles ongoing motion.
