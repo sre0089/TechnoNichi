@@ -2,7 +2,9 @@
 
 ## 2026-11-01 — Personal book setup and opening
 
-Status: authorized implementation, tracked by [issue #30](https://github.com/sre0089/TechnoNichi/issues/30).
+Status: implemented and locally verified on 2026-11-02 in
+[PR #31](https://github.com/sre0089/TechnoNichi/pull/31), tracked by
+[issue #30](https://github.com/sre0089/TechnoNichi/issues/30). Awaiting review/merge.
 
 Fresh means all four IndexedDB tables are empty. Startup is read-only: it returns
 validated existing metadata or asks for setup; incomplete metadata fails without

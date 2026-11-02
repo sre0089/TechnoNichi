@@ -1,29 +1,52 @@
 # Project state
 
-## Personal book setup — implementation in progress, 2026-11-01
+## Personal book setup — locally verified, 2026-11-02
 
-The plan checkpoint `a80d611` is pushed on `docs/product-readiness-plan`.
-Active implementation is on `feat/personal-book-setup`, tracked by
-[issue #30](https://github.com/sre0089/TechnoNichi/issues/30). The user authorized
-implementation and frequent commits/pushes. Merge and later stages remain separate.
+Implemented Stage 1 on `feat/personal-book-setup`, tracked by
+[issue #30](https://github.com/sre0089/TechnoNichi/issues/30) and
+[PR #31](https://github.com/sre0089/TechnoNichi/pull/31). The user authorized
+implementation and frequent commits/pushes. Published checkpoints: plan `a80d611`,
+setup `e051182` and final application/recovery coverage `441a1f5`.
+The PR is open and unmerged; issue #30 remains open pending merge.
 
-Create your book now accepts name, year, Today timezone and Today/Last page
-opening. Existing metadata is read without rewriting it. Empty-store setup/import
-is atomic across all tables; no existing book is disposable, even without entries.
-Optional opening preferences preserve old resume behavior. Recovery buffers block
-unrelated creation and remain available through original-book import.
+Create your book accepts name, year, Today timezone and Today/Last page opening.
+Existing metadata is validated without rewriting it. Setup/import require all four
+tables to be empty and commit atomically; even an empty imported legacy-shaped
+book is protected. Older preferences resume by default. Recovery buffers block
+unrelated creation/import, survive original-book restore and open their original
+page/side ahead of Today. View settings can change the opening choice. Today
+outside the book's year resumes the saved page (January 1 for a new book).
 
-Checkpoint verified on 2026-11-02: `npm run check` passes format, lint, strict
-types, 144 units and production build. All 18 setup journeys pass across the three
-engines; the first backup-only run also passed all 12 existing import/export cases.
-Final-source combined checks pass 145 units and build. The initial full browser
-run passed 239 cases/four intentional skips; three Today cases exposed the new
-legacy fixture using UTC instead of the configured browser timezone. The fixture
-now preserves that timezone, and all 12 navigation cases pass. All six final
-retained-draft guard/Today-priority cases pass. All 12 production offline cases pass across the three engines, including a
-personally created book. The final full browser run remains pending. Desktop and phone setup screenshots were inspected
-using synthetic data.
-No dependencies, IndexedDB schema or production services change.
+Main changed paths: `src/editor/BookSetup.tsx`, planner startup/settings/backup UI,
+`src/local/book-setup.ts`, repository/backup/recovery handling and the preferences
+model. Cover titles wrap safely. Synthetic legacy fixtures preserve the existing
+regression journeys; separate first-use cases exercise the actual setup screen.
+Planning, architecture, decisions and personal-alpha instructions agree with this
+scope. No dependencies, IndexedDB schema, services or deployment change.
+
+Final local checks on application head `441a1f5`:
+
+- `npm run check`: format, lint, strict types, 145 unit tests and production build
+  passed. Runtime: project-specific Node 24.16.0; exact existing npm lockfile.
+- `npm run test:browser -- --workers=3`: 245 passed, four existing intentional
+  skips across Chromium, Firefox and WebKit. Initial Today failures were traced
+  to the new legacy fixture using UTC; it now retains the configured browser
+  timezone and the complete final run passes.
+- `npm run test:offline`: all 12 production cases passed across the same engines,
+  including a newly created personal book and offline editing/reopening.
+- Inspected ignored synthetic desktop/phone setup screenshots; whitespace and
+  six local links across the five affected documents pass. Private originals,
+  real book data, credentials and generated artifacts remain unpublished.
+
+[CI run 41392448441](https://github.com/sre0089/TechnoNichi/actions/runs/41392448441)
+for `441a1f5` has passed its common checks; browser jobs are still running at this
+record. Final-head CI must pass before merge. The documentation-only closeout
+also triggers CI and does not change application/test sources.
+
+Next bounded action: review PR #31 and try setup/import in a fresh browser profile
+without clearing the existing book. Physical-device, real IME, assistive-technology
+and week-of-use gates remain manual. Merge requires separate approval. Annual book
+switching and Stage 2 installation/hosting remain later scope; no next stage began.
 
 ## Product readiness planning — 2026-11-01
 
