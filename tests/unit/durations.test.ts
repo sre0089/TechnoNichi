@@ -1,3 +1,4 @@
+import { seedLegacyBook } from '../fixtures/legacy-book';
 import 'fake-indexeddb/auto';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
@@ -133,7 +134,7 @@ const databases: PlannerDB[] = [];
 async function database() {
   const db = new PlannerDB(`durations-${crypto.randomUUID()}`);
   databases.push(db);
-  const { book } = await db.initialize();
+  const { book } = await seedLegacyBook(db);
   return { db, book, pageId: `${book.id}:daily:2026-10-06` };
 }
 afterEach(async () => {
@@ -156,7 +157,8 @@ describe('duration storage and recovery', () => {
       entries: [withoutDuration(saved as DurationEntry)],
     };
     expect(parseBackup(serializeBackup(legacy))).toEqual(legacy);
-    const { db: target } = await database();
+    const target = new PlannerDB(`duration-import-${crypto.randomUUID()}`);
+    databases.push(target);
     await target.restoreBackup(archive);
     expect(await target.entries.get(saved.id)).toEqual(saved);
     target.close();

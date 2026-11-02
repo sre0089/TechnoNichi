@@ -1,3 +1,4 @@
+import { seedLegacyBook } from '../fixtures/legacy-book';
 import 'fake-indexeddb/auto';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -242,13 +243,12 @@ describe('versioned backup validation', () => {
 });
 
 describe('transactional book restoration', () => {
-  it('round trips all records into a blank initialized planner and reopens the restored book', async () => {
+  it('round trips all records into a fresh planner and reopens the restored book', async () => {
     const original = fixture();
     const source = database();
     await source.restoreBackup(original);
     const exported = await source.exportBackup(original.book.id);
     const target = database();
-    await target.initialize();
     await target.restoreBackup(parseBackup(serializeBackup(exported)));
     target.close();
     await target.open();
@@ -275,7 +275,7 @@ describe('transactional book restoration', () => {
   });
   it('refuses existing entries, including empty saved slots, without altering any table', async () => {
     const target = database();
-    const { book } = await target.initialize();
+    const { book } = await seedLegacyBook(target);
     await target.save(
       newEntry(manifest(book)[0].id, { type: 'task', slot: 0 }),
       0,
@@ -288,7 +288,6 @@ describe('transactional book restoration', () => {
   });
   it('rolls back metadata and records when writing fails partway through a valid restore', async () => {
     const target = database();
-    await target.initialize();
     const before = await snapshot(target);
     vi.spyOn(target.preferences, 'add').mockRejectedValueOnce(
       new DOMException('Synthetic quota failure', 'QuotaExceededError'),
@@ -313,7 +312,6 @@ describe('transactional book restoration', () => {
   });
   it('serializes two restore attempts so the second cannot overwrite the first', async () => {
     const target = database();
-    await target.initialize();
     const other = new PlannerDB(target.name);
     try {
       const results = await Promise.allSettled([

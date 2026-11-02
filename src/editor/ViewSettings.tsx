@@ -36,7 +36,9 @@ export function ViewSettings({
 }: {
   preferences: Preferences;
   change: (
-    changes: Partial<Pick<Preferences, 'zoom' | 'toolbarSide' | 'motion'>>,
+    changes: Partial<
+      Pick<Preferences, 'zoom' | 'toolbarSide' | 'motion' | 'opening'>
+    >,
   ) => void;
   moving: boolean;
 }) {
@@ -97,6 +99,24 @@ export function ViewSettings({
         </NativeSelect>
         <span className="font-normal text-ui-muted">
           Brief transitions respect reduced motion on your device.
+        </span>
+      </label>
+      <label className="flex flex-col items-start gap-2 text-xs font-semibold">
+        Open book to
+        <NativeSelect
+          aria-label="Open book to"
+          value={preferences.opening ?? 'resume'}
+          disabled={moving}
+          onChange={(event) =>
+            change({ opening: event.target.value as 'today' | 'resume' })
+          }
+        >
+          <option value="today">Today</option>
+          <option value="resume">Last page</option>
+        </NativeSelect>
+        <span className="font-normal text-ui-muted">
+          When Today is outside this book's year, open the last page you
+          visited.
         </span>
       </label>
       <p className="m-0 rounded-control bg-wash/60 p-3 text-xs leading-relaxed text-ui-muted">

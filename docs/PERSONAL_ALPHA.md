@@ -37,6 +37,22 @@ developer tools, close its tabs, then reopen it with the development server
 running. Unregistering a worker does not require clearing IndexedDB. Do not use
 “clear all site data” to switch modes: that removes the book too.
 
+## Create or restore your book
+
+A fresh browser store shows **Create your book**. Choose a name, year, timezone
+for Today, and whether reopening should show Today or your last page. The year
+can include leap days; written times stay as entered. When Today is outside the
+book's year, the last visited page opens (January 1 in a new book).
+Change the opening choice later in **View settings**. Older books keep their
+saved position by default and retain their original IDs, dates and writing.
+
+To import an existing JSON backup, choose **Backups** on the setup screen before
+creating a book. Review the file, then choose **Restore backup**. Restore requires
+a completely empty store, including no existing empty book. It never replaces
+an existing book. Retained emergency drafts prevent creating an unrelated book;
+restore their original book first. Invalid recovery buffers remain untouched.
+Only one yearly book is active in this slice; annual switching is later work.
+
 ## Plan a day
 
 - Type directly in hourly rows. Enter finishes a timed task; its checkbox marks

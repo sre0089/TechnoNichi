@@ -98,9 +98,9 @@ no writing reaches a server. Failed flushing prevents export and retains recover
 File reading/parsing and full validation occur before the write transaction. Restore
 copies/validates the archive again, then checks destination emptiness and writes all
 four tables in one Dexie transaction. Any request failure aborts the whole operation.
-Only a completely empty database or the generated empty 2026 bootstrap book is
-eligible. Saved entries, including empty/deleted ones, or unrelated book metadata
-cause refusal. Duplicate records are rejected rather than merged. Restore activates
+Only a completely empty database is eligible. Any existing book or metadata,
+and saved entries including empty/deleted ones, cause refusal. This also protects
+empty imported books whose metadata matches the old bootstrap. Duplicate records are rejected rather than merged. Restore activates
 the imported preferences/book; startup reads that book instead of creating another
 default. The UI reviews a chosen file before an explicit restore action.
 
@@ -112,8 +112,14 @@ backups remain deferred.
 ## Reversible defaults
 
 Working title: **Daily Book**. Synthetic sample year: **2026**. Locale: English.
-The initial book's Today preference uses the browser's IANA timezone, stored
-explicitly; entry times remain floating wall-clock times. October uses muted
+First use chooses a book name, year, Today timezone and Today/Last page opening.
+The timezone starts with the browser's IANA timezone and is stored explicitly;
+missing opening preferences on older books mean resume. Today outside the chosen
+year resumes the saved position; a new out-of-year book starts January 1. Recovery
+drafts take precedence over either choice. Startup reads existing metadata without
+rewriting it, and creation/import serialize an all-table empty-store check.
+No schema migration is needed for the additive optional preference.
+As before, entry times remain floating wall-clock times. October uses muted
 purple as required by the PRD. Other themes are provisional until reference review.
 The small-screen fallback is a single readable page, not a squeezed spread.
 

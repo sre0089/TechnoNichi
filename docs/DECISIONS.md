@@ -1,5 +1,32 @@
 # Decisions
 
+## 2026-11-01 — Personal book setup and opening
+
+Status: authorized implementation, tracked by [issue #30](https://github.com/sre0089/TechnoNichi/issues/30).
+
+Fresh means all four IndexedDB tables are empty. Startup is read-only: it returns
+validated existing metadata or asks for setup; incomplete metadata fails without
+repair or deletion. The schema remains version 1; the optional opening preference
+is additive and absent means resume. No IDs, dates, entries or geometry migrate.
+New books use random IDs, full chosen-year manifests and validated name/timezone.
+Creation and import serialize the empty-store check with every write in one
+transaction. Remove the old shape-based disposable-bootstrap exception: even an
+empty imported `personal-2026` is a real book and must not be replaced.
+
+New books default to Today using the stored timezone; opening to Last page is
+also available in setup and View settings. Today outside the chosen year falls
+back to the saved position (January 1 for a new book). Recovery drafts take
+precedence over either opening preference and retain their page side. First-use
+emergency buffers block creating an unrelated book; original-book import remains
+available and no recovery buffers are cleared by setup. Invalid buffers remain
+untouched for manual recovery. One active book only; year switching is later work.
+
+Existing regression journeys now explicitly seed synthetic pre-setup data instead
+of relying on production demo creation. Dedicated first-use journeys use the real
+setup screen. New archives retain version 2 and optionally include opening choice;
+v1/v2 archives without it continue to resume. Old app versions' strict validators
+may reject new archives containing the new preference; use the current app.
+
 ## 2026-11-01 — Proposed product readiness sequence
 
 Status: Stage 1 implementation and periodic commits/pushes authorized on

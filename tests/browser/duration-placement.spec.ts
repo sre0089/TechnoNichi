@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Locator } from '@playwright/test';
+import { expect, test, type Page, type Locator } from '../fixtures/browser';
 import type { Entry } from '../../src/domain/model';
 const day = (page: Page) =>
   page.getByRole('region', {

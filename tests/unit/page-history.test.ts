@@ -1,3 +1,4 @@
+import { seedLegacyBook } from '../fixtures/legacy-book';
 import 'fake-indexeddb/auto';
 import { afterEach, expect, it } from 'vitest';
 import { newTaskEntry } from '../../src/domain/model';
@@ -11,7 +12,7 @@ const databases: PlannerDB[] = [];
 async function setup() {
   const db = new PlannerDB(`history-${crypto.randomUUID()}`);
   databases.push(db);
-  const { book } = await db.initialize();
+  const { book } = await seedLegacyBook(db);
   const entry = await db.save(
     {
       ...newTaskEntry(`${book.id}:daily:2026-10-06`, 0, []),

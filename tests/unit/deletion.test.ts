@@ -1,3 +1,4 @@
+import { seedLegacyBook } from '../fixtures/legacy-book';
 import 'fake-indexeddb/auto';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
@@ -16,7 +17,7 @@ const databases: PlannerDB[] = [];
 async function database() {
   const db = new PlannerDB(`deletion-${crypto.randomUUID()}`);
   databases.push(db);
-  const { book } = await db.initialize();
+  const { book } = await seedLegacyBook(db);
   return { db, book, page: `${book.id}:daily:2026-10-06` };
 }
 afterEach(async () => {

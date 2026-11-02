@@ -16,7 +16,7 @@ export function BackupsDialog({
   restoreBackup,
 }: {
   disabled: boolean;
-  exportBackup: () => Promise<{ text: string; year: number }>;
+  exportBackup?: () => Promise<{ text: string; year: number }>;
   restoreBackup: (archive: PlannerBackup) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -66,50 +66,52 @@ export function BackupsDialog({
         closeDisabled={busy}
       >
         <div aria-busy={busy} className="space-y-6">
-          <section aria-label="Export backup">
-            <h2 className="m-0 text-sm font-semibold">Save a copy</h2>
-            <p className="text-xs leading-relaxed text-ui-muted">
-              Includes every date, tasks, notes, completion, word formatting and
-              view preferences. The JSON file contains your writing in plain
-              text and stays on your device.
-            </p>
-            <Button
-              variant="primary"
-              disabled={busy}
-              onClick={() =>
-                void run(async () => {
-                  const { text, year } = await exportBackup();
-                  const url = URL.createObjectURL(
-                    new Blob([text], { type: 'application/json' }),
-                  );
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.download = `daily-book-${year}-${new Date().toISOString().slice(0, 10)}.json`;
-                  document.body.append(link);
-                  try {
-                    link.click();
-                  } finally {
-                    link.remove();
-                    setTimeout(() => URL.revokeObjectURL(url), 30_000);
-                  }
-                  setMessage(
-                    'Backup download started. Keep the file somewhere you can find it again.',
-                  );
-                })
-              }
-            >
-              <Download size={16} aria-hidden="true" /> Download backup
-            </Button>
-          </section>
+          {exportBackup && (
+            <section aria-label="Export backup">
+              <h2 className="m-0 text-sm font-semibold">Save a copy</h2>
+              <p className="text-xs leading-relaxed text-ui-muted">
+                Includes every date, tasks, notes, completion, word formatting
+                and view preferences. The JSON file contains your writing in
+                plain text and stays on your device.
+              </p>
+              <Button
+                variant="primary"
+                disabled={busy}
+                onClick={() =>
+                  void run(async () => {
+                    const { text, year } = await exportBackup();
+                    const url = URL.createObjectURL(
+                      new Blob([text], { type: 'application/json' }),
+                    );
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `daily-book-${year}-${new Date().toISOString().slice(0, 10)}.json`;
+                    document.body.append(link);
+                    try {
+                      link.click();
+                    } finally {
+                      link.remove();
+                      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+                    }
+                    setMessage(
+                      'Backup download started. Keep the file somewhere you can find it again.',
+                    );
+                  })
+                }
+              >
+                <Download size={16} aria-hidden="true" /> Download backup
+              </Button>
+            </section>
+          )}
           <section
             aria-label="Import backup"
             className="border-0 border-t border-solid border-line pt-5"
           >
             <h2 className="m-0 text-sm font-semibold">Restore a copy</h2>
             <p className="text-xs leading-relaxed text-ui-muted">
-              Restore requires a planner with no saved entries. To keep using
-              your current book, open the app in a fresh browser profile. Choose
-              a Daily Book JSON backup up to 20 MB to review it first.
+              Restore requires an empty planner with no existing book. To keep
+              using your current book, open the app in a fresh browser profile.
+              Choose a Daily Book JSON backup up to 20 MB to review it first.
             </p>
             <label
               htmlFor="backup-file"

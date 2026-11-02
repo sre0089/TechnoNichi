@@ -141,3 +141,23 @@ export class TabRecovery implements RecoveryStorage {
     }
   }
 }
+
+// Setup never clears emergency buffers, including invalid/legacy copies.
+export function hasRecoveryBuffers(): boolean {
+  try {
+    if (window.sessionStorage.getItem(SESSION_DRAFT_KEY)) return true;
+    const store = window.localStorage;
+    for (let index = 0; index < store.length; index++) {
+      const key = store.key(index);
+      if (
+        key &&
+        (key === RECOVERY_KEY || key.startsWith(TAB_RECOVERY_PREFIX)) &&
+        store.getItem(key)
+      )
+        return true;
+    }
+  } catch {
+    // Recovery storage is optional; IndexedDB errors are handled separately.
+  }
+  return false;
+}

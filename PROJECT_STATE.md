@@ -1,5 +1,25 @@
 # Project state
 
+## Personal book setup — implementation in progress, 2026-11-01
+
+The plan checkpoint `a80d611` is pushed on `docs/product-readiness-plan`.
+Active implementation is on `feat/personal-book-setup`, tracked by
+[issue #30](https://github.com/sre0089/TechnoNichi/issues/30). The user authorized
+implementation and frequent commits/pushes. Merge and later stages remain separate.
+
+Create your book now accepts name, year, Today timezone and Today/Last page
+opening. Existing metadata is read without rewriting it. Empty-store setup/import
+is atomic across all tables; no existing book is disposable, even without entries.
+Optional opening preferences preserve old resume behavior. Recovery buffers block
+unrelated creation and remain available through original-book import.
+
+Checkpoint verified on 2026-11-02: `npm run check` passes format, lint, strict
+types, 144 units and production build. All 18 setup journeys pass across the three
+engines; the first backup-only run also passed all 12 existing import/export cases.
+Full regression and production offline checks remain pending. Desktop and phone
+setup screenshots were inspected using synthetic data.
+No dependencies, IndexedDB schema or production services change.
+
 ## Product readiness planning — 2026-11-01
 
 The user requested a plan for broader use and practical integrations.

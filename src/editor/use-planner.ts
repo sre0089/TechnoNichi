@@ -12,6 +12,7 @@ import {
 import { spreadIndex, dateDestination } from '../domain/calendar';
 import {
   PlannerDB,
+  BookSetupRequired,
   RestoreRefused,
   RevisionConflict,
   EntryRestoreRefused,
@@ -19,7 +20,8 @@ import {
 } from '../local/repository';
 import { readRecovery, SaveQueue, type SaveState } from '../local/save-queue';
 import { serializeBackup, type PlannerBackup } from '../local/backup';
-import { TabRecovery } from '../local/tab-recovery';
+import { openingPreferences, type BookSetup } from '../local/book-setup';
+import { TabRecovery, hasRecoveryBuffers } from '../local/tab-recovery';
 import { TabChanges } from '../local/tab-changes';
 import { PageHistory, type HistoryDirection } from '../local/page-history';
 import {
@@ -64,6 +66,8 @@ export function usePlanner() {
     setHistoryError('');
   }, [publishHistory]);
   const [saveState, setSaveState] = useState<SaveState>({ kind: 'saving' });
+  const [needsSetup, setNeedsSetup] = useState(false);
+  const [startupVersion, setStartupVersion] = useState(0);
   const [openingError, setOpeningError] = useState(false);
   const [moving, setMoving] = useState(false);
   const [adjustingNote, setAdjustingNote] = useState(false);
@@ -140,8 +144,9 @@ export function usePlanner() {
     document.addEventListener('visibilitychange', onVisible);
     void (async () => {
       try {
-        const { book, preferences: savedPreferences } =
+        const { book, preferences: storedPreferences } =
           await database.initialize();
+        const savedPreferences = openingPreferences(book, storedPreferences);
         const pages = manifest(book);
         let recovery: Entry[] = [];
         let local: Storage | undefined;
@@ -175,7 +180,14 @@ export function usePlanner() {
                 Math.min(pages.length - 1, savedPreferences.pageIndex),
               ),
         );
-        const preferences = { ...savedPreferences, pageIndex };
+        const preferences = {
+          ...savedPreferences,
+          pageIndex,
+          focusSide:
+            recoveryIndex >= 0
+              ? ((recoveryIndex % 2) as 0 | 1)
+              : savedPreferences.focusSide,
+        };
         const loaded = await database.readPages(
           pages.slice(pageIndex, pageIndex + 2).map((p) => p.id),
           true,
@@ -234,7 +246,11 @@ export function usePlanner() {
           /* Explicit review can retry; opening the saved book remains useful. */
         }
         void checkChanges();
-      } catch {
+      } catch (error) {
+        if (active && error instanceof BookSetupRequired) {
+          setNeedsSetup(true);
+          return;
+        }
         if (active) {
           setOpeningError(true);
           setSaveState({
@@ -254,7 +270,7 @@ export function usePlanner() {
       if (queue) void queue.flush().finally(() => database.close());
       else database.close();
     };
-  }, [setEntries]);
+  }, [setEntries, startupVersion]);
 
   const edit = useCallback(
     (entry: Entry) => {
@@ -332,7 +348,10 @@ export function usePlanner() {
 
   const updatePreferences = async (
     changes: Partial<
-      Pick<Preferences, 'focusSide' | 'toolbarSide' | 'zoom' | 'motion'>
+      Pick<
+        Preferences,
+        'focusSide' | 'toolbarSide' | 'zoom' | 'motion' | 'opening'
+      >
     >,
   ) => {
     if (!view || !db.current || moveLock.current || noteGestureLock.current)
@@ -387,8 +406,37 @@ export function usePlanner() {
       return { text: serializeBackup(archive), year: archive.book.year };
     });
 
-  const restoreBackup = (archive: PlannerBackup) =>
-    withOperationLock(async (database, queue) => {
+  const reopenAfterSetup = () => {
+    setNeedsSetup(false);
+    setOpeningError(false);
+    setStartupVersion((version) => version + 1);
+  };
+
+  const createBook = async (input: BookSetup) => {
+    if (!needsSetup || !db.current) throw new Error('Please reopen the app.');
+    if (hasRecoveryBuffers())
+      throw new Error(
+        'Retained writing was found. Restore its original book before creating a new one.',
+      );
+    await db.current.createBook(input);
+    reopenAfterSetup();
+  };
+
+  const restoreBackup = async (archive: PlannerBackup) => {
+    if (needsSetup && db.current) {
+      try {
+        await db.current.restoreBackup(archive);
+      } catch (error) {
+        if (error instanceof RestoreRefused) throw error;
+        throw new Error(
+          'Restore could not finish. Your existing planner has not been changed.',
+          { cause: error },
+        );
+      }
+      reopenAfterSetup();
+      return;
+    }
+    return withOperationLock(async (database, queue) => {
       let restored: PlannerBackup;
       try {
         restored = await database.restoreBackup(archive);
@@ -417,6 +465,7 @@ export function usePlanner() {
       setView({ book, pages, preferences });
       setSaveState({ kind: 'saved' });
     });
+  };
 
   const listDeletedEntries = () =>
     withOperationLock(async (database) => {
@@ -671,6 +720,8 @@ export function usePlanner() {
     redoPage: () => applyPageHistory('redo'),
     saveState,
     openingError,
+    needsSetup,
+    createBook,
     moving,
     adjustingNote,
     beginNoteGesture,

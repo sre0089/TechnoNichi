@@ -73,6 +73,7 @@ import {
 } from '../components/ui/popover';
 import { Hint, TooltipProvider } from '../components/ui/tooltip';
 import { SaveStatus } from '../components/ui/save-status';
+import { BookSetup } from './BookSetup';
 import { PageSizeSelect, ViewSettings } from './ViewSettings';
 import { BackupsDialog } from './BackupsDialog';
 import { TabChangesDialog } from './TabChangesDialog';
@@ -761,6 +762,8 @@ function PlannerEditor() {
     entries: records,
     saveState,
     openingError,
+    needsSetup,
+    createBook,
     moving: pageMoving,
     adjustingNote,
     beginNoteGesture,
@@ -805,14 +808,17 @@ function PlannerEditor() {
   };
   const bookRef = useRef<HTMLDivElement>(null);
   const openBookRef = useRef<HTMLButtonElement>(null);
+  const openedBookId = view?.book.id;
   useEffect(() => {
     if (bookState === 'closed') openBookRef.current?.focus();
     else if (bookState === 'opening' || bookState === 'open')
       restoreUnclaimedFocus(() => bookRef.current);
-  }, [bookState]);
+  }, [bookState, openedBookId]);
   useEffect(() => {
     if (selectedId) document.getElementById(selectedId)?.focus();
   }, [selectedId]);
+  if (needsSetup)
+    return <BookSetup create={createBook} restore={restoreBackup} />;
   if (!view)
     return (
       <main className="opening">
