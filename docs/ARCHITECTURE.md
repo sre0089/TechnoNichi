@@ -1,5 +1,12 @@
 # Architecture and milestone plan
 
+For the proposed next delivery sequence, see
+[PRODUCT_READINESS_PLAN.md](PRODUCT_READINESS_PLAN.md), drafted on 2026-11-01
+against merged `7518cba`. It distinguishes the invited local-book pilot from
+the private cross-device beta and records proposed sequencing changes. The
+implementation history below remains historical; service setup and deployment
+are not authorized by the planning request.
+
 Status: M1 merged through PRs #3/#5/#6. M2 backup and deletion/recovery slices
 merged through PRs #9/#13. Free-note movement/resizing is implemented on
 `feat/note-movement-resizing`, merged through

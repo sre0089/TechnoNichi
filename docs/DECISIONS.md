@@ -1,5 +1,24 @@
 # Decisions
 
+## 2026-11-01 — Proposed product readiness sequence
+
+Status: Stage 1 implementation and periodic commits/pushes authorized on
+2026-11-01. Later stages, services, deployments and merges remain unapproved.
+
+Record the next delivery plan in `PRODUCT_READINESS_PLAN.md`. Propose a personal
+trial/book setup and an installable invited local-book pilot before the private
+cross-device beta. Moving minimal PWA/hosting work earlier is an explicit proposal
+relative to the PRD, not an approved replacement of its milestone order. The
+earlier five-step implementation approval is exhausted.
+
+Preserve local-first editing. Ownership/account isolation, explicit guest-book
+migration, durable sync and a tested history/backup recovery process precede
+real cloud-book invitations. Vercel and Supabase are candidates subject to
+runtime, intended-use, budget, region and plan review; neither is provisioned.
+Quick capture and reminders remain proposals; carry-forward is explicit and
+recurrence/further page views retain their later scope. The immediate bounded
+implementation candidate is personal book setup with old/imported-book safety.
+
 ## 2026-10-05 — Bootstrap destination and visibility
 
 Status: approved by the user; public remote created and bootstrap push verified.

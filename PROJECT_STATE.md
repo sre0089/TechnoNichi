@@ -1,5 +1,29 @@
 # Project state
 
+## Product readiness planning — 2026-11-01
+
+The user requested a plan for broader use and practical integrations.
+[PRODUCT_READINESS_PLAN.md](docs/PRODUCT_READINESS_PLAN.md) proposes a personal
+trial and book setup, an installable invited local-book pilot, optional accounts,
+durable cross-device sync, recovery before real cloud use and later planning
+conveniences. It records dependencies, acceptance evidence and decisions needed
+before service setup. Earlier pilot hosting/PWA work is an explicit proposed
+adjustment to the PRD's release order; the PRD remains unchanged.
+
+The user then authorized implementation and frequent GitHub commits/pushes.
+The active bounded slice is Stage 1: personal book setup, preserving existing and
+imported books. Publish this plan on `docs/product-readiness-plan`, then implement
+on `feat/personal-book-setup`. Service provisioning, deployment and merges remain
+outside this authorization. The earlier five-step approval has ended.
+
+Verified closeout: [PR #29](https://github.com/sre0089/TechnoNichi/pull/29) merged
+on 2026-10-28 as `7518cba1d01c7d165981f1316f9cc022e2036101`; local `main` is
+at that commit. The five-step implementation batch is complete. Its recorded
+final checks passed 128 units, 221 browser tests/four intentional skips and nine
+production offline cases. Those application checks are historical evidence and
+are not rerun for this documentation-only plan. Real-device/week-of-use gates
+remain unverified.
+
 ## Five preapproved steps — 2026-10-28
 
 The user authorized five bounded implementation steps with commits, pushes, PRs
