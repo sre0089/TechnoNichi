@@ -16,8 +16,13 @@ unrelated creation and remain available through original-book import.
 Checkpoint verified on 2026-11-02: `npm run check` passes format, lint, strict
 types, 144 units and production build. All 18 setup journeys pass across the three
 engines; the first backup-only run also passed all 12 existing import/export cases.
-Full regression and production offline checks remain pending. Desktop and phone
-setup screenshots were inspected using synthetic data.
+Final-source combined checks pass 145 units and build. The initial full browser
+run passed 239 cases/four intentional skips; three Today cases exposed the new
+legacy fixture using UTC instead of the configured browser timezone. The fixture
+now preserves that timezone, and all 12 navigation cases pass. All six final
+retained-draft guard/Today-priority cases pass. All 12 production offline cases pass across the three engines, including a
+personally created book. The final full browser run remains pending. Desktop and phone setup screenshots were inspected
+using synthetic data.
 No dependencies, IndexedDB schema or production services change.
 
 ## Product readiness planning — 2026-11-01

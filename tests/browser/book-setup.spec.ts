@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { manifest, newEntry } from '../../src/domain/model';
+import { prepareBook } from '../../src/local/book-setup';
 import { legacyBook, legacyPreferences } from '../fixtures/legacy-book';
 
 async function start(page: Page) {
@@ -47,6 +48,11 @@ test('a fresh yearly book starts at January 1 outside its year and resumes writi
   if (info.project.name === 'chromium')
     await page.screenshot({ path: 'artifacts/book-setup-desktop.png' });
   await create(page);
+  await page.getByRole('button', { name: 'Close book', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'My planning book', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Open book', exact: true }).click();
   await expect(
     page.getByRole('region', { name: 'Friday, January 1', exact: true }),
   ).toBeVisible();
@@ -168,6 +174,32 @@ test('retained drafts block new creation and survive restoring their original bo
   ).toContain(draft.text);
   await page.getByRole('button', { name: 'Backups', exact: true }).click();
   await page.getByLabel('Backup file', { exact: true }).setInputFiles({
+    name: 'unrelated.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(
+      JSON.stringify(
+        prepareBook({
+          title: 'Unrelated book',
+          year: 2028,
+          todayTimeZone: 'UTC',
+          opening: 'resume',
+        }),
+      ),
+    ),
+  });
+  await page
+    .getByRole('button', { name: 'Restore backup', exact: true })
+    .click();
+  await expect(page.getByRole('dialog').getByRole('alert')).toContainText(
+    'different book than the retained writing',
+  );
+  expect(await counts(page)).toEqual([0, 0, 0, 0]);
+  expect(
+    await page.evaluate(() =>
+      sessionStorage.getItem('daily-book:tab-draft-v1'),
+    ),
+  ).toContain(draft.text);
+  await page.getByLabel('Backup file', { exact: true }).setInputFiles({
     name: 'original.json',
     mimeType: 'application/json',
     buffer: Buffer.from(
@@ -214,4 +246,71 @@ test('two first-use tabs cannot replace one another and the losing tab can open 
   await expect(
     other.getByRole('region', { name: 'Friday, January 1', exact: true }),
   ).toBeVisible();
+});
+
+test('the opening choice can change in settings without moving the current page', async ({
+  page,
+}) => {
+  await page.clock.install({ time: new Date('2026-10-07T12:00:00Z') });
+  await start(page);
+  await create(page, '2026');
+  await page
+    .getByRole('button', { name: 'View settings', exact: true })
+    .click();
+  const settings = page.getByRole('dialog', { name: 'View settings' });
+  await settings
+    .getByLabel('Open book to', { exact: true })
+    .selectOption('resume');
+  await settings.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Next spread', exact: true }).click();
+  const nextDay = page.getByRole('region', {
+    name: 'Thursday, October 8',
+    exact: true,
+  });
+  await page.reload();
+  await expect(nextDay).toBeVisible();
+  await page
+    .getByRole('button', { name: 'View settings', exact: true })
+    .click();
+  await settings
+    .getByLabel('Open book to', { exact: true })
+    .selectOption('today');
+  await settings.getByRole('button', { name: 'Done', exact: true }).click();
+  await expect(nextDay).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByRole('region', { name: 'Wednesday, October 7', exact: true }),
+  ).toBeVisible();
+});
+
+test('a pending draft opens its own page side ahead of the Today preference', async ({
+  page,
+}) => {
+  await page.clock.install({ time: new Date('2026-10-07T12:00:00Z') });
+  await start(page);
+  await create(page, '2026');
+  await page.getByRole('button', { name: 'Next spread', exact: true }).click();
+  await page.evaluate(() => {
+    const put = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function (
+      ...args: Parameters<IDBObjectStore['put']>
+    ) {
+      if (this.name === 'entries')
+        throw new DOMException('Synthetic quota', 'QuotaExceededError');
+      return put.apply(this, args);
+    };
+  });
+  const writing = page.getByRole('textbox', {
+    name: 'Task 1 on 2026-10-09',
+    exact: true,
+  });
+  await writing.fill('Recover on my original page');
+  await expect(page.getByRole('status')).toHaveText('Storage problem');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  await expect(
+    page.getByRole('region', { name: 'Friday, October 9', exact: true }),
+  ).toBeVisible();
+  await expect(writing).toHaveText('Recover on my original page');
+  await expect(page.getByRole('status')).toHaveText('Saved on this device');
 });

@@ -21,7 +21,11 @@ import {
 import { readRecovery, SaveQueue, type SaveState } from '../local/save-queue';
 import { serializeBackup, type PlannerBackup } from '../local/backup';
 import { openingPreferences, type BookSetup } from '../local/book-setup';
-import { TabRecovery, hasRecoveryBuffers } from '../local/tab-recovery';
+import {
+  TabRecovery,
+  hasRecoveryBuffers,
+  recoveryPageIds,
+} from '../local/tab-recovery';
 import { TabChanges } from '../local/tab-changes';
 import { PageHistory, type HistoryDirection } from '../local/page-history';
 import {
@@ -424,6 +428,11 @@ export function usePlanner() {
 
   const restoreBackup = async (archive: PlannerBackup) => {
     if (needsSetup && db.current) {
+      const pageIds = new Set(archive.pages.map((page) => page.id));
+      if ([...recoveryPageIds()].some((pageId) => !pageIds.has(pageId)))
+        throw new Error(
+          'This backup belongs to a different book than the retained writing. Choose a backup of its original book. No stored data was changed.',
+        );
       try {
         await db.current.restoreBackup(archive);
       } catch (error) {

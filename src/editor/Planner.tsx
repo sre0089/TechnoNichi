@@ -828,7 +828,7 @@ function PlannerEditor() {
         <h1>Daily Book</h1>
         <p role={openingError ? 'alert' : 'status'}>
           {openingError
-            ? 'Browser storage could not open. Your writing has not been cleared.'
+            ? 'Your book could not open. Its stored data has not been cleared.'
             : 'Opening your book…'}
         </p>
         {openingError && (

@@ -15,7 +15,10 @@ export const test = base.extend<{ legacyStore: void }>({
             const db = request.result;
             // Dexie schema 1 uses IndexedDB version 10.
             if (db.objectStoreNames.length) return;
-            db.createObjectStore('books', { keyPath: 'id' }).add(book);
+            db.createObjectStore('books', { keyPath: 'id' }).add({
+              ...book,
+              todayTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            });
             const pageStore = db.createObjectStore('pages', { keyPath: 'id' });
             pageStore.createIndex('bookId', 'bookId');
             pageStore.createIndex('date', 'date');

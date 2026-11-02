@@ -3,6 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { PlannerDB, BookSetupRequired } from '../../src/local/repository';
 import { openingPreferences, prepareBook } from '../../src/local/book-setup';
 import { validateBackup } from '../../src/local/backup';
+import { newEntry } from '../../src/domain/model';
 import { seedLegacyBook } from '../fixtures/legacy-book';
 
 const databases: PlannerDB[] = [];
@@ -149,4 +150,16 @@ it('round trips opening choice and accepts v1/v2 archives with no choice', () =>
       preferences: { ...archive.preferences, opening: 'invalid' },
     }),
   ).toThrow();
+});
+
+it('does not classify orphaned writing as a fresh store', async () => {
+  const db = database();
+  const draft = {
+    ...newEntry('missing-page', { type: 'task', slot: 0 }),
+    text: 'Keep orphaned writing',
+  };
+  await db.entries.add(draft);
+  await expect(db.initialize()).rejects.toThrow('metadata is incomplete');
+  await expect(db.createBook(input, now)).rejects.toThrow('saved entries');
+  expect(await db.entries.toArray()).toEqual([draft]);
 });

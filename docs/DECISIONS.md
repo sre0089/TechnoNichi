@@ -18,7 +18,8 @@ also available in setup and View settings. Today outside the chosen year falls
 back to the saved position (January 1 for a new book). Recovery drafts take
 precedence over either opening preference and retain their page side. First-use
 emergency buffers block creating an unrelated book; original-book import remains
-available and no recovery buffers are cleared by setup. Invalid buffers remain
+available; a backup missing known retained page IDs is refused before mutation.
+No recovery buffers are cleared by setup. Invalid buffers remain
 untouched for manual recovery. One active book only; year switching is later work.
 
 Existing regression journeys now explicitly seed synthetic pre-setup data instead

@@ -796,6 +796,8 @@
 }
 .book-cover h1 {
   margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   font-family: Georgia, serif;
   font-weight: normal;
   font-size: clamp(28px, 4vw, 42px);
