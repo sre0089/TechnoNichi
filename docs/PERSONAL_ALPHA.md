@@ -157,6 +157,16 @@ not supplied. Offline editing after reopening, restore into a fresh profile,
 installed-app updates, Safari/phone checks and a full week of use remain unverified.
 No real writing or screenshots are included in this record.
 
+## Reported hosted check — 2026-11-03
+
+The user confirmed that the supplied hosted staging test flow works: installation
+and the app-window experience, normal editing/reopening, and offline editing with
+retained writing on their tested setup. This records the user's overall result;
+device/OS/browser versions and the optional phone/tablet repeat were not specified.
+It does not establish every target device, hosted updates/rollback, a full week of
+use or assistive-technology acceptance. Those remaining gates still apply before
+production release and invitations.
+
 ## Acceptance still requiring a person
 
 - Review the cover/transitions and use the real tablet/phone: touch movement,

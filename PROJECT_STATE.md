@@ -5,6 +5,14 @@ native feeling are design preferences to preserve. Recorded in DECISIONS.md and
 added to the manual staging checklist. This follow-up changes documentation only;
 the hosted build, app UI, manifest and book data are unchanged.
 
+On 2026-11-03 the user confirmed the supplied hosted staging test flow works,
+covering the requested installation/window, normal editing and offline-reopen
+checks on their tested setup. This is an overall user report, not a new automated
+run. Device/OS/browser versions and whether the optional phone/tablet repeat was
+performed were not supplied. Hosted update/refusal/rollback and broader trial
+checks remain before production release. Record the confirmation without treating
+it as PR merge, production-visibility or invitation approval.
+
 ## Approved Netlify staging setup — 2026-11-03
 
 The user approved merging green PRs #37 and #39 and proceeding with Netlify Free
