@@ -2,8 +2,9 @@
 
 The app supports a local planning trial; PROJECT_STATE.md records current checks.
 Acceptance as a personal alpha still needs a week of actual planning and
-the physical-device/accessibility checks below. There is no hosted deployment,
-account, cloud synchronization or cross-device backup.
+the physical-device/accessibility checks below. Synthetic hosted staging is
+available; production publication, accounts, cloud synchronization and cross-device
+backup are not provided.
 
 ## Open it locally
 
@@ -38,6 +39,30 @@ shell can keep appearing there. Unregister that origin's worker in browser
 developer tools, close its tabs, then reopen it with the development server
 running. Unregistering a worker does not require clearing IndexedDB. Do not use
 “clear all site data” to switch modes: that removes the book too.
+
+## Try hosted staging with synthetic writing
+
+The approved Netlify Free draft is at <https://staging--technonichi.netlify.app>.
+It is publicly reachable and has passed synthetic desktop save/offline/restore
+checks in three engines. This preview is for test entries; the stable production
+app is still private/unpublished. Keep your real book and backups at their existing
+origin. Staging, localhost and the eventual production URL have separate stores.
+
+On a real phone/tablet or desktop, open this URL online, create a synthetic book,
+and follow App setup to install it. Wait for Available offline, add a test entry,
+disconnect networking, reopen from the icon, add another entry and reopen again.
+Report OS/browser versions, install behavior and whether both entries survived.
+On Safari, use the guide's separate-store backup/restore steps if needed. Do not
+clear your original book. Hosted update/rollback and accessibility/week-of-use
+acceptance remain separate checks before any invitations.
+
+To repeat automated staging checks using fresh synthetic browser stores:
+
+```sh
+HOSTED_BASE_URL=https://staging--technonichi.netlify.app npm run test:hosted
+```
+
+No persistent browser profile or personal backup is used by that command.
 
 ## Create or restore your book
 

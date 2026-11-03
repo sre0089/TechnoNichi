@@ -8,11 +8,12 @@ or tester invitations are authorized by this slice. Issue
 [#40](https://github.com/sre0089/TechnoNichi/issues/40) tracks the work on
 `chore/netlify-staging`, initially based on reviewed #39 head `a8d4208`.
 
-PR #37 merged as `3ee6cc5` after all four final-head checks passed; its merged
-tree equals `5d96929`. #39 targets main and is held for its checks: WebKit's search
-replacement case appended old text in one CI run. The unchanged local WebKit
-search file passed 12 cases (six repeats of each test). The failed job was retried;
-do not describe the unexplained failure as fixed or merge until green.
+PR #37 merged as `3ee6cc5`; PR #39 merged as `e1c78dd`, each after all four
+final-head checks passed. Their merged trees match reviewed heads `5d96929` and
+`a8d4208`. Local main fast-forwarded to `e1c78dd`. WebKit's search replacement case
+appended old text in the first #39 CI run. The unchanged local search file passed
+12 cases; the failed CI job then passed on retry. No fix is claimed for that
+unreproduced timing failure. Retain this evidence if it recurs.
 
 Plugin discovery found no Netlify connector. Reviewed official CLI documentation
 and pinned CLI 27.16.2 (Node >=22.13); used a temporary npm-exec copy under Node 24
@@ -29,9 +30,49 @@ install/full worker build, Node 24 and explicit static-worker headers. Official
 CLI `build --dry --offline` successfully parses it and detects Next runtime 5.16.5;
 the adapter's official package metadata was reviewed before build execution.
 
-Next: build/deploy only from an isolated tracked-source checkout so private local
-originals never enter a hosting upload; verify draft HTTPS worker/assets and
-synthetic book/offline/restore journeys before any stable-origin release/invites.
+Checkpoint `89db2a9` is pushed. Built an isolated tracked-source checkout at
+`/private/tmp/technonichi-netlify-staging`: clean `npm ci`, official adapter
+5.16.5 packaging and function bundling pass. Package filenames were inspected;
+private originals, runtime exports and environment files are absent. The CLI has
+not linked a Git repository/webhook, so there are no automatic Git deploys. The
+provider rejects forcing SSL before certificate provisioning; HTTPS must instead
+be verified on the actual built-in deployment URL. No successful force-SSL toggle
+or stop-builds setting is claimed.
+
+The first draft (`6ae981631e98f631898b31f2`) used `deploy --no-build` after a separate
+build; that upload missed the adapter's processed static output. After the user
+changed preview visibility to Public in the dashboard, all six hosted checks
+failed on this draft (worker 404 / setup unavailable). Replaced it using a single
+adapter build-and-deploy command from the isolated source; do not reuse the failed
+draft as a rollback baseline. Production visibility remains private by user choice.
+
+Corrected staging draft `6ae982f33cba1eda0cac3ac4` is available at
+`https://staging--technonichi.netlify.app`, from source `89db2a9`, worker version
+`52dc0466c66817fe7e8b`. Root, worker and manifest return HTTP 200 over HTTPS. Actual
+CDN worker MIME, no-cache/no-store/must-revalidate, nosniff, CSP and HSTS headers
+are verified. The stable production origin has not been published.
+
+Added an explicit `HOSTED_BASE_URL` HTTPS-only browser harness and `npm run
+test:hosted`; it creates only synthetic fresh-profile books and checks all public
+shell resources, offline edits/reopening, completion and portable backup restore
+without altering the source book. Generated Netlify files are excluded from lint
+as well as Git. The corrected hosted rerun passes all six cases across
+Chromium/Firefox/WebKit (23.0s), including all 23 shell resources, synthetic first
+use, timed completion, offline edits/reopening and backup restore into an independent
+empty profile. Inspected the synthetic restored-book screenshot. Physical OS
+installation, hosted update/refusal/rollback and week-of-use/accessibility gates
+remain pending before invitations. Final combined local checks are complete;
+their outcome is recorded in the closeout below.
+
+Verification closeout on the staging branch: `npm run check` passes formatting,
+lint, strict types, all 145 units and production build. `npm run test:hosted` with
+the explicit staging origin passes six cases; the earlier six failures belong
+only to the superseded incorrectly packaged draft. Source `89db2a9` produced the
+hosted app; follow-up changes add the test harness, tool-cache lint exclusion and
+documentation only. The provider reports deploy state `ready`, branch `staging`,
+region `cmh`, no published timestamp and no provider commit reference. Source
+provenance is the isolated checkout's recorded Git SHA, not a claimed Netlify Git
+integration. No stable production deploy or invitation occurred.
 
 ## Hosting-readiness proposal and Chrome acceptance — 2026-11-03
 

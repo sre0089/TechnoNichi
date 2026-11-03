@@ -35,6 +35,7 @@ export default defineConfig([
   },
   globalIgnores([
     '.next/**',
+    '.netlify/**',
     'node_modules/**',
     'test-results/**',
     'playwright-report/**',

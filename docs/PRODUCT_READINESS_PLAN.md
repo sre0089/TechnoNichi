@@ -103,8 +103,18 @@ Local implementation authorized on 2026-11-03 under issue #36: manifest/original
 icons, production App setup guidance/native offers, separate-store recovery hints
 and public metadata caching. Local production tests cover prompt/save/retry and
 offline behavior. This completes only the local implementation slice; physical
-device installation, a stable hosted origin and invited-pilot acceptance remain
-pending. No hosting or service has been provisioned.
+device installation, a stable production origin and invited-pilot acceptance
+remain pending.
+
+The user subsequently approved Netlify Free synthetic staging under issue #40.
+PRs #37/#39 merged after green checks. Project `technonichi` now has a public draft
+at <https://staging--technonichi.netlify.app>, deploy `6ae982f33cba1eda0cac3ac4`,
+source `89db2a9`, official CLI 27.16.2 / adapter 5.16.5. All six hosted smoke cases
+pass across Chromium/Firefox/WebKit, including actual CDN worker/assets, offline
+writing and independent backup restore. Production remains private/unpublished;
+there is no Git-connected auto-deploy. Physical-device installation, hosted
+updates/rollback and broader trial gates remain before invites. PROJECT_STATE.md
+records the failed first draft and corrected packaging procedure.
 
 Add a manifest, original icons and installation guidance, reusing the existing
 offline worker. Test installed and browser modes on actual target devices;
@@ -129,7 +139,7 @@ invited group, support/feedback path and privacy/storage explanation before invi
 Acceptance: a new tester can create or import a book, install/open it, plan offline,
 apply an update safely and restore a backup using the provided instructions.
 
-### Hosting proposal — reviewed 2026-11-03, not provisioned
+### Hosting proposal — reviewed 2026-11-03, before provisioning
 
 Recommendation: use **Netlify Free for a small, $0 local-book pilot**, subject to
 the hosted compatibility checks below. This is a proposed choice, not an account
@@ -167,7 +177,9 @@ separately; its spend-pause checks can lag usage and are not an exact dollar cap
 
 ### Proposed build and release settings
 
-These are reviewable settings for a later authorized setup, not installed config.
+The following settings were proposed before approval. `netlify.toml` now records
+the approved build settings; actual synthetic staging evidence is above. Git-linked
+publication and the later stable release remain pending.
 
 | Setting          | Proposed value or acceptance rule                                                                                                                                                                                                                                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

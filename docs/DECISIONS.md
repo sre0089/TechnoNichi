@@ -16,6 +16,20 @@ First deploy is a synthetic draft; stable publication and invites wait for hoste
 acceptance. Existing book data/schema and UI stay unchanged. Record exact build,
 adapter and deployed source IDs, and never infer hosted behavior from a local build.
 
+The project's preview visibility was private by default and required the user's
+dashboard change; official Netlify docs expose no CLI/public API for that setting.
+The user made previews public while keeping production private. A separate local
+adapter build followed by `deploy --no-build` uploaded the wrong static directory;
+use one `netlify deploy --context deploy-preview --alias staging` command so
+adapter-modified output remains in scope. Hosted tests caught the missing worker
+before any real use. Keep failed draft IDs out of rollback baselines.
+
+Do not connect Git-wide credentials for this slice: an isolated checkout and
+manual deployment preserve source review and avoid automatic publication. The
+hosted smoke harness requires an explicit HTTPS origin, uses disposable browser
+profiles and synthetic backup downloads, and keeps screenshots/traces ignored.
+Record hosted pass/failure separately from local/CI and native OS installation.
+
 ## 2026-11-03 — Hosting-readiness proposal, not deployment
 
 The user authorized preparing the hosted-pilot proposal and local checks after
