@@ -17,11 +17,15 @@ tests were needed for those identical trees. Private local originals are retaine
 and unpublished. The previous outstanding merge-permission statements below are
 historical and superseded only for these three PRs.
 
-Active branch: `feat/installable-book`, based on merged main `700fc64`.
+Active branch: `feat/installable-book`, based on merged main `700fc64`, tracked by
+[issue #36](https://github.com/sre0089/TechnoNichi/issues/36).
 Continue with the local installability slice: manifest, original app icons,
 installation guidance/prompt support and offline metadata. Hosting, services,
 spending, accounts and sync remain separate. Future merges require separate
-approval. Record installation separately from offline readiness; native OS/device
+approval. Manifest and original icon checkpoint passes `npm run check` with 145
+units/build. Icons were rendered from the original SVG using existing Sharp
+0.35.5; no new dependency. Native installation guidance and cache integration are
+next. Record installation separately from offline readiness; native OS/device
 acceptance and browser/installed storage transfer still need manual verification.
 
 ## Dependency maintenance — locally verified, 2026-11-03

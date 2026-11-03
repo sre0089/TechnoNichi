@@ -16,6 +16,18 @@ Official WebKit documentation describes separate local storage for Home Screen/
 Dock apps, so guide users to export before installing and import into an empty
 installed app where needed. Native OS installation remains a manual gate.
 
+Keep the manifest identity/start/scope at `/`, request standalone display and use
+Daily Book as the existing neutral working title. Public metadata never includes
+personal book IDs or text. Supply original SVG-derived PNG icons at 192/512,
+a separately padded maskable 512 icon and an opaque 180 Apple icon, plus a small
+favicon. Source SVG is tracked; raster exports were reviewed. Use existing Sharp
+0.35.5 only for export, adding no runtime/build dependency. Root theme metadata
+preserves browser zoom defaults. Installed Next manifest/PWA guides and official
+[MDN installation guidance](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Trigger_install_prompt),
+[icon guidance](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Define_app_icons) and
+[WebKit storage behavior](https://webkit.org/blog/14787/webkit-features-in-safari-17-2/)
+were reviewed before implementation.
+
 ## 2026-11-02 — Dependency security maintenance
 
 Status: implemented and locally verified on 2026-11-03 in

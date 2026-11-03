@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Daily Book</title>
+  <defs>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="#897293" stroke-opacity=".24" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <path fill="#514560" d="M0 0h512v512H0z"/>
+  <rect x="143" y="110" width="242" height="310" rx="20" fill="#c9bfc7"/>
+  <rect x="133" y="96" width="242" height="310" rx="20" fill="#f7f2e7"/>
+  <path d="M169 98v306" stroke="#897293" stroke-width="10"/>
+  <rect x="195" y="148" width="140" height="168" fill="url(#grid)"/>
+  <path d="m215 251 30 29 70-85" fill="none" stroke="#514560" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M199 346h92" stroke="#897293" stroke-width="7" stroke-linecap="round"/>
+</svg>

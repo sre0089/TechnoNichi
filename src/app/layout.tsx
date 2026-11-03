@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import '@fontsource/kalam/latin-400.css';
 import './globals.css';
@@ -23,7 +23,28 @@ export const metadata: Metadata = {
   title: 'Daily Book',
   description:
     'A quiet place for your day. An independent digital book planner.',
+  applicationName: 'Daily Book',
+  appleWebApp: {
+    capable: true,
+    title: 'Daily Book',
+    statusBarStyle: 'default',
+  },
+  icons: {
+    icon: [
+      { url: '/icons/book.svg', type: 'image/svg+xml' },
+      { url: '/icons/book-32.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [
+      {
+        url: '/icons/apple-touch-icon.png',
+        type: 'image/png',
+        sizes: '180x180',
+      },
+    ],
+  },
 };
+
+export const viewport: Viewport = { themeColor: '#514560' };
 
 export default function RootLayout({
   children,
