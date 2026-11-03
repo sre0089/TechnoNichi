@@ -1,5 +1,33 @@
 # Project state
 
+## Dependency maintenance — in progress, 2026-11-03
+
+The user previewed the typography and said it looks great, then requested continued
+work. Record this as visual approval; no browser/device was specified. PR #34 head
+`bd6dd4f` passed all four jobs in
+[CI run 41571003978](https://github.com/sre0089/TechnoNichi/actions/runs/41571003978).
+PR #31 remains green as recorded below. Both remain open; no merge was performed.
+
+Active bounded slice: [issue #33](https://github.com/sre0089/TechnoNichi/issues/33),
+on `chore/dependency-security` based on `bd6dd4f`. Patch the framework/toolchain,
+retain reproducible dependencies and verify existing books plus offline updates.
+Next/plugin are now 16.4.4; locked Vite/Zod are 8.3.5/4.6.7; a reviewed Minimatch
+11.0.1 override replaces affected 10.x lint dependencies. See DECISIONS.md for
+major-version compatibility evidence and the override removal condition.
+
+A clean `npm ci` passed and the audit improved from 15 findings to zero. The lint
+file set remains the same 86 files with no errors/warnings; virtual-source and
+ignored-path probes confirm rules still enforce. `npm run check` passes format/lint/types, 145 units and a Next 16.4.4 production
+build. A local actual-two-build probe passed in Chromium, Firefox and WebKit:
+old cache `5e4becdd09d550c18a76` to new `321dd616d4cb1d91f55a`; failed saving refused
+the update and retained the latest draft, retry activated new scripts and offline
+reopening preserved the book/pages/preferences, timed formatting/completion and
+note geometry. Each used three synthetic entries and had no page errors. The
+probe script, two production shells, reports and screenshot are ignored local
+artifacts, not CI tests or published data. Full browser and normal production
+offline suites remain pending. No app feature, schema,
+merging, hosting or service setup is included. Periodic commits/pushes continue.
+
 ## Interface typography — locally verified, 2026-11-02
 
 The user confirmed that fresh-browser book creation and settings work. Browser,
