@@ -2,8 +2,9 @@
 
 ## 2026-11-02 — Editorial interface typography
 
-Status: user-requested implementation, tracked by
-[issue #32](https://github.com/sre0089/TechnoNichi/issues/32).
+Status: implemented and locally verified in
+[PR #34](https://github.com/sre0089/TechnoNichi/pull/34), tracked by
+[issue #32](https://github.com/sre0089/TechnoNichi/issues/32). Visual review pending.
 
 Use the two user-provided images as stylistic inspiration for a serif-led
 interface. They do not establish an exact font identification. Use Lora for

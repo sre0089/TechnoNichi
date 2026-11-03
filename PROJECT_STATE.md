@@ -1,6 +1,6 @@
 # Project state
 
-## Interface typography — in progress, 2026-11-02
+## Interface typography — locally verified, 2026-11-02
 
 The user confirmed that fresh-browser book creation and settings work. Browser,
 device and specific settings were not supplied. PR #31 head `57c88d3` has passed
@@ -8,25 +8,53 @@ all four jobs in [CI run 41392913768](https://github.com/sre0089/TechnoNichi/act
 It remains open and unmerged; this confirmation does not grant merge permission.
 
 The user then requested polished UI typography using two attached inspiration
-images. Work is on `feat/editorial-typography`, based on `57c88d3`, tracked by
-[issue #32](https://github.com/sre0089/TechnoNichi/issues/32). Periodic commits and
-pushes continue under the standing instruction. Use Lora serif headings/prose,
-IBM Plex Sans compact UI, and quiet system monospace captions. Preserve printed
-paper metrics and all editable writing fonts/geometry. Next bounded acceptance:
-inspect desktop/phone setup, cover and dialogs, verify existing editing journeys
-and actual self-hosted font loading after an offline reopen.
+images. Implemented on `feat/editorial-typography`, based on `57c88d3`, tracked by
+[issue #32](https://github.com/sre0089/TechnoNichi/issues/32) and
+[PR #34](https://github.com/sre0089/TechnoNichi/pull/34). Application checkpoint
+`fa5a360` is committed/pushed under the standing periodic-commit instruction.
+PR #34 targets `feat/personal-book-setup` to keep its diff focused; retarget to main
+after PR #31 merges. Neither PR has merge approval.
 
-Combined checks pass format, lint, strict types, 145 units and production build.
-All 12 production offline cases pass, including actual new-face loading after
-network disconnection; every observed font request stays on the app origin. A coordinate-click regression
-was a test point at y=721 outside the 720px viewport after the header font changed.
-The test now scrolls the memo surface into view and reads current page bounds;
-all three corrected engine cases pass. The first targeted run passed 85 cases
-with two intentional skips before that correction. Final full regression remains
-pending. Synthetic desktop/phone setup and cover screenshots were inspected.
-Existing audit findings are unchanged by the new fonts; follow-up is
-[issue #33](https://github.com/sre0089/TechnoNichi/issues/33). No framework upgrade,
-hosting or next product milestone is included.
+Lora gives headings, branding, cover titles and introductory prose a book-like
+appearance. IBM Plex Sans supplies compact UI; system monospace supplies quiet
+captions. First-use copy and hierarchy are simpler, form values use regular
+weight and dialog titles/descriptions have clearer hierarchy. The new fonts are
+pinned, locally bundled normal Latin variable faces (83,500 bytes total), with
+original OFL licenses under `public/licenses/`. Printed paper and editable writing
+keep their original fonts and geometry. Saved data and template versions do not
+change.
+
+Changed paths: root font loading and global typography tokens, shared dialog/field
+styles, setup UI/copy, exact npm manifests, public font licenses, the memo viewport
+browser fixture and actual offline font-loading assertions. Decisions document the
+font sources and boundaries.
+
+Final local verification on `fa5a360`:
+
+- `npm run check`: format, lint, strict types, 145 units and production build pass.
+- `npm run test:browser -- --workers=3`: 245 pass, four existing intentional skips
+  across Chromium, Firefox and WebKit. The initial targeted run exposed a test
+  click at y=721 outside its 720px viewport after the header font changed; the
+  test now scrolls the memo into view and uses current page bounds. The complete
+  final run passes without changing writing geometry or pointer behavior.
+- `npm run test:offline`: all 12 production cases pass in the same engines,
+  including both actual font faces loaded after network disconnection and only
+  app-origin font requests. The unchanged worker includes the new emitted assets.
+- Inspected synthetic desktop/phone setup, cover and normally filled spread
+  screenshots. License copies match their reviewed packages. Whitespace and
+  affected local documentation links pass. No screenshots or private inputs ship.
+
+[CI run 41570472159](https://github.com/sre0089/TechnoNichi/actions/runs/41570472159)
+has passed common checks; final-head browser CI is pending at this closeout.
+The subsequent validation-record commit changes only documentation. Final-head
+CI must pass before merge. Visual approval of the new fonts and broader physical
+input/device checks remain manual. Next bounded action: review this UI locally,
+then separately approve any merge. No next product milestone or service began.
+
+The font addition leaves the same pre-existing 15 audit findings as the old
+lockfile (12 moderate, two high, one critical); neither font is flagged. Existing
+framework/toolchain maintenance is tracked in
+[issue #33](https://github.com/sre0089/TechnoNichi/issues/33) before hosted use.
 
 ## Personal book setup — locally verified, 2026-11-02
 
