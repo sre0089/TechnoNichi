@@ -25,6 +25,21 @@ specify build/origin/storage/update/rollback requirements and verify local outpu
 Acceptance: a concrete proposal with costs, known limits and hosted/manual gates.
 Tracked by [issue #38](https://github.com/sre0089/TechnoNichi/issues/38).
 
+Checkpoint `556281f` records the Chrome result and is pushed. The proposal is in
+docs/PRODUCT_READINESS_PLAN.md under Stage 2: recommend Netlify Free for a small
+$0 pilot, with Vercel Hobby/Pro alternatives and current official pricing/terms.
+It specifies release settings, a stable root origin, explicit book transfer,
+synthetic hosted checks, saved update/refusal, rollback and tester expectations.
+No provider choice or hosting configuration has been applied.
+
+Local `npm run build` passes on Node 24.16.0 / Next.js 16.4.4; generated worker
+version `3c0ead368415eb4a8efc` includes 23 public resources. A temporary production
+server at 127.0.0.1:3300 served exact worker bytes, required worker MIME/cache/CSP/
+nosniff headers, valid root manifest metadata and all 23 precache URLs as nonempty
+HTTP 200 without redirects. It was stopped after testing. Synthetic reports stay
+ignored; no user's browser store was opened. Hosted adapter/CDN, HTTPS/origin and
+real-device update/rollback gates remain pending. No runtime/dependency changes.
+
 ## Approved integration and local installability — 2026-11-03
 
 The user separately approved merging PRs #31, #34 and #35 after their checks and
