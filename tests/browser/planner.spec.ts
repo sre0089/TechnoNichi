@@ -776,9 +776,14 @@ test('clicking across an hourly row edits it and the lower grid creates notes', 
   await leftDay(page)
     .getByRole('textbox', { name: 'Timed writing 09:00', exact: true })
     .fill('Writing directly in the row');
+  // The memo point can sit below the viewport when UI fonts change the header.
+  // Scroll the real writing surface into view and use its current page transform.
+  await leftDay(page).locator('.writing-surface').scrollIntoViewIfNeeded();
+  const noteBounds = await leftDay(page).boundingBox();
+  if (!noteBounds) throw new Error('Page has no layout');
   await page.mouse.click(
-    bounds.x + (65 / 148) * bounds.width,
-    bounds.y + (140 / 210) * bounds.height,
+    noteBounds.x + (65 / 148) * noteBounds.width,
+    noteBounds.y + (140 / 210) * noteBounds.height,
   );
   const note = page.getByRole('textbox', { name: 'Note on 2026-10-06' });
   await expect(note).toBeFocused();

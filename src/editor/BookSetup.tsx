@@ -26,15 +26,21 @@ export function BookSetup({
   const lock = useRef(false);
   const retained = hasRecoveryBuffers();
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center gap-5 px-6 py-10 text-ink">
-      <div className="brand-mark" aria-hidden="true">
-        ▤
+    <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center gap-7 px-6 py-12 text-ink">
+      <div className="flex items-center gap-3">
+        <span className="brand-mark" aria-hidden="true">
+          ▤
+        </span>
+        <p className="m-0 font-caption text-[11px] tracking-[0.08em] text-ui-muted">
+          Daily Book
+        </p>
       </div>
       <div>
-        <p className="m-0 text-xs text-ui-muted">Daily Book</p>
-        <h1 className="mb-2 mt-2 text-2xl font-semibold">Create your book</h1>
-        <p className="m-0 text-sm leading-relaxed text-ui-muted">
-          A quiet place for your days. Choose one year to start writing.
+        <h1 className="mb-3 mt-0 font-display text-[clamp(2rem,5vw,2.75rem)] font-normal leading-[1.15] tracking-[-0.04em]">
+          Create your book
+        </h1>
+        <p className="m-0 max-w-sm font-display text-lg font-normal leading-relaxed text-ui-muted">
+          For plans, passing thoughts, and the days in between.
         </p>
       </div>
       {retained && (
@@ -69,7 +75,7 @@ export function BookSetup({
           disabled={busy || retained}
           className="m-0 flex min-w-0 flex-col gap-4 border-0 p-0"
         >
-          <label className="flex flex-col gap-2 text-xs font-semibold">
+          <label className="flex flex-col gap-2 text-xs font-medium">
             Book name
             <Input
               value={title}
@@ -79,7 +85,7 @@ export function BookSetup({
               onChange={(event) => setTitle(event.target.value)}
             />
           </label>
-          <label className="flex flex-col gap-2 text-xs font-semibold">
+          <label className="flex flex-col gap-2 text-xs font-medium">
             Year
             <Input
               type="number"
@@ -91,7 +97,7 @@ export function BookSetup({
               onChange={(event) => setYear(event.target.valueAsNumber)}
             />
           </label>
-          <label className="flex flex-col gap-2 text-xs font-semibold">
+          <label className="flex flex-col gap-2 text-xs font-medium">
             Today timezone
             <Input
               aria-label="Today timezone"
@@ -107,11 +113,11 @@ export function BookSetup({
               id="timezone-help"
               className="font-normal leading-relaxed text-ui-muted"
             >
-              Starts with your device timezone. For example: America/New_York or
-              UTC. Your written times stay as you enter them.
+              Used for Today. Your written times stay as entered. Examples:
+              America/New_York or UTC.
             </span>
           </label>
-          <label className="flex flex-col gap-2 text-xs font-semibold">
+          <label className="flex flex-col gap-2 text-xs font-medium">
             Open book to
             <NativeSelect
               aria-label="Open book to"
@@ -128,8 +134,8 @@ export function BookSetup({
               id="opening-help"
               className="font-normal leading-relaxed text-ui-muted"
             >
-              Outside this book's year, open the last page visited. A new book
-              starts on January 1.
+              When Today falls outside this year, open your last page. New books
+              start on January 1.
             </span>
           </label>
           <Button type="submit" variant="primary">
@@ -151,11 +157,18 @@ export function BookSetup({
         </p>
         <BackupsDialog disabled={busy} restoreBackup={restore} />
       </div>
-      <p className="m-0 rounded-control bg-wash/60 p-3 text-xs leading-relaxed text-ui-muted">
-        Your book is saved in this browser on this device. There is no account
-        or cloud copy. Download backups from the book's Backups menu to keep a
-        portable copy.
-      </p>
+      <aside
+        aria-label="About your book"
+        className="border-0 border-t border-solid border-line pt-5"
+      >
+        <h2 className="mb-2 mt-0 font-display text-lg font-normal">
+          Kept on this device.
+        </h2>
+        <p className="m-0 text-xs leading-relaxed text-ui-muted">
+          Your book lives in this browser, without a cloud copy. Download a
+          backup from the book's Backups menu to keep a copy of your own.
+        </p>
+      </aside>
     </main>
   );
 }

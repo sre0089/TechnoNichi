@@ -4,10 +4,24 @@ test('a personally created book saves and reopens offline without showing setup 
   page,
   context,
 }) => {
+  const fontOrigins = new Set<string>();
+  page.on('request', (request) => {
+    if (request.resourceType() === 'font')
+      fontOrigins.add(new URL(request.url()).origin);
+  });
   await page.goto('/');
   await expect(
     page.getByRole('heading', { name: 'Create your book' }),
   ).toBeVisible();
+  const interfaceFamilies = await page.evaluate(async () => {
+    await document.fonts.ready;
+    return [document.body, document.querySelector('h1')!].map((node) =>
+      getComputedStyle(node)
+        .fontFamily.split(',')[0]
+        .replace(/["']/g, '')
+        .trim(),
+    );
+  });
   await page
     .getByLabel('Book name', { exact: true })
     .fill('Synthetic offline book');
@@ -31,6 +45,22 @@ test('a personally created book saves and reopens offline without showing setup 
   await context.setOffline(true);
   await page.reload();
   await expect(task).toHaveText('My own saved book');
+  await expect
+    .poll(() =>
+      page.evaluate(
+        (families) =>
+          families.every((family) =>
+            [...document.fonts].some(
+              (font) =>
+                font.family.replace(/["']/g, '') === family &&
+                font.status === 'loaded',
+            ),
+          ),
+        interfaceFamilies,
+      ),
+    )
+    .toBe(true);
+  expect([...fontOrigins]).toEqual([new URL(page.url()).origin]);
   await expect(status).toContainText('Offline — writing saves on this device');
   await task.fill('Edited in my own book offline');
   await task.press('Escape');
