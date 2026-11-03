@@ -1,5 +1,62 @@
 # Project state
 
+## Dependency maintenance — locally verified, 2026-11-03
+
+The user previewed the typography, said it looks great, and requested continued
+work. This is visual approval; browser/device were not specified. PR #34 head
+`bd6dd4f` passed all four jobs in
+[CI run 41571003978](https://github.com/sre0089/TechnoNichi/actions/runs/41571003978).
+PR #31 is also green. Neither has been merged or granted separate merge approval.
+
+Completed the bounded maintenance implementation for
+[issue #33](https://github.com/sre0089/TechnoNichi/issues/33) on
+`chore/dependency-security`, based on `bd6dd4f`. Checkpoint `a00f2bd` is pushed and
+[PR #35](https://github.com/sre0089/TechnoNichi/pull/35) targets
+`feat/editorial-typography`. Retarget to main after #31 and #34 merge. Periodic
+commits/pushes remain authorized; no merge, hosting or service setup occurred.
+
+Next and its lint plugin are 16.4.4; locked Vite/Zod are 8.3.5/4.6.7. A reviewed
+Minimatch 11.0.1 override replaces affected 10.x lint dependencies; DECISIONS.md
+records API/consumer compatibility evidence and the removal condition. Direct
+React, TypeScript, ESLint, TypeScript-ESLint, Vitest and Playwright versions stay
+as before. Changed paths are package.json/lockfile, current architecture versions,
+decisions/state and Next's generated AGENTS.md heading (h1 to h2, verified against
+its installed generate-agent-files.js). No app, template, schema, test, worker or
+workflow source changes were required.
+
+Final local checks on dependency checkpoint `a00f2bd`:
+
+- `npm ci`: clean install succeeds from the exact lockfile. `npm audit --json`
+  changed from 15 findings (12 moderate, two high, one critical) to zero known
+  findings at verification time. This does not predict future registry advisories.
+- Lint coverage remains the same 86 files, with no errors/warnings; virtual-source
+  and ignored-path probes verify actual TS-rule enforcement and exclusions.
+- `npm run check`: format/lint/strict types, 145 units and Next.js 16.4.4 production
+  build pass on local Node 24.16.0. Installed version-matched docs were read, and
+  AGENTS.md continues to point at the installed Next guides.
+- `npm run test:browser -- --workers=3`: 245 pass, four existing intentional skips
+  across Chromium, Firefox and WebKit. No new failures or test changes.
+- `npm run test:offline`: all 12 production cases pass across the same engines,
+  including real font loading, refused updates, retry and offline reopening.
+- An additional local actual-two-build shell probe passed in all three engines:
+  cache `5e4becdd09d550c18a76` (16.3.8) to `321dd616d4cb1d91f55a` (16.4.4). Failed
+  saving refused activation and retained the latest draft; retry loaded distinct
+  new script assets; offline reload preserved book/pages/preferences, formatting,
+  timed completion and note geometry. Three synthetic entries per engine; no page
+  errors. Inspected the synthetic post-update screenshot. The script, shell copies,
+  reports and screenshot stay ignored/local and are not counted as CI tests.
+
+[CI run 41581948202](https://github.com/sre0089/TechnoNichi/actions/runs/41581948202)
+has passed common checks; browser jobs remain pending at this record. The follow-up
+validation commit changes only guidance/documents. Final-head CI must pass before
+merge. Whitespace, staged paths and local documentation links are reviewed; no
+private inputs, runtime writing, credentials or generated artifacts are published.
+
+Next bounded action: obtain separate permission to merge the reviewed PR stack
+#31, then #34, then #35 after required checks pass. Installability is the next
+product slice; hosting/provider setup needs its own concrete review. Broader
+physical-device, IME, assistive-technology and week-of-use acceptance remain manual.
+
 ## Interface typography — locally verified, 2026-11-02
 
 The user confirmed that fresh-browser book creation and settings work. Browser,

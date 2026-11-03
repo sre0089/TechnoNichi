@@ -1,5 +1,50 @@
 # Decisions
 
+## 2026-11-02 — Dependency security maintenance
+
+Status: implemented and locally verified on 2026-11-03 in
+[PR #35](https://github.com/sre0089/TechnoNichi/pull/35). The user requested
+continued work after visually approving the new UI;
+[issue #33](https://github.com/sre0089/TechnoNichi/issues/33) is the active bounded
+maintenance slice, before installable/hosted pilot work. Existing setup and
+typography PRs remain unmerged; continue on `chore/dependency-security` based on
+typography head `bd6dd4f`. Commits/pushes remain authorized; merging and service
+setup remain separate.
+
+Update Next.js and its matching lint plugin from 16.3.8 to 16.4.4. Read installed
+upgrade/font guides before/after the update and the official
+[Next release](https://github.com/vercel/next.js/releases/tag/v16.4.4) and
+[security advisory](https://github.com/vercel/next.js/security/advisories/GHSA-673q-mjm6-r5xr).
+Keep React, TypeScript, ESLint, TypeScript-ESLint, Vitest and Playwright on their
+existing direct versions. Update Vite to locked 8.3.5 and Zod to locked 4.6.7
+within existing parent ranges; their upstream fixes are documented in the
+[Vite release](https://github.com/vitejs/vite/releases/tag/v8.3.5) and
+[Zod release](https://github.com/colinhacks/zod/releases/tag/v4.6.7).
+
+A root override pins Minimatch 11.0.1 because all installed lint consumers still
+request affected 10.x. This is a deliberate major-version override, not an audit
+force-fix or linter downgrade. Review of the upstream 10.2.6-to-11.0.1 diff and
+[changelog](https://github.com/isaacs/minimatch/blob/v11.0.1/changelog.md) established
+that 11 replaces the matching algorithm and removes makeRe/AST/regexp/internal
+APIs. Installed consumers use retained Minimatch.match, pattern and the minimatch
+function; both CommonJS and ESM exports and Node 24 remain supported. Verify
+identical linted-file coverage, actual TS rule enforcement and ignored paths as
+well as the normal lint/type/unit/build/browser checks. Remove this override
+once every parent natively accepts a patched matcher and a new lockfile still
+passes audit/coverage checks. No application runtime uses Minimatch.
+
+The refreshed initial audit had 15 findings (12 moderate, two high, one critical).
+After these changes, clean `npm ci` succeeds and `npm audit` reports zero known
+findings. This is a point-in-time registry result. Preserve the exact lockfile;
+no application data, schema, template or UI changes are intended. Verify actual
+old/new production shell activation with synthetic writing in addition to the
+normal offline suite before considering this slice complete. On 2026-11-03,
+clean install, zero audit findings, unchanged 86-file lint coverage, enforcement/
+ignore probes, 145 units/build and the actual two-shell update probe all passed.
+The full browser suite passed 245 cases/four existing intentional skips and
+all 12 normal production offline cases passed across the three engines. Final-head
+CI and separate merge permission remain required.
+
 ## 2026-11-02 — Editorial interface typography
 
 Status: implemented and locally verified in

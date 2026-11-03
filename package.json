@@ -40,14 +40,14 @@
     "clsx": "2.1.1",
     "dexie": "4.4.6",
     "lucide-react": "1.52.0",
-    "next": "16.3.8",
+    "next": "16.4.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "tailwind-merge": "3.7.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@next/eslint-plugin-next": "16.3.8",
+    "@next/eslint-plugin-next": "16.4.4",
     "@playwright/test": "1.64.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.19.1",
@@ -62,5 +62,8 @@
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.1",
     "vitest": "5.0.3"
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
   }
 }
