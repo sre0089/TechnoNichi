@@ -2,7 +2,9 @@
 
 ## 2026-11-02 — Dependency security maintenance
 
-Status: user requested continued work after visually approving the new UI;
+Status: implemented and locally verified on 2026-11-03 in
+[PR #35](https://github.com/sre0089/TechnoNichi/pull/35). The user requested
+continued work after visually approving the new UI;
 [issue #33](https://github.com/sre0089/TechnoNichi/issues/33) is the active bounded
 maintenance slice, before installable/hosted pilot work. Existing setup and
 typography PRs remain unmerged; continue on `chore/dependency-security` based on
@@ -39,7 +41,9 @@ old/new production shell activation with synthetic writing in addition to the
 normal offline suite before considering this slice complete. On 2026-11-03,
 clean install, zero audit findings, unchanged 86-file lint coverage, enforcement/
 ignore probes, 145 units/build and the actual two-shell update probe all passed.
-Full browser and production offline regression remain pending.
+The full browser suite passed 245 cases/four existing intentional skips and
+all 12 normal production offline cases passed across the three engines. Final-head
+CI and separate merge permission remain required.
 
 ## 2026-11-02 — Editorial interface typography
 

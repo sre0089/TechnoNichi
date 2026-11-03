@@ -128,7 +128,7 @@ with project-specific Node 24.21.0 and npm 11.8.0, without replacing global Node
 Core versions: Next.js 16.4.4, React 19.3.0, Dexie 4.4.6, TypeScript 6.0.3.
 The security-maintenance slice updates Next and its lint plugin together; the
 Minimatch 11.0.1 override and locked Vite/Zod patches are recorded in DECISIONS.md.
-Tooling: Vitest 5.0.3, Playwright 1.63.0, ESLint 10.12.0 and Prettier 3.9.9.
+Tooling: Vitest 5.0.3, Playwright 1.64.0, ESLint 10.12.0 and Prettier 3.9.9.
 The app-wide UI now uses Tailwind 4.3.3, shared theme tokens and local native-control
 components, Radix dialogs/popovers/tooltips, and Lucide icons. Custom CSS retains
 the paper geometry and page-writing metrics. Tailwind Preflight is omitted
