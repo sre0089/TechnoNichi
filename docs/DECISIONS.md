@@ -20,6 +20,15 @@ This re-publishes compatible artifacts to a draft alias; it does not exercise
 Netlify's production atomic-restore API or authorize schema downgrades. Production
 publication, native OS multi-window acceptance and PR merges remain separate.
 
+The live A → B → A exercise passed in Chromium, Firefox and WebKit with no page
+errors. The loaded client build IDs changed as expected; newer data across all
+four stores, including post-update offline writing, survived rollback exactly.
+The restored deployment also passes the six ordinary hosted smoke cases. A used
+adapter 5.16.5; B automatically selected 5.16.6. Verified the detected 5.16.6
+package's official source/provenance and record the platform difference outside
+the app lockfile. Retain the full tested output, not a fresh build assumed to be
+equivalent. No production release or schema downgrade is established by this test.
+
 ## 2026-11-03 — Preserve the standalone app-window experience
 
 The user likes the current separate Chrome app window, purple title bar and

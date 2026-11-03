@@ -146,6 +146,60 @@ Missing cache files can repair on a later online opening. A first uncached load
 requires the server/network. Browser eviction, private browsing or clearing site
 data can remove local writing or offline files, so retain JSON backups separately.
 
+## Repeat the hosted update/rollback exercise
+
+This is an operator-driven synthetic staging test. Preserve the working isolated
+checkout's `.next`, `public/sw.js` and complete `.netlify` output before building
+an update in a second isolated tracked-source checkout. Retain fingerprints of
+the processed static files and packaged internal function. Never use a failed
+draft as the baseline or rebuild the retained checkout during this exercise.
+
+1. Verify the retained output on a separate preview alias first. With reviewed
+   CLI 27.16.2, `netlify deploy --no-build --dir .netlify/static --alias rollback-check`
+   uses the processed static files plus the retained internal function manifest.
+   Run it from the baseline checkout with its site linkage and complete generated
+   output. Verify the actual worker bytes, root Next build ID and every precache
+   resource over HTTPS. A bare no-build deploy uses the wrong `.next` directory.
+2. Create a local baseline JSON containing `origin`, `deploymentId`,
+   `workerVersion` and `buildId`, taken from the verified baseline. Retain its
+   source SHA and artifact fingerprints with the local report. Start the harness:
+
+   ```sh
+   HOSTED_BASE_URL=https://staging--technonichi.netlify.app \
+   HOSTED_BASELINE_FILE=/path/to/verified-baseline.json \
+   HOSTED_LIFECYCLE_DIR=artifacts/new-lifecycle-run \
+   npm run test:hosted:lifecycle
+   ```
+
+   The output directory must be new; its parent must exist. The harness opens
+   three disposable synthetic books and writes `ready.json` when they are saved.
+
+3. Keep the harness running. From the second clean checkout, use one reviewed
+   `netlify deploy --context deploy-preview --alias staging` build-and-upload
+   command. Verify the resulting worker/build identities differ from baseline,
+   all resources work, and the schema is compatible. Atomically write
+   `update-ready.json` into the run directory with `origin`, `deploymentId`,
+   `workerVersion` and `buildId` from that verified deployment. The harness tests
+   other-client refusal, failed-save retention/retry, actual new client loading
+   and offline editing. Wait for `updated.json` before continuing.
+4. Recheck baseline artifact fingerprints. From the retained checkout, deploy
+   with `--no-build --dir .netlify/static --alias staging`. Verify the hosted
+   worker and root build ID match baseline and resources remain available.
+   Atomically write `rollback-ready.json` with the new provider deployment ID
+   and baseline worker/build IDs. The harness activates that shell through Save
+   and update and verifies all newer data and offline writing survive.
+5. Require `result.json` with `passed`, all three engines and no errors. If the
+   harness exits or writes `failure.json`, inspect the report and restore/verify
+   a known-good staging deployment before proceeding. Keep reports/screenshots
+   local and synthetic. The script never deploys or publishes on its own.
+
+The 2026-11-03 run passed Chromium, Firefox and WebKit through A → B → A. It
+checked actual loaded Next build IDs and preserved all four database tables after
+rollback, including newer offline writing. This validates compatible artifact
+republication to staging. It does not establish schema downgrades, Netlify's
+production atomic-restore operation or native OS window behavior. Production
+publication and remaining real-device/accessibility trial evidence stay separate.
+
 ## Reported desktop check — 2026-11-03
 
 The user installed the production app with Chrome. Its existing book appeared

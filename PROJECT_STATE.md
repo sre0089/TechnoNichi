@@ -22,7 +22,43 @@ Added an opt-in hosted lifecycle harness. It holds independent Chromium/Firefox/
 WebKit books open and pauses at explicit operator deployment checkpoints. It
 never deploys by itself, requires an explicit HTTPS origin/new artifact directory,
 and will compare data and actual client build IDs through update and rollback.
-Verification is pending; no behavior/result is claimed before it runs.
+The live lifecycle run passed in all three engines. Each used an independent
+synthetic book and checked another top-level browser client refusing activation,
+a simulated failed entry write retaining the latest draft and refusing reload,
+successful save/activation of the distinct new client build, preserved book/page/
+preference records and other entries' formatting/completion/geometry, plus a new
+offline entry surviving reopening. After returning to build A, all four database
+tables exactly matched the newer post-update snapshot and offline reopening
+retained it. No page errors; inspected the synthetic rollback screenshot.
+
+| Phase      | Provider draft ID          | Source     | Worker                 | Next build ID           |
+| ---------- | -------------------------- | ---------- | ---------------------- | ----------------------- |
+| Working A  | `6ae982f33cba1eda0cac3ac4` | `89db2a9`  | `52dc0466c66817fe7e8b` | `FQMVzhTIwbBvFJGyF649C` |
+| Update B   | `6aea6940c92dd1d7e1675290` | `fb058c4`  | `0a688a1380937f97161b` | `6Hztdcoj-eeisfF0svGpz` |
+| Restored A | `6aea69b7d4d6174f7be0b903` | retained A | `52dc0466c66817fe7e8b` | `FQMVzhTIwbBvFJGyF649C` |
+
+Both deployment transitions were independently checked over HTTPS: exact worker
+bytes, actual root build identity and all 23 precache resources. All 26 retained
+artifact fingerprints matched immediately before restoring A. Staging now serves
+that verified restored baseline. The provider confirms production is unpublished
+and no Git auto-deploy connection exists. This is same-schema, retained-artifact
+rollback on a draft alias, not a production atomic-restore API or schema downgrade
+test. Top-level browser clients exercise the worker window guard; native OS app
+windows remain narrower manual evidence. Raw checkpoint/report/screenshot files
+stay ignored under `artifacts/hosted-lifecycle-42/`.
+
+Build A's packaged function records adapter 5.16.5; the provider automatically
+selected 5.16.6 for B. Published official package provenance for 5.16.6 was verified
+after detection (upstream commit `010b931ec8f589cf85f339e5be7f0f88f160dd4d`). Both
+record Node 24 runtime. This is a platform-version change outside the application
+lockfile; retained A restored its tested older adapter output too. No app dependency,
+schema, UI or source behavior changed.
+
+Checkpoint `5228e9b` contains the harness and scope record. Final automated
+closeout: `npm run check` passes formatting/lint/strict types, all 145 units and
+production build. The post-rollback `npm run test:hosted` passes all six hosted
+cases across the same three engines (22.7s), including independent backup restore.
+No new product feature, production publication or PR merge has occurred.
 
 The user confirmed that the separate Chrome app window, purple title bar and
 native feeling are design preferences to preserve. Recorded in DECISIONS.md and
