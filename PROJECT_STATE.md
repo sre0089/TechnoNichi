@@ -1,5 +1,29 @@
 # Project state
 
+## Hosted update and compatible rollback verification — 2026-11-03
+
+The user authorized the next bounded staging reliability check: a real hosted
+shell update with synthetic books open, refusal for failed saves/another window,
+then return to the retained working shell with newer writing preserved. Work is
+on `test/hosted-release-recovery`, based on staging head `fb058c4`, tracked by
+[issue #42](https://github.com/sre0089/TechnoNichi/issues/42). PR #41's current head
+has all four CI jobs green in run 41593720888. This task does not merge PR #41,
+publish production or change visibility/invitations.
+
+Retained build A is worker `52dc0466c66817fe7e8b`, Next build
+`FQMVzhTIwbBvFJGyF649C`, source `89db2a9`. Re-publishing its processed static output
+with the cached internal function manifest to a separate `rollback-check` draft
+succeeds (deploy `6aea681e49dd08a15c45d314`). That preview and current staging both
+serve identical worker bytes, root build identity, valid manifest and all 23
+precache resources. SHA-256 fingerprints retain 26 static/function artifacts in
+an ignored local baseline report. No private originals entered the source checkout.
+
+Added an opt-in hosted lifecycle harness. It holds independent Chromium/Firefox/
+WebKit books open and pauses at explicit operator deployment checkpoints. It
+never deploys by itself, requires an explicit HTTPS origin/new artifact directory,
+and will compare data and actual client build IDs through update and rollback.
+Verification is pending; no behavior/result is claimed before it runs.
+
 The user confirmed that the separate Chrome app window, purple title bar and
 native feeling are design preferences to preserve. Recorded in DECISIONS.md and
 added to the manual staging checklist. This follow-up changes documentation only;
