@@ -22,14 +22,28 @@ Active branch: `feat/installable-book`, based on merged main `700fc64`, tracked 
 Continue with the local installability slice: manifest, original app icons,
 installation guidance/prompt support and offline metadata. Hosting, services,
 spending, accounts and sync remain separate. Future merges require separate
-approval. Manifest and original icon checkpoint passes `npm run check` with 145
-units/build. Icons were rendered from the original SVG using existing Sharp
-0.35.5; no new dependency. Native installation guidance is the next checkpoint.
-The cache checkpoint adds only the manifest and six original icons to the
-public allowlist, with emitted contents included in the shell version. Existing
-save-before-update and other-window refusal remain in place. Record installation
-separately from offline readiness; native OS/device acceptance and browser/installed
-storage transfer still need manual verification.
+approval. Checkpoints `e8a4a0c` (integration record), `5238677` (manifest/icons)
+and `158e00e` (public metadata cache) are committed/pushed. Icons were rendered
+from the original SVG using existing Sharp 0.35.5; no new dependency. The cache
+adds only the manifest and six original icons to its public allowlist, with
+emitted contents included in the shell version. Existing save-before-update and
+other-window refusal remain in place.
+
+The production-only App setup guide is available on first use, in the book and
+from its closed cover. Browser native offers are one-use, save first, preserve
+the offer after failed saving and distinguish acceptance from appinstalled.
+App info identifies standard/Apple standalone mode without a persisted installed
+claim. Guidance explains Safari's separate app store, export before installation,
+restore before creating another book, and offline readiness separately. No schema,
+archive version, writing geometry or user data changes.
+
+`npm run check` passes format/lint/strict types, 145 units and production build.
+`npm run test:offline` passes all 33 cases across Chromium/Firefox/WebKit, including
+actual manifest eligibility in Chromium, icon decoding, offline metadata/writing,
+guide phone/keyboard behavior, synthetic prompt errors/retry/save refusal and both
+standalone signals with closed-cover controls. Full editor regression is running.
+Native OS/device acceptance and browser/installed storage transfer remain manual;
+no hosted deployment has occurred.
 
 ## Dependency maintenance — locally verified, 2026-11-03
 

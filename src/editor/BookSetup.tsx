@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Button } from '../components/ui/button';
 import { Input, NativeSelect } from '../components/ui/field';
 import type { BookSetup as Setup } from '../local/book-setup';
@@ -11,9 +11,13 @@ import { BackupsDialog } from './BackupsDialog';
 export function BookSetup({
   create,
   restore,
+  installation,
+  appMode = false,
 }: {
   create: (input: Setup) => Promise<void>;
   restore: (backup: PlannerBackup) => Promise<void>;
+  installation?: ReactNode;
+  appMode?: boolean;
 }) {
   const [title, setTitle] = useState('My Daily Book');
   const [year, setYear] = useState(() => new Date().getFullYear());
@@ -43,6 +47,12 @@ export function BookSetup({
           For plans, passing thoughts, and the days in between.
         </p>
       </div>
+      {appMode && (
+        <p className="m-0 rounded-control bg-wash p-3 text-xs leading-relaxed">
+          If your browser book isn’t here, restore its backup with Backups
+          before creating a new book.
+        </p>
+      )}
       {retained && (
         <p role="alert" className="text-sm leading-relaxed">
           Retained writing was found on this device. Restore its original book
@@ -168,6 +178,7 @@ export function BookSetup({
           Your book lives in this browser, without a cloud copy. Download a
           backup from the book's Backups menu to keep a copy of your own.
         </p>
+        {installation && <div className="mt-4">{installation}</div>}
       </aside>
     </main>
   );

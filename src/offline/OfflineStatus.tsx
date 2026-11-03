@@ -1,5 +1,11 @@
 'use client';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 import { Button } from '../components/ui/button';
 import { restoreUnclaimedFocus } from '../editor/restore-focus';
 
@@ -34,8 +40,10 @@ export function workerMessage(
 export function OfflineStatus({
   disabled,
   saveAndUpdate,
+  children,
 }: {
   disabled: boolean;
+  children?: ReactNode;
   saveAndUpdate: (apply: () => Promise<void>) => Promise<void>;
 }) {
   const online = useSyncExternalStore(
@@ -222,6 +230,7 @@ export function OfflineStatus({
           Protect local storage
         </Button>
       )}
+      {children}
       {protectionMessage && <span>{protectionMessage}</span>}
       {error && (
         <>

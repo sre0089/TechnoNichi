@@ -35,6 +35,24 @@ not its TypeScript source. Root/static caching and current/previous shell
 retention stay intact. Book data, APIs and arbitrary public paths remain outside
 the shell cache. Update refusal covers other tabs and installed app windows.
 
+Offer a production-only App setup dialog on first use, from the book and from its
+closed cover. Retain a browser-supplied beforeinstallprompt event only until it is
+consumed; flush pending writing before invoking its one-use prompt. Failed saving
+retains the offer; a chooser failure consumes it and falls back to instructions.
+Support both returned choice and legacy userChoice promises. Acceptance means
+installation requested; only appinstalled reports that event's completion. Do
+not persist an installed flag. Standard standalone display mode and Apple's
+navigator.standalone identify only the current window. Neither means cloud sync
+or offline readiness. First-use app-mode guidance prioritizes restoring an
+existing browser-book backup before creating another book.
+
+Production browser tests exercise the prompt protocol with synthetic events and
+both app-mode signals. Actual manifest eligibility is checked in Chromium; icon
+decoding/opacity, public-only caching, offline edits, save failure/retry and guide
+keyboard/phone layout are checked across all three engines. These checks do not
+install an OS app or prove physical Safari storage behavior; keep that manual gate
+in PERSONAL_ALPHA.md before a hosted invited pilot.
+
 ## 2026-11-02 — Dependency security maintenance
 
 Status: implemented and locally verified on 2026-11-03 in

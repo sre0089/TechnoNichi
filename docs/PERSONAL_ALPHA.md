@@ -1,7 +1,7 @@
 # Personal alpha use and readiness
 
-The app is ready for a local planning trial once the final five-step PR checks
-pass. Acceptance as a personal alpha still needs a week of actual planning and
+The app supports a local planning trial; PROJECT_STATE.md records current checks.
+Acceptance as a personal alpha still needs a week of actual planning and
 the physical-device/accessibility checks below. There is no hosted deployment,
 account, cloud synchronization or cross-device backup.
 
@@ -9,7 +9,8 @@ account, cloud synchronization or cross-device backup.
 
 Use Node 24 (`nvm use`), then install the exact dependencies with `npm ci` if needed.
 For everyday development, run `npm run dev` and open
-<http://127.0.0.1:3000>. Development does not register the offline worker.
+<http://127.0.0.1:3000>. Development does not register the offline worker or show
+installation controls.
 
 For the production offline version:
 
@@ -21,9 +22,10 @@ npm run start -- --port 3100
 Open <http://127.0.0.1:3100> and wait for **Available offline**. Keep using the same
 address, port and browser profile. Once cached, it can reopen and save locally
 without a network/server connection, provided the browser retains its storage.
-The shell caches only this production build's public HTML, JavaScript, CSS and
-licensed font assets. Writing stays in IndexedDB. Protect local storage requests
-browser persistence where supported; a grant still permits deliberate clearing.
+The shell caches only this production build's public HTML, JavaScript, CSS,
+licensed fonts, manifest and six original icon files. Writing stays in IndexedDB.
+Protect local storage requests browser persistence where supported; a grant still
+permits deliberate clearing.
 
 Browser storage belongs to an origin. The development book on port 3000 and the
 production book on 3100 are separate. To bring existing writing over, export a
@@ -53,6 +55,33 @@ an existing book. Retained emergency drafts prevent creating an unrelated book;
 restore their original book first. Invalid recovery buffers remain untouched.
 Only one yearly book is active in this slice; annual switching is later work.
 
+## Install and bring your book
+
+In the production app, open **App setup** from the setup screen, open book or
+closed cover. It explains installation even when the browser offers no native
+prompt. If the browser offers **Install Daily Book**, the button saves pending
+writing first. A failed save keeps the offer available for retry; accepting the
+browser prompt is recorded as a request, not proof of installation. Installation
+and **Available offline** are separate states.
+
+Safari Home Screen and Dock apps use separate storage from browser tabs. Before
+installing, choose **Backups → Download backup** and retain that file and the
+original book. On iPhone/iPad, use Safari's **Share → Add to Home Screen**; on
+Mac Safari, use **File → Add to Dock**. In Chrome/Edge, look for **Install app**
+or **Add to Home Screen** in the browser menu/address bar. Availability varies.
+
+Open the new icon online. If it shows **Create your book**, use **Backups →
+Restore backup** before creating a new book. Wait for **Available offline**,
+then test a saved edit and offline reopening. The guide says **App info** in
+standalone mode; this identifies the current window's display mode, not every
+installation on the device. Other browsers may share a book within a profile;
+separate stores do not synchronize. Removing an app or clearing its data may
+remove its book. Keep regular independent backups.
+
+Localhost is useful for desktop testing only. Physical-phone installation needs
+a reachable secure origin; no hosted deployment is configured by this milestone.
+Do not treat a preview origin as the permanent home of a real book.
+
 ## Plan a day
 
 - Type directly in hourly rows. Enter finishes a timed task; its checkbox marks
@@ -76,8 +105,9 @@ Only one yearly book is active in this slice; annual switching is later work.
 After pulling an approved update, install its exact dependencies, build and start
 the production server again. The existing app offers **Save and update** when the
 new shell is cached. It saves current drafts before activation/reload and refuses
-if saving fails. Close other planner tabs before applying; updates never reload
-another open editor automatically. If all old tabs are closed, a waiting worker
+if saving fails. Close other planner tabs and app windows before applying;
+updates never reload another open editor automatically. If all old tabs are
+closed, a waiting worker
 can activate normally without interrupting an editor. Current and previous shell
 caches are retained; older shell caches can be removed during activation. No
 database stores or archive version change in this batch.
@@ -96,11 +126,17 @@ data can remove local writing or offline files, so retain JSON backups separatel
 - Plan for a week, including an offline reopen/edit, a real browser restart, a
   JSON export and a restore in an empty profile. Confirm the original book and
   restored content both remain usable.
+- On real desktop Chrome/Edge and Safari, then iPhone/iPad Safari against an
+  approved secure origin: install from the browser menu, launch the icon, follow
+  the separate-store restore guidance, edit/reopen offline and apply a saved
+  update. Test another open browser/app window refuses that update. Verify icon
+  appearance and actual storage sharing/separation; synthetic mode/prompt tests
+  do not establish these OS behaviors.
 
 Automated desktop timings and synthetic browser engines are recorded separately;
-they do not establish tablet performance or physical Safari/PWA behavior. Stop
-after the approved fifth implementation step and perform this bounded trial
-before selecting another feature or authorizing deployment.
+they do not establish tablet performance or physical Safari/PWA behavior.
+Complete this bounded trial before selecting another feature or authorizing
+deployment.
 
 ## Automated desktop measurement — 2026-10-28
 
