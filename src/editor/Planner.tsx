@@ -33,6 +33,8 @@ import { usePlanner } from './use-planner';
 import { PageHistoryControls } from './PageHistoryControls';
 import { DateNavigation } from './DateNavigation';
 import { useBookMotion } from '../book/use-book-motion';
+import { useInstallation } from '../install/use-installation';
+import { InstallationDialog } from '../install/InstallationDialog';
 import { OfflineStatus } from '../offline/OfflineStatus';
 import { SearchDialog } from './SearchDialog';
 import { scheduledRuns } from '../domain/schedule';
@@ -791,6 +793,7 @@ function PlannerEditor() {
     retainTabDraft,
     loadTabChanges,
   } = usePlanner();
+  const installation = useInstallation();
   const { state: bookState, play: playBookMotion } = useBookMotion();
   const closed = bookState === 'closed';
   const moving = pageMoving || adjustingNote || bookState !== 'open';
@@ -818,7 +821,14 @@ function PlannerEditor() {
     if (selectedId) document.getElementById(selectedId)?.focus();
   }, [selectedId]);
   if (needsSetup)
-    return <BookSetup create={createBook} restore={restoreBackup} />;
+    return (
+      <BookSetup
+        create={createBook}
+        restore={restoreBackup}
+        appMode={installation.appMode}
+        installation={<InstallationDialog installation={installation} />}
+      />
+    );
   if (!view)
     return (
       <main className="opening">
@@ -881,7 +891,18 @@ function PlannerEditor() {
         <OfflineStatus
           disabled={moving || focusedEditor}
           saveAndUpdate={saveAndUpdate}
-        />
+        >
+          <InstallationDialog
+            installation={installation}
+            disabled={
+              pageMoving ||
+              adjustingNote ||
+              focusedEditor ||
+              (bookState !== 'open' && bookState !== 'closed')
+            }
+            prepare={prepareBookClose}
+          />
+        </OfflineStatus>
         <div className="book-toolbar" hidden={closed}>
           <div className="spread-navigation">
             <Hint label="Previous two days">

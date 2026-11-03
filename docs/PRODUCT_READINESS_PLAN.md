@@ -96,6 +96,13 @@ launch; multi-book/archive UI requires separate scope under the PRD's later work
 
 ## Stage 2 — Installable invited pilot
 
+Local implementation authorized on 2026-11-03 under issue #36: manifest/original
+icons, production App setup guidance/native offers, separate-store recovery hints
+and public metadata caching. Local production tests cover prompt/save/retry and
+offline behavior. This completes only the local implementation slice; physical
+device installation, a stable hosted origin and invited-pilot acceptance remain
+pending. No hosting or service has been provisioned.
+
 Add a manifest, original icons and installation guidance, reusing the existing
 offline worker. Test installed and browser modes on actual target devices;
 installation and offline readiness are separate states.

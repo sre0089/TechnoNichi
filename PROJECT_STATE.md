@@ -1,5 +1,75 @@
 # Project state
 
+## Approved integration and local installability — 2026-11-03
+
+The user separately approved merging PRs #31, #34 and #35 after their checks and
+asked to continue with smaller periodic commits/pushes. All three merged in order:
+
+| PR  | Result                                   | Merge commit | Final-head CI                     |
+| --- | ---------------------------------------- | ------------ | --------------------------------- |
+| #31 | Personal book setup; issue #30 closed    | `0855df1`    | 41392913768, all four jobs passed |
+| #34 | Editorial typography; issue #32 closed   | `619fb8c`    | 41571003978, all four jobs passed |
+| #35 | Dependency maintenance; issue #33 closed | `700fc64`    | 41582646117, all four jobs passed |
+
+Each merged tree exactly matches its reviewed head (`57c88d3`, `bd6dd4f`,
+`fd28cb0`, respectively). Local main fast-forwarded to `700fc64`. No repeated app
+tests were needed for those identical trees. Private local originals are retained
+and unpublished. The previous outstanding merge-permission statements below are
+historical and superseded only for these three PRs.
+
+Active branch: `feat/installable-book`, based on merged main `700fc64`, tracked by
+[issue #36](https://github.com/sre0089/TechnoNichi/issues/36).
+Review PR: [#37](https://github.com/sre0089/TechnoNichi/pull/37), targeting main.
+Completed the local installability slice: manifest, original app icons,
+installation guidance/prompt support and offline metadata. Hosting, services,
+spending, accounts and sync remain separate. Future merges require separate
+approval. Checkpoints `e8a4a0c` (integration record), `5238677` (manifest/icons)
+and `158e00e` (public metadata cache), followed by `4d31ea9` (installation UI and
+journeys), are committed/pushed. Icons were rendered from the original SVG using
+existing Sharp 0.35.5; no new dependency. The cache
+adds only the manifest and six original icons to its public allowlist, with
+emitted contents included in the shell version. Existing save-before-update and
+other-window refusal remain in place.
+
+The production-only App setup guide is available on first use, in the book and
+from its closed cover. Browser native offers are one-use, save first, preserve
+the offer after failed saving and distinguish acceptance from appinstalled.
+App info identifies standard/Apple standalone mode without a persisted installed
+claim. Guidance explains Safari's separate app store, export before installation,
+restore before creating another book, and offline readiness separately. No schema,
+archive version, writing geometry or user data changes.
+
+`npm run check` passes format/lint/strict types, 145 units and production build.
+`npm run test:offline` passes all 33 cases across Chromium/Firefox/WebKit, including
+actual manifest eligibility in Chromium, icon decoding, offline metadata/writing,
+guide phone/keyboard behavior, synthetic prompt errors/retry/save refusal and both
+standalone signals with closed-cover controls. The full editor regression,
+`npm run test:browser -- --workers=3`, passes 245 cases with four existing
+intentional skips across the same engines (3.2 minutes).
+Native OS/device acceptance and browser/installed storage transfer remain manual;
+no hosted deployment has occurred.
+
+An additional ignored local two-build upgrade probe passed in all three engines,
+from pre-installability cache `5e4becdd09d550c18a76` to installation-enabled cache
+`7a9c67d090ddebe80019`. Failed saving refused activation and retained the latest
+draft; retry loaded distinct new scripts; offline reopening preserved book,
+pages, preferences, formatted/completed timed writing and note geometry. Three
+synthetic entries per engine, no page errors. The final same-source production
+rebuild has cache `63f6f76815a570476f9c`; its 33 production journeys passed.
+The probe, shell copies and screenshots remain local/ignored, outside CI counts.
+
+Inspected synthetic phone guide and desktop app-mode screenshots. The guide fits
+a 320px viewport, scrolls, and restores keyboard focus. Formatting, whitespace and
+four affected local document links pass. Private originals remain unpublished.
+Common checks passed in [CI run 41585762389](https://github.com/sre0089/TechnoNichi/actions/runs/41585762389)
+on `4d31ea9`; browser jobs are pending. The validation-record commit changes only
+documentation; final-head CI still must pass before any separately approved merge.
+
+Next bounded action: review the production App setup flow and complete actual
+desktop installation/backup transfer checks in PERSONAL_ALPHA.md. Phone acceptance
+needs an approved reachable secure origin. Hosting/provider configuration needs
+its own concrete review; no next milestone has begun.
+
 ## Dependency maintenance — locally verified, 2026-11-03
 
 The user previewed the typography, said it looks great, and requested continued

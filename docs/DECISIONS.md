@@ -1,5 +1,58 @@
 # Decisions
 
+## 2026-11-03 — Approved integration and local installability
+
+The user approved merging #31, #34 and #35 after green checks, then authorized
+continued work and smaller periodic commits/pushes. Merged each reviewed head
+using merge commits, retargeting the stacked PRs to main in sequence. Verified
+identical trees; issues #30/#32/#33 closed. Main is `700fc64`.
+
+Start the bounded local-installability part of Stage 2 on `feat/installable-book`.
+This accepts earlier minimal PWA work proposed in PRODUCT_READINESS_PLAN.md;
+hosting/deployment and later beta features remain separate. Preserve local-book
+editing and the existing explicit saved-update strategy. Installation metadata
+must not imply account synchronization or guaranteed browser-storage retention.
+Official WebKit documentation describes separate local storage for Home Screen/
+Dock apps, so guide users to export before installing and import into an empty
+installed app where needed. Native OS installation remains a manual gate.
+
+Keep the manifest identity/start/scope at `/`, request standalone display and use
+Daily Book as the existing neutral working title. Public metadata never includes
+personal book IDs or text. Supply original SVG-derived PNG icons at 192/512,
+a separately padded maskable 512 icon and an opaque 180 Apple icon, plus a small
+favicon. Source SVG is tracked; raster exports were reviewed. Use existing Sharp
+0.35.5 only for export, adding no runtime/build dependency. Root theme metadata
+preserves browser zoom defaults. Installed Next manifest/PWA guides and official
+[MDN installation guidance](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Trigger_install_prompt),
+[icon guidance](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Define_app_icons) and
+[WebKit storage behavior](https://webkit.org/blog/14787/webkit-features-in-safari-17-2/)
+were reviewed before implementation.
+
+Extend the production worker's public allowlist with only the manifest and six
+original icon files. Include their emitted bytes in the shell version so metadata
+changes produce an explicit saved update; hash the compiled manifest response,
+not its TypeScript source. Root/static caching and current/previous shell
+retention stay intact. Book data, APIs and arbitrary public paths remain outside
+the shell cache. Update refusal covers other tabs and installed app windows.
+
+Offer a production-only App setup dialog on first use, from the book and from its
+closed cover. Retain a browser-supplied beforeinstallprompt event only until it is
+consumed; flush pending writing before invoking its one-use prompt. Failed saving
+retains the offer; a chooser failure consumes it and falls back to instructions.
+Support both returned choice and legacy userChoice promises. Acceptance means
+installation requested; only appinstalled reports that event's completion. Do
+not persist an installed flag. Standard standalone display mode and Apple's
+navigator.standalone identify only the current window. Neither means cloud sync
+or offline readiness. First-use app-mode guidance prioritizes restoring an
+existing browser-book backup before creating another book.
+
+Production browser tests exercise the prompt protocol with synthetic events and
+both app-mode signals. Actual manifest eligibility is checked in Chromium; icon
+decoding/opacity, public-only caching, offline edits, save failure/retry and guide
+keyboard/phone layout are checked across all three engines. These checks do not
+install an OS app or prove physical Safari storage behavior; keep that manual gate
+in PERSONAL_ALPHA.md before a hosted invited pilot.
+
 ## 2026-11-02 — Dependency security maintenance
 
 Status: implemented and locally verified on 2026-11-03 in
