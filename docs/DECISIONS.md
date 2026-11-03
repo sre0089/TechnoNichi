@@ -1,5 +1,31 @@
 # Decisions
 
+## 2026-11-03 — Hosting-readiness proposal, not deployment
+
+The user authorized preparing the hosted-pilot proposal and local checks after
+reporting successful Chrome installation and reopening with edits retained while
+the terminal server was stopped. Record that narrow manual result; OS/browser
+versions, installed updates, fresh-profile restore and physical Safari/phone
+acceptance were not reported. PR #37 final head `5d96929` has all four CI jobs
+green and remains open; this planning approval is not a merge authorization.
+
+Issue #38 on `docs/hosting-readiness` covers documentation and local checks only.
+Recommend Netlify Free as the $0 pilot option with commercial-project flexibility,
+subject to hosted Next.js/worker validation. Its OpenNext adapter introduces a
+platform compatibility boundary outside the npm lockfile. Vercel is the closest
+framework alternative: Hobby needs confirmed personal/non-commercial eligibility;
+Pro needs an approved subscription/usage budget. Current official prices,
+eligibility, Node support, adapter behavior and release controls are linked in
+PRODUCT_READINESS_PLAN.md. No account, CLI, adapter, service, domain, production
+configuration or paid plan was installed/created/selected by this work.
+
+Use a stable root HTTPS origin, explicit Node 24/locked dependencies/full worker
+build and synthetic staging. Provider publication and cached client updates are
+separate: vet builds before publishing, then retain explicit save-before-update.
+Hosted rollback must preserve local books and account for already cached shells;
+it never authorizes a schema downgrade or data clearing. Approval of an actual
+provider/plan/origin and provisioning remains the next concrete decision.
+
 ## 2026-11-03 — Approved integration and local installability
 
 The user approved merging #31, #34 and #35 after green checks, then authorized

@@ -1,5 +1,58 @@
 # Project state
 
+## Hosting-readiness proposal and Chrome acceptance — 2026-11-03
+
+The user reported installing the production app in Chrome, seeing the existing
+book without a restore, writing, closing the terminal server and book, then
+reopening the installed app without restarting the server and finding the edits.
+This is user-reported native Chrome installation and offline-reopen evidence.
+Chrome version, OS, elapsed use, backup restore, offline edits after reopening,
+Safari/phone behavior and installed-app updates were not reported. Do not infer
+those outcomes or publish actual book content.
+
+Installability PR [#37](https://github.com/sre0089/TechnoNichi/pull/37) remains open
+at `5d96929`. All four jobs passed in
+[CI run 41585988969](https://github.com/sre0089/TechnoNichi/actions/runs/41585988969).
+The previous pending-CI/native-Chrome statements below are superseded by this
+record. Merge permission remains separate.
+
+The user authorized the next bounded task: hosting proposal and local deployment
+readiness checks. Work is on `docs/hosting-readiness`, based on PR #37's reviewed
+head. Periodic documentation commits/pushes remain authorized. This task does not
+provision services, publish the app, purchase a domain, select a paid plan or merge
+PRs. Scope: record the manual result, compare current official provider terms,
+specify build/origin/storage/update/rollback requirements and verify local output.
+Acceptance: a concrete proposal with costs, known limits and hosted/manual gates.
+Tracked by [issue #38](https://github.com/sre0089/TechnoNichi/issues/38).
+
+Checkpoint `556281f` records the Chrome result and is pushed. The proposal is in
+docs/PRODUCT_READINESS_PLAN.md under Stage 2: recommend Netlify Free for a small
+$0 pilot, with Vercel Hobby/Pro alternatives and current official pricing/terms.
+It specifies release settings, a stable root origin, explicit book transfer,
+synthetic hosted checks, saved update/refusal, rollback and tester expectations.
+No provider choice or hosting configuration has been applied.
+
+Local `npm run build` passes on Node 24.16.0 / Next.js 16.4.4; generated worker
+version `3c0ead368415eb4a8efc` includes 23 public resources. A temporary production
+server at 127.0.0.1:3300 served exact worker bytes, required worker MIME/cache/CSP/
+nosniff headers, valid root manifest metadata and all 23 precache URLs as nonempty
+HTTP 200 without redirects. It was stopped after testing. Synthetic reports stay
+ignored; no user's browser store was opened. Hosted adapter/CDN, HTTPS/origin and
+real-device update/rollback gates remain pending. No runtime/dependency changes.
+
+Proposal checkpoint `94b1ab9` is pushed in
+[PR #39](https://github.com/sre0089/TechnoNichi/pull/39), targeting
+`feat/installable-book` for a documentation-only diff. Retarget after separately
+approved merge of #37. `npm run format:check`, whitespace, dependency-file drift
+and four affected local document-link checks pass. Unchanged editor/unit/offline
+suites were not repeated; their green final-head CI is recorded above. Private
+originals and generated reports remain unpublished. Final-head PR CI is pending.
+
+Next bounded action: review provider/plan and authorize the concrete staging setup
+before connecting a host or publishing. Proposed choice is Netlify Free, no paid
+add-ons/domain purchase, synthetic data first, stable project origin confirmed
+before invites. No spending, hosting configuration, deployment or PR merge occurred.
+
 ## Approved integration and local installability — 2026-11-03
 
 The user separately approved merging PRs #31, #34 and #35 after their checks and
