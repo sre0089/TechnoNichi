@@ -74,6 +74,14 @@ region `cmh`, no published timestamp and no provider commit reference. Source
 provenance is the isolated checkout's recorded Git SHA, not a claimed Netlify Git
 integration. No stable production deploy or invitation occurred.
 
+Checkpoints `89db2a9` (configuration) and `7dac500` (hosted tests/evidence) are
+pushed in [PR #41](https://github.com/sre0089/TechnoNichi/pull/41), targeting main.
+Whitespace, staged paths and four affected local document links pass. No private
+original, credential, backup, screenshot or generated bundle is tracked. Final-head
+CI is pending; PR #41 has not been granted separate merge approval. The next
+bounded action is real-device installation/offline testing of the synthetic hosted
+preview, followed by hosted update/rollback validation before production release.
+
 ## Hosting-readiness proposal and Chrome acceptance — 2026-11-03
 
 The user reported installing the production app in Chrome, seeing the existing
