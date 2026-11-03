@@ -60,6 +60,14 @@ production build. The post-rollback `npm run test:hosted` passes all six hosted
 cases across the same three engines (22.7s), including independent backup restore.
 No new product feature, production publication or PR merge has occurred.
 
+Harness/evidence checkpoints `5228e9b` and `8b58961` are pushed in
+[PR #43](https://github.com/sre0089/TechnoNichi/pull/43), targeting
+`chore/netlify-staging` for a focused diff. Retarget after separately approved
+merge of #41. Final-head CI is pending; formatting, whitespace and four local
+document links pass. No artifacts or private originals are tracked. Next bounded
+action is release review of #41/#43 and the remaining manual acceptance evidence;
+no production publication or merge authorization is inferred from these results.
+
 The user confirmed that the separate Chrome app window, purple title bar and
 native feeling are design preferences to preserve. Recorded in DECISIONS.md and
 added to the manual staging checklist. This follow-up changes documentation only;
