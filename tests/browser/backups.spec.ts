@@ -4,7 +4,7 @@ import {
   test as base,
   type BrowserContext,
   type Page,
-} from '@playwright/test';
+} from '../fixtures/browser';
 import type { Editor } from '@tiptap/core';
 import { manifest, newEntry, type Book } from '../../src/domain/model';
 import type { PlannerBackup } from '../../src/local/backup';
@@ -181,7 +181,10 @@ test('download and restore a complete book with word formatting, completion, not
     });
   await test.step('Restore the downloaded book in a fresh profile and reopen it', async () => {
     const target = await restoredContext.newPage();
-    await ready(target);
+    await target.goto('/');
+    await expect(
+      target.getByRole('heading', { name: 'Create your book' }),
+    ).toBeVisible();
     await target.getByRole('button', { name: 'Backups', exact: true }).click();
     await target
       .getByLabel('Backup file', { exact: true })
@@ -198,13 +201,9 @@ test('download and restore a complete book with word formatting, completion, not
     await target
       .getByRole('button', { name: 'Restore backup', exact: true })
       .click();
-    await expect(target.getByRole('dialog').getByRole('status')).toHaveText(
-      'Backup restored. Your book is ready.',
-    );
+    await expect(target.getByRole('status')).toHaveText('Saved on this device');
     expect(await snapshot(target)).toEqual(before);
-    await target
-      .getByRole('button', { name: 'Close dialog', exact: true })
-      .click();
+
     const restoredWriting = target
       .getByRole('region', { name: 'Tuesday, October 6', exact: true })
       .getByRole('textbox', { name: 'Timed writing 12:00', exact: true });
@@ -288,9 +287,13 @@ test('invalid imports leave data intact and the backup dialog works by keyboard 
 });
 
 test('a storage failure rolls back restore; retry activates the imported leap-year book and survives reload', async ({
-  page,
+  restoredContext,
 }) => {
-  await ready(page);
+  const page = await restoredContext.newPage();
+  await page.goto('/');
+  await expect(
+    page.getByRole('heading', { name: 'Create your book' }),
+  ).toBeVisible();
   const before = await snapshot(page);
   await page.evaluate(() => {
     const original = IDBObjectStore.prototype.add;
@@ -318,10 +321,7 @@ test('a storage failure rolls back restore; retry activates the imported leap-ye
   await page
     .getByRole('button', { name: 'Restore backup', exact: true })
     .click();
-  await expect(page.getByRole('dialog').getByRole('status')).toHaveText(
-    'Backup restored. Your book is ready.',
-  );
-  await page.getByRole('button', { name: 'Close dialog', exact: true }).click();
+  await expect(page.getByRole('status')).toHaveText('Saved on this device');
   const writing = page
     .getByRole('region', { name: 'Monday, February 28', exact: true })
     .getByRole('textbox', { name: 'Timed writing 12:00', exact: true });

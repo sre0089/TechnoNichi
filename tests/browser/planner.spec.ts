@@ -3,7 +3,7 @@ import {
   test,
   type Page,
   type Locator,
-} from '@playwright/test';
+} from '../fixtures/browser';
 import type { Editor } from '@tiptap/core';
 
 // Assert visible text for rich writing and native value for interface fields.

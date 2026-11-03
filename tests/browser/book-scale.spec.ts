@@ -1,6 +1,6 @@
 import { cpus, platform, arch } from 'node:os';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/browser';
 import type { PageRecord } from '../../src/domain/model';
 test('a synthetic full year keeps live editors bounded and search results paginated', async ({
   page,

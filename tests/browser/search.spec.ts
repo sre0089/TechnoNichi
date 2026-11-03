@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures/browser';
 async function ready(page: Page) {
   await page.goto('/');
   await expect(page.getByRole('status')).toHaveText('Saved on this device');

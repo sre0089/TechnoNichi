@@ -85,6 +85,8 @@ export interface Preferences {
   toolbarSide: 'left' | 'right';
   zoom: number;
   motion?: 'system' | 'none';
+  // Older books resume their saved page when this preference is absent.
+  opening?: 'today' | 'resume';
 }
 
 export function manifest(book: Book): PageRecord[] {

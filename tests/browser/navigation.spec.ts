@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures/browser';
 test.use({ timezoneId: 'America/New_York' });
 async function ready(page: Page) {
   await page.goto('/');

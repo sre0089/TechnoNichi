@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { expect, test, type Page, type Locator } from '@playwright/test';
+import { expect, test, type Page, type Locator } from '../fixtures/browser';
 import type { Entry } from '../../src/domain/model';
 import type { PlannerBackup } from '../../src/local/backup';
 
@@ -544,7 +544,10 @@ test('v2 JSON export and restore preserve duration endpoints, completion and del
   const isolated = await browser.newContext();
   try {
     const target = await isolated.newPage();
-    await ready(target);
+    await target.goto('/');
+    await expect(
+      target.getByRole('heading', { name: 'Create your book' }),
+    ).toBeVisible();
     await target.getByRole('button', { name: 'Backups', exact: true }).click();
     await target.getByLabel('Backup file', { exact: true }).setInputFiles({
       name: 'durations.json',
@@ -554,11 +557,8 @@ test('v2 JSON export and restore preserve duration endpoints, completion and del
     await target
       .getByRole('button', { name: 'Restore backup', exact: true })
       .click();
-    await expect(target.getByRole('dialog').getByRole('status')).toHaveText(
-      'Backup restored. Your book is ready.',
-    );
+    await expect(target.getByRole('status')).toHaveText('Saved on this device');
     expect(await records(target)).toEqual(archive.entries);
-    await close(target);
     const panel = await history(target);
     await expect(panel).toContainText('Duration task 23:00–01:30 +1');
     await panel

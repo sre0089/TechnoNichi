@@ -1,5 +1,54 @@
 # Decisions
 
+## 2026-11-01 — Personal book setup and opening
+
+Status: implemented and locally verified on 2026-11-02 in
+[PR #31](https://github.com/sre0089/TechnoNichi/pull/31), tracked by
+[issue #30](https://github.com/sre0089/TechnoNichi/issues/30). Awaiting review/merge.
+
+Fresh means all four IndexedDB tables are empty. Startup is read-only: it returns
+validated existing metadata or asks for setup; incomplete metadata fails without
+repair or deletion. The schema remains version 1; the optional opening preference
+is additive and absent means resume. No IDs, dates, entries or geometry migrate.
+New books use random IDs, full chosen-year manifests and validated name/timezone.
+Creation and import serialize the empty-store check with every write in one
+transaction. Remove the old shape-based disposable-bootstrap exception: even an
+empty imported `personal-2026` is a real book and must not be replaced.
+
+New books default to Today using the stored timezone; opening to Last page is
+also available in setup and View settings. Today outside the chosen year falls
+back to the saved position (January 1 for a new book). Recovery drafts take
+precedence over either opening preference and retain their page side. First-use
+emergency buffers block creating an unrelated book; original-book import remains
+available; a backup missing known retained page IDs is refused before mutation.
+No recovery buffers are cleared by setup. Invalid buffers remain
+untouched for manual recovery. One active book only; year switching is later work.
+
+Existing regression journeys now explicitly seed synthetic pre-setup data instead
+of relying on production demo creation. Dedicated first-use journeys use the real
+setup screen. New archives retain version 2 and optionally include opening choice;
+v1/v2 archives without it continue to resume. Old app versions' strict validators
+may reject new archives containing the new preference; use the current app.
+
+## 2026-11-01 — Proposed product readiness sequence
+
+Status: Stage 1 implementation and periodic commits/pushes authorized on
+2026-11-01. Later stages, services, deployments and merges remain unapproved.
+
+Record the next delivery plan in `PRODUCT_READINESS_PLAN.md`. Propose a personal
+trial/book setup and an installable invited local-book pilot before the private
+cross-device beta. Moving minimal PWA/hosting work earlier is an explicit proposal
+relative to the PRD, not an approved replacement of its milestone order. The
+earlier five-step implementation approval is exhausted.
+
+Preserve local-first editing. Ownership/account isolation, explicit guest-book
+migration, durable sync and a tested history/backup recovery process precede
+real cloud-book invitations. Vercel and Supabase are candidates subject to
+runtime, intended-use, budget, region and plan review; neither is provisioned.
+Quick capture and reminders remain proposals; carry-forward is explicit and
+recurrence/further page views retain their later scope. The immediate bounded
+implementation candidate is personal book setup with old/imported-book safety.
+
 ## 2026-10-05 — Bootstrap destination and visibility
 
 Status: approved by the user; public remote created and bootstrap push verified.

@@ -4,7 +4,7 @@ import {
   type Page,
   type BrowserContext,
   type Locator,
-} from '@playwright/test';
+} from '../fixtures/browser';
 
 const day = (page: Page) =>
   page.getByRole('region', {

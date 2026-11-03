@@ -2,7 +2,6 @@ import Dexie, { type Table } from 'dexie';
 import {
   assertEntry,
   isScheduled,
-  manifest,
   sameContent,
   type Book,
   type Entry,
@@ -10,6 +9,7 @@ import {
   type Preferences,
 } from '../domain/model';
 import { validateBackup, type PlannerBackup } from './backup';
+import { prepareBook, type BookSetup } from './book-setup';
 import { hourForTime } from '../templates/daily-v1';
 
 export class RevisionConflict extends Error {
@@ -18,6 +18,7 @@ export class RevisionConflict extends Error {
   }
 }
 
+export class BookSetupRequired extends Error {}
 export class RestoreRefused extends Error {}
 export class EntryRestoreRefused extends Error {}
 export type ConflictChoice = 'mine' | 'saved' | 'both';
@@ -94,42 +95,50 @@ export class PlannerDB extends Dexie {
 
   async initialize(): Promise<{ book: Book; preferences: Preferences }> {
     return this.transaction(
-      'rw',
-      this.books,
-      this.pages,
-      this.preferences,
+      'r',
+      [this.books, this.pages, this.entries, this.preferences],
       async () => {
-        let preferences = await this.preferences.get('local');
-        const id = preferences?.bookId ?? 'personal-2026';
-        let book = await this.books.get(id);
-        if (!book) {
-          book = {
-            id,
-            title: 'Daily Book',
-            year: 2026,
-            startDate: '2026-01-01',
-            endDate: '2026-12-31',
-            locale: 'en-US',
-            todayTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            templateVersion: 1,
-          };
-          await this.books.add(book);
-          await this.pages.bulkAdd(manifest(book));
-        }
-        if (!preferences) {
-          preferences = {
-            id: 'local',
-            bookId: id,
-            pageIndex: 278,
-            focusSide: 0,
-            toolbarSide: 'right',
-            zoom: 1,
-          };
-          await this.preferences.add(preferences);
-        }
-        return { book, preferences };
+        const books = await this.books.toArray();
+        const preferences = await this.preferences.toArray();
+        const pages = await this.pages.orderBy('id').toArray();
+        if (
+          !books.length &&
+          !preferences.length &&
+          !pages.length &&
+          !(await this.entries.count())
+        )
+          throw new BookSetupRequired();
+        if (books.length !== 1 || preferences.length !== 1)
+          throw new Error(
+            'Book metadata is incomplete. No stored writing was changed.',
+          );
+        const validated = validateBackup({
+          format: 'daily-book-backup',
+          version: 2,
+          exportedAt: new Date().toISOString(),
+          book: books[0],
+          preferences: preferences[0],
+          pages,
+          entries: [],
+        });
+        return { book: validated.book, preferences: validated.preferences };
       },
     );
+  }
+
+  async createBook(input: BookSetup, now = new Date()) {
+    const prepared = prepareBook(input, now);
+    // The empty-store check and all writes serialize across tabs and roll back together.
+    try {
+      await this.restoreBackup(prepared);
+    } catch (error) {
+      if (error instanceof RestoreRefused) throw error;
+      throw new Error(
+        'Your book could not be saved. No book was created. Try again.',
+        { cause: error },
+      );
+    }
+    return { book: prepared.book, preferences: prepared.preferences };
   }
 
   async readPages(pageIds: string[], includeDeleted = false): Promise<Entry[]> {
@@ -363,42 +372,14 @@ export class PlannerDB extends Dexie {
           throw new RestoreRefused(
             'This planner has saved entries. Restore in a fresh browser profile to keep your current writing safe.',
           );
-        // Only discard an empty bootstrap book, never unrelated metadata/books.
-        const books = await this.books.toArray();
-        const preferences = await this.preferences.get('local');
-        const pages = await this.pages.orderBy('id').toArray();
-        const expectedPages = books.length === 1 ? manifest(books[0]) : [];
-        const bootstrap =
-          books.length === 1 &&
-          books[0].id === 'personal-2026' &&
-          books[0].year === 2026 &&
-          books[0].title === 'Daily Book' &&
-          books[0].startDate === '2026-01-01' &&
-          books[0].endDate === '2026-12-31' &&
-          books[0].templateVersion === 1 &&
-          preferences?.bookId === books[0].id &&
-          (await this.preferences.count()) === 1 &&
-          pages.length === 365 &&
-          pages.every((page, index) => {
-            const expected = expectedPages[index];
-            return (
-              page.id === expected.id &&
-              page.bookId === expected.bookId &&
-              page.date === expected.date &&
-              page.kind === expected.kind &&
-              page.order === expected.order
-            );
-          });
         if (
-          (books.length || pages.length || (await this.preferences.count())) &&
-          !bootstrap
+          (await this.books.count()) ||
+          (await this.pages.count()) ||
+          (await this.preferences.count())
         )
           throw new RestoreRefused(
             'This planner already contains a book. Restore in a fresh browser profile.',
           );
-        await this.books.clear();
-        await this.pages.clear();
-        await this.preferences.clear();
         await this.books.add(backup.book);
         await this.pages.bulkAdd(backup.pages);
         await this.entries.bulkAdd(backup.entries);
