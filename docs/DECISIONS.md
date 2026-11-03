@@ -1,5 +1,21 @@
 # Decisions
 
+## 2026-11-03 — Approved integration and local installability
+
+The user approved merging #31, #34 and #35 after green checks, then authorized
+continued work and smaller periodic commits/pushes. Merged each reviewed head
+using merge commits, retargeting the stacked PRs to main in sequence. Verified
+identical trees; issues #30/#32/#33 closed. Main is `700fc64`.
+
+Start the bounded local-installability part of Stage 2 on `feat/installable-book`.
+This accepts earlier minimal PWA work proposed in PRODUCT_READINESS_PLAN.md;
+hosting/deployment and later beta features remain separate. Preserve local-book
+editing and the existing explicit saved-update strategy. Installation metadata
+must not imply account synchronization or guaranteed browser-storage retention.
+Official WebKit documentation describes separate local storage for Home Screen/
+Dock apps, so guide users to export before installing and import into an empty
+installed app where needed. Native OS installation remains a manual gate.
+
 ## 2026-11-02 — Dependency security maintenance
 
 Status: implemented and locally verified on 2026-11-03 in

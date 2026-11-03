@@ -1,5 +1,29 @@
 # Project state
 
+## Approved integration and installability start — 2026-11-03
+
+The user separately approved merging PRs #31, #34 and #35 after their checks and
+asked to continue with smaller periodic commits/pushes. All three merged in order:
+
+| PR  | Result                                   | Merge commit | Final-head CI                     |
+| --- | ---------------------------------------- | ------------ | --------------------------------- |
+| #31 | Personal book setup; issue #30 closed    | `0855df1`    | 41392913768, all four jobs passed |
+| #34 | Editorial typography; issue #32 closed   | `619fb8c`    | 41571003978, all four jobs passed |
+| #35 | Dependency maintenance; issue #33 closed | `700fc64`    | 41582646117, all four jobs passed |
+
+Each merged tree exactly matches its reviewed head (`57c88d3`, `bd6dd4f`,
+`fd28cb0`, respectively). Local main fast-forwarded to `700fc64`. No repeated app
+tests were needed for those identical trees. Private local originals are retained
+and unpublished. The previous outstanding merge-permission statements below are
+historical and superseded only for these three PRs.
+
+Active branch: `feat/installable-book`, based on merged main `700fc64`.
+Continue with the local installability slice: manifest, original app icons,
+installation guidance/prompt support and offline metadata. Hosting, services,
+spending, accounts and sync remain separate. Future merges require separate
+approval. Record installation separately from offline readiness; native OS/device
+acceptance and browser/installed storage transfer still need manual verification.
+
 ## Dependency maintenance — locally verified, 2026-11-03
 
 The user previewed the typography, said it looks great, and requested continued
