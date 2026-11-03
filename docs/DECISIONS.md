@@ -1,5 +1,42 @@
 # Decisions
 
+## 2026-11-02 — Editorial interface typography
+
+Status: user-requested implementation, tracked by
+[issue #32](https://github.com/sre0089/TechnoNichi/issues/32).
+
+Use the two user-provided images as stylistic inspiration for a serif-led
+interface. They do not establish an exact font identification. Use Lora for
+headings, branding, cover titles and introductory prose; IBM Plex Sans for
+controls, labels and help text; a system monospace stack for small captions.
+Keep the warm palette. Simplify first-use prose while retaining local storage,
+backup and out-of-year opening information. Form values use regular weight.
+
+Pin `@fontsource-variable/lora` and `@fontsource-variable/ibm-plex-sans` at 5.3.0
+with the npm lockfile. Both have OFL-1.1 licenses and no package lifecycle scripts
+or dependencies. Load only normal Latin variable WOFF2 faces (83,500 bytes total)
+through `next/font/local`; no browser or build-time font CDN requests. Include
+unmodified font licenses under `public/licenses/`. The existing production worker
+includes emitted font resources without a worker change. Installed Next font/CSS
+guides and official [Fontsource variable-font guidance](https://fontsource.org/docs/getting-started/variable),
+[Lora](https://fontsource.org/fonts/lora/use) and
+[IBM Plex Sans](https://fontsource.org/fonts/ibm-plex-sans/use) informed this choice.
+
+Printed paper retains its original Arial/Georgia metrics; timed writing, notes,
+checklist text and enlarged writing retain their existing font rules and grid
+geometry. No saved data, template version or archive format changes.
+
+The typography branch is based on unmerged setup head `57c88d3`; publish a focused
+PR targeting `feat/personal-book-setup` so its diff contains only typography.
+PR #31's successful CI and the user's fresh-profile setup/settings confirmation
+are recorded separately from visual acceptance of these new fonts.
+
+Dependency review found the same 15 audit findings on the old/new lockfiles
+(12 moderate, two high, one critical); neither font is flagged. Existing versions
+are unchanged. [Issue #33](https://github.com/sre0089/TechnoNichi/issues/33) tracks
+framework/tool maintenance separately, before hosted use. Do not force-fix or
+blindly downgrade lint tooling during a typography change.
+
 ## 2026-11-01 — Personal book setup and opening
 
 Status: implemented and locally verified on 2026-11-02 in

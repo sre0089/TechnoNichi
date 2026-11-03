@@ -2,7 +2,7 @@ import { forwardRef, type ComponentProps } from 'react';
 import { cn } from './utils';
 
 const fieldStyle =
-  'rounded-control border border-solid border-line bg-surface px-3 py-2 text-xs text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-40';
+  'rounded-control border border-solid border-line bg-surface px-3 py-2 text-xs font-normal text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-40';
 
 export const Input = forwardRef<HTMLInputElement, ComponentProps<'input'>>(
   function Input({ className, ...props }, ref) {

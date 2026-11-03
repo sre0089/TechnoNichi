@@ -12,8 +12,9 @@
   --color-success: #788575;
   --color-pending: #b18c4f;
   --color-danger: #a04b40;
-  --font-interface: Arial, Helvetica, sans-serif;
-  --font-display: Georgia, serif;
+  --font-interface: var(--font-ui-face), Arial, Helvetica, sans-serif;
+  --font-display: var(--font-serif-face), Georgia, serif;
+  --font-caption: ui-monospace, SFMono-Regular, Consolas, monospace;
   --radius-control: 0.5rem;
   --radius-panel: 0.875rem;
   --shadow-float: 0 18px 60px #40354330, 0 2px 8px #40354312;
@@ -38,7 +39,7 @@
     margin: 0;
     background: #eee9e2;
     color: #423b3a;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-interface);
     background-image: radial-gradient(#897a6710 0.7px, transparent 0.7px);
     background-size: 5px 5px;
   }
@@ -89,8 +90,9 @@
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  font-family: Georgia, serif;
-  font-size: 23px;
+  font-family: var(--font-display);
+  font-size: 25px;
+  letter-spacing: -0.035em;
   color: #494041;
 }
 .brand-mark {
@@ -98,7 +100,7 @@
   color: #766180;
 }
 .brand-caption {
-  font-family: Arial, sans-serif;
+  font-family: var(--font-caption);
   color: #827874;
   font-size: 11px;
   letter-spacing: 0.04em;
@@ -144,7 +146,7 @@
   color: #736a65;
 }
 .spread-title strong {
-  font-family: Georgia, serif;
+  font-family: var(--font-display);
   font-size: 22px;
   font-weight: normal;
   color: var(--ink);
@@ -168,6 +170,8 @@
   outline: none;
 }
 .paper {
+  /* Printed template type and editable writing retain their existing metrics. */
+  font-family: Arial, Helvetica, sans-serif;
   --grid-stroke: 1px;
   position: relative;
   width: 50%;
@@ -750,7 +754,7 @@
   padding: 25vh 20px;
 }
 .opening h1 {
-  font-family: Georgia, serif;
+  font-family: var(--font-display);
   font-weight: normal;
 }
 .opening p {
@@ -798,7 +802,8 @@
   margin: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
-  font-family: Georgia, serif;
+  font-family: var(--font-display);
+  letter-spacing: -0.035em;
   font-weight: normal;
   font-size: clamp(28px, 4vw, 42px);
 }
@@ -808,10 +813,12 @@
   letter-spacing: 0.1em;
 }
 .cover-year {
+  font-family: var(--font-caption);
   font-size: 14px;
   letter-spacing: 0.3em;
 }
 .cover-resume {
+  font-family: var(--font-caption);
   font-size: 11px;
   color: #e3dacb;
 }

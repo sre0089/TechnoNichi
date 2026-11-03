@@ -1,5 +1,33 @@
 # Project state
 
+## Interface typography — in progress, 2026-11-02
+
+The user confirmed that fresh-browser book creation and settings work. Browser,
+device and specific settings were not supplied. PR #31 head `57c88d3` has passed
+all four jobs in [CI run 41392913768](https://github.com/sre0089/TechnoNichi/actions/runs/41392913768).
+It remains open and unmerged; this confirmation does not grant merge permission.
+
+The user then requested polished UI typography using two attached inspiration
+images. Work is on `feat/editorial-typography`, based on `57c88d3`, tracked by
+[issue #32](https://github.com/sre0089/TechnoNichi/issues/32). Periodic commits and
+pushes continue under the standing instruction. Use Lora serif headings/prose,
+IBM Plex Sans compact UI, and quiet system monospace captions. Preserve printed
+paper metrics and all editable writing fonts/geometry. Next bounded acceptance:
+inspect desktop/phone setup, cover and dialogs, verify existing editing journeys
+and actual self-hosted font loading after an offline reopen.
+
+Combined checks pass format, lint, strict types, 145 units and production build.
+All 12 production offline cases pass, including actual new-face loading after
+network disconnection; every observed font request stays on the app origin. A coordinate-click regression
+was a test point at y=721 outside the 720px viewport after the header font changed.
+The test now scrolls the memo surface into view and reads current page bounds;
+all three corrected engine cases pass. The first targeted run passed 85 cases
+with two intentional skips before that correction. Final full regression remains
+pending. Synthetic desktop/phone setup and cover screenshots were inspected.
+Existing audit findings are unchanged by the new fonts; follow-up is
+[issue #33](https://github.com/sre0089/TechnoNichi/issues/33). No framework upgrade,
+hosting or next product milestone is included.
+
 ## Personal book setup — locally verified, 2026-11-02
 
 Implemented Stage 1 on `feat/personal-book-setup`, tracked by

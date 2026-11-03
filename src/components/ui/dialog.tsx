@@ -39,10 +39,10 @@ export function DialogContent({
         {...props}
       >
         <div className="mb-6 pr-9">
-          <DialogPrimitive.Title className="m-0 font-display text-2xl font-normal">
+          <DialogPrimitive.Title className="m-0 font-display text-[1.75rem] font-normal leading-tight tracking-[-0.035em]">
             {title}
           </DialogPrimitive.Title>
-          <DialogPrimitive.Description className="mb-0 mt-2 text-xs leading-relaxed text-ui-muted">
+          <DialogPrimitive.Description className="mb-0 mt-3 font-display text-base font-normal leading-relaxed text-ui-muted">
             {description}
           </DialogPrimitive.Description>
         </div>
