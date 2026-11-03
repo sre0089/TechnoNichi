@@ -40,6 +40,19 @@ HTTP 200 without redirects. It was stopped after testing. Synthetic reports stay
 ignored; no user's browser store was opened. Hosted adapter/CDN, HTTPS/origin and
 real-device update/rollback gates remain pending. No runtime/dependency changes.
 
+Proposal checkpoint `94b1ab9` is pushed in
+[PR #39](https://github.com/sre0089/TechnoNichi/pull/39), targeting
+`feat/installable-book` for a documentation-only diff. Retarget after separately
+approved merge of #37. `npm run format:check`, whitespace, dependency-file drift
+and four affected local document-link checks pass. Unchanged editor/unit/offline
+suites were not repeated; their green final-head CI is recorded above. Private
+originals and generated reports remain unpublished. Final-head PR CI is pending.
+
+Next bounded action: review provider/plan and authorize the concrete staging setup
+before connecting a host or publishing. Proposed choice is Netlify Free, no paid
+add-ons/domain purchase, synthetic data first, stable project origin confirmed
+before invites. No spending, hosting configuration, deployment or PR merge occurred.
+
 ## Approved integration and local installability — 2026-11-03
 
 The user separately approved merging PRs #31, #34 and #35 after their checks and
