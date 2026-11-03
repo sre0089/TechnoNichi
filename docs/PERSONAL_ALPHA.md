@@ -116,6 +116,17 @@ Missing cache files can repair on a later online opening. A first uncached load
 requires the server/network. Browser eviction, private browsing or clearing site
 data can remove local writing or offline files, so retain JSON backups separately.
 
+## Reported desktop check — 2026-11-03
+
+The user installed the production app with Chrome. Its existing book appeared
+without restoring a backup. After writing, closing the terminal server and book,
+and reopening the installed app without restarting the server, the edits remained.
+This establishes the reported local Chrome installation/offline reopening path;
+it does not establish synchronization or a cloud copy. Browser/OS versions were
+not supplied. Offline editing after reopening, restore into a fresh profile,
+installed-app updates, Safari/phone checks and a full week of use remain unverified.
+No real writing or screenshots are included in this record.
+
 ## Acceptance still requiring a person
 
 - Review the cover/transitions and use the real tablet/phone: touch movement,

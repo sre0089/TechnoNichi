@@ -1,5 +1,30 @@
 # Project state
 
+## Hosting-readiness proposal and Chrome acceptance — 2026-11-03
+
+The user reported installing the production app in Chrome, seeing the existing
+book without a restore, writing, closing the terminal server and book, then
+reopening the installed app without restarting the server and finding the edits.
+This is user-reported native Chrome installation and offline-reopen evidence.
+Chrome version, OS, elapsed use, backup restore, offline edits after reopening,
+Safari/phone behavior and installed-app updates were not reported. Do not infer
+those outcomes or publish actual book content.
+
+Installability PR [#37](https://github.com/sre0089/TechnoNichi/pull/37) remains open
+at `5d96929`. All four jobs passed in
+[CI run 41585988969](https://github.com/sre0089/TechnoNichi/actions/runs/41585988969).
+The previous pending-CI/native-Chrome statements below are superseded by this
+record. Merge permission remains separate.
+
+The user authorized the next bounded task: hosting proposal and local deployment
+readiness checks. Work is on `docs/hosting-readiness`, based on PR #37's reviewed
+head. Periodic documentation commits/pushes remain authorized. This task does not
+provision services, publish the app, purchase a domain, select a paid plan or merge
+PRs. Scope: record the manual result, compare current official provider terms,
+specify build/origin/storage/update/rollback requirements and verify local output.
+Acceptance: a concrete proposal with costs, known limits and hosted/manual gates.
+Tracked by [issue #38](https://github.com/sre0089/TechnoNichi/issues/38).
+
 ## Approved integration and local installability — 2026-11-03
 
 The user separately approved merging PRs #31, #34 and #35 after their checks and
