@@ -46,7 +46,10 @@ self.addEventListener('fetch', (event) => {
   const asset =
     url.pathname.startsWith('/_next/static/') &&
     /\.(?:js|css|woff2?|png|svg|ico)$/.test(url.pathname);
-  if (!root && !asset) return;
+  const publicMetadata =
+    url.pathname !== '/' && PRECACHE.includes(url.pathname);
+
+  if (!root && !asset && !publicMetadata) return;
   event.respondWith(
     (async () => {
       const current = await caches.open(CACHE);
@@ -88,7 +91,8 @@ self.addEventListener('message', (event) => {
           });
           if (windows.length > 1) {
             port.postMessage({
-              error: 'Close other planner tabs, then try updating again.',
+              error:
+                'Close other planner tabs or app windows, then try updating again.',
             });
             return;
           }

@@ -24,9 +24,12 @@ installation guidance/prompt support and offline metadata. Hosting, services,
 spending, accounts and sync remain separate. Future merges require separate
 approval. Manifest and original icon checkpoint passes `npm run check` with 145
 units/build. Icons were rendered from the original SVG using existing Sharp
-0.35.5; no new dependency. Native installation guidance and cache integration are
-next. Record installation separately from offline readiness; native OS/device
-acceptance and browser/installed storage transfer still need manual verification.
+0.35.5; no new dependency. Native installation guidance is the next checkpoint.
+The cache checkpoint adds only the manifest and six original icons to the
+public allowlist, with emitted contents included in the shell version. Existing
+save-before-update and other-window refusal remain in place. Record installation
+separately from offline readiness; native OS/device acceptance and browser/installed
+storage transfer still need manual verification.
 
 ## Dependency maintenance — locally verified, 2026-11-03
 

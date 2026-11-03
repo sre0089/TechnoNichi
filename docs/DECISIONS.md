@@ -28,6 +28,13 @@ preserves browser zoom defaults. Installed Next manifest/PWA guides and official
 [WebKit storage behavior](https://webkit.org/blog/14787/webkit-features-in-safari-17-2/)
 were reviewed before implementation.
 
+Extend the production worker's public allowlist with only the manifest and six
+original icon files. Include their emitted bytes in the shell version so metadata
+changes produce an explicit saved update; hash the compiled manifest response,
+not its TypeScript source. Root/static caching and current/previous shell
+retention stay intact. Book data, APIs and arbitrary public paths remain outside
+the shell cache. Update refusal covers other tabs and installed app windows.
+
 ## 2026-11-02 — Dependency security maintenance
 
 Status: implemented and locally verified on 2026-11-03 in

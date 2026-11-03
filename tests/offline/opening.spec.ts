@@ -61,7 +61,20 @@ test('cached production opening preserves edits and navigation offline without c
   });
   expect(urls.length).toBeGreaterThan(1);
   expect(
-    urls.every((url) => url === '/' || url.startsWith('/_next/static/')),
+    urls.every(
+      (url) =>
+        url === '/' ||
+        url.startsWith('/_next/static/') ||
+        [
+          '/manifest.webmanifest',
+          '/icons/book.svg',
+          '/icons/book-32.png',
+          '/icons/book-192.png',
+          '/icons/book-512.png',
+          '/icons/book-maskable-512.png',
+          '/icons/apple-touch-icon.png',
+        ].includes(url),
+    ),
   ).toBe(true);
   await context.setOffline(false);
 });
