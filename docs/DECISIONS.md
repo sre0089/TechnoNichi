@@ -1,5 +1,15 @@
 # Decisions
 
+## 2026-11-03 — Preserve the standalone app-window experience
+
+The user likes the current separate Chrome app window, purple title bar and
+native feeling, and explicitly wants to keep that direction. Preserve the
+existing standalone manifest display, purple theme color and restrained interface
+through hosting and later UI changes. Native window chrome is browser/OS-owned;
+check its actual behavior on target devices. The supplied reference screenshot
+remains private; only the design preference is recorded here. No UI change is
+requested by this confirmation.
+
 ## 2026-11-03 — Approved Netlify Free staging
 
 The user approved the proposed green merges (#37/#39) and Netlify Free synthetic

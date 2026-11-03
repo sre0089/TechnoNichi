@@ -56,6 +56,11 @@ On Safari, use the guide's separate-store backup/restore steps if needed. Do not
 clear your original book. Hosted update/rollback and accessibility/week-of-use
 acceptance remain separate checks before any invitations.
 
+On desktop Chrome, also confirm that launching the installed icon keeps the
+separate app window and purple title bar the user wants to preserve. Resize the
+window and check that navigation and writing remain usable. Report visual or
+window-behavior changes separately from save/offline results.
+
 To repeat automated staging checks using fresh synthetic browser stores:
 
 ```sh

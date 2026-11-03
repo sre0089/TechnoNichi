@@ -1,5 +1,10 @@
 # Project state
 
+The user confirmed that the separate Chrome app window, purple title bar and
+native feeling are design preferences to preserve. Recorded in DECISIONS.md and
+added to the manual staging checklist. This follow-up changes documentation only;
+the hosted build, app UI, manifest and book data are unchanged.
+
 ## Approved Netlify staging setup — 2026-11-03
 
 The user approved merging green PRs #37 and #39 and proceeding with Netlify Free
