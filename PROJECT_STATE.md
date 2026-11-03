@@ -1,5 +1,38 @@
 # Project state
 
+## Approved Netlify staging setup — 2026-11-03
+
+The user approved merging green PRs #37 and #39 and proceeding with Netlify Free
+synthetic staging. No paid add-ons, domain purchase, account/cloud-book features
+or tester invitations are authorized by this slice. Issue
+[#40](https://github.com/sre0089/TechnoNichi/issues/40) tracks the work on
+`chore/netlify-staging`, initially based on reviewed #39 head `a8d4208`.
+
+PR #37 merged as `3ee6cc5` after all four final-head checks passed; its merged
+tree equals `5d96929`. #39 targets main and is held for its checks: WebKit's search
+replacement case appended old text in one CI run. The unchanged local WebKit
+search file passed 12 cases (six repeats of each test). The failed job was retried;
+do not describe the unexplained failure as fixed or merge until green.
+
+Plugin discovery found no Netlify connector. Reviewed official CLI documentation
+and pinned CLI 27.16.2 (Node >=22.13); used a temporary npm-exec copy under Node 24
+with dependency installation scripts disabled, without changing project packages.
+The user completed official interactive login. Team `sre0089` reports Free /
+`credit-free`. No paid plan or recharge was enabled. Account API exposes no
+unambiguous recharge-enabled field, so do not claim that toggle was verified.
+
+Created empty Netlify project `technonichi`, ID
+`a4fe62cb-705e-4e2b-be56-8aa3d3b29eea`. The provider reports the reserved project
+URL `https://technonichi.netlify.app`; it is not yet a verified working app.
+Local `.netlify/` metadata is ignored. `netlify.toml` declares the reviewed locked
+install/full worker build, Node 24 and explicit static-worker headers. Official
+CLI `build --dry --offline` successfully parses it and detects Next runtime 5.16.5;
+the adapter's official package metadata was reviewed before build execution.
+
+Next: build/deploy only from an isolated tracked-source checkout so private local
+originals never enter a hosting upload; verify draft HTTPS worker/assets and
+synthetic book/offline/restore journeys before any stable-origin release/invites.
+
 ## Hosting-readiness proposal and Chrome acceptance — 2026-11-03
 
 The user reported installing the production app in Chrome, seeing the existing

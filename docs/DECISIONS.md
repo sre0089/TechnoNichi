@@ -1,5 +1,21 @@
 # Decisions
 
+## 2026-11-03 — Approved Netlify Free staging
+
+The user approved the proposed green merges (#37/#39) and Netlify Free synthetic
+staging. Keep this separate from paid services, custom-domain purchase and real
+tester use. Official CLI 27.16.2 was reviewed and invoked temporarily with install
+scripts disabled; the user completed its browser authorization. No Netlify plugin
+was available. Credentials remain in Netlify's external user configuration.
+
+Track Node 24 and the full locked-install/worker build in `netlify.toml`, with
+explicit worker CDN headers matching Next's existing headers; ignore `.netlify/`.
+The official dry build detects runtime 5.16.5. Build and upload an isolated
+tracked-source checkout, excluding the private originals and runtime artifacts.
+First deploy is a synthetic draft; stable publication and invites wait for hosted
+acceptance. Existing book data/schema and UI stay unchanged. Record exact build,
+adapter and deployed source IDs, and never infer hosted behavior from a local build.
+
 ## 2026-11-03 — Hosting-readiness proposal, not deployment
 
 The user authorized preparing the hosted-pilot proposal and local checks after
