@@ -81,6 +81,13 @@ Drag through an empty schedule range or use a non-drag control. Display a subtle
 Free note:
 Click a memo-grid position and type. Store position and size in document/grid coordinates. Dragging a note changes location, never its time. Converting it to a scheduled item must be explicit.
 
+Approved extension (2026-11-03): `/` at the start of a free-note line offers
+to-do checkboxes, bullets and numbered lists. Markers precede the text. Enter
+continues a list; an empty item's Enter exits it. Tab/Shift+Tab indent/outdent
+list lines. Preserve independent completion, depth, inline formatting and existing
+plain notes through saving, recovery and versioned backup restoration. This does
+not change timed-task checkbox placement or introduce automatic scheduling.
+
 Checklist:
 Type beside a top checkbox, then toggle completion without deleting the wording. Later allow explicitly copying unfinished tasks to another day; do not move them automatically.
 

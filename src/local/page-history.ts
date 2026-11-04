@@ -19,6 +19,7 @@ function documentFields(entry: Entry) {
   void formatRuns;
   void style;
   void revision;
+  if ('noteLines' in fields) delete fields.noteLines;
   return JSON.stringify(fields);
 }
 function label(before: Entry | null, after: Entry) {
@@ -85,9 +86,15 @@ export class PageHistory {
         JSON.stringify(before.formatRuns) !==
           JSON.stringify(after.formatRuns) ||
         JSON.stringify(before.style) !== JSON.stringify(after.style));
+    const noteLinesChanged =
+      before?.type === 'note' &&
+      after.type === 'note' &&
+      JSON.stringify(before.noteLines) !== JSON.stringify(after.noteLines);
     if (
       before &&
-      (wordsChanged || documentFields(before) === documentFields(after))
+      (wordsChanged ||
+        noteLinesChanged ||
+        documentFields(before) === documentFields(after))
     ) {
       this.redoStack = [];
       this.observe(after);

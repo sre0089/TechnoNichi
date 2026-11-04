@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import { type Editor, type JSONContent } from '@tiptap/core';
+import { Fragment, Slice } from '@tiptap/pm/model';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
@@ -23,6 +24,8 @@ import { isScheduled, type Entry } from '../domain/model';
 import { textSegments, textRuns } from '../domain/formatted-text';
 import { formatForKey, type WritingFormat } from './writing-keys';
 import { documentFor, contentForDocument } from './rich-document';
+import { NoteParagraph, NoteNumbering, noteLineKey } from './note-paragraph';
+import { NoteListMenu } from './NoteListMenu';
 
 const WritingContext = createContext<{
   active: { editor: Editor; id: string } | null;
@@ -99,7 +102,12 @@ function positionForText(editor: Editor, offset: number) {
 }
 
 function contentFor(editor: Editor) {
-  return contentForDocument(editor.getJSON() as JSONContent);
+  return contentForDocument(
+    editor.getJSON() as JSONContent,
+    !!editor.extensionManager.extensions.find(
+      (extension) => extension.name === 'noteNumbering',
+    ),
+  );
 }
 
 export function FormattedText({
@@ -158,6 +166,7 @@ export function RichWriting({
 }) {
   const context = useContext(WritingContext)!;
   const emittedEntries = useRef(new WeakSet<Entry>());
+  const noteMenuKey = useRef<((event: KeyboardEvent) => boolean) | null>(null);
   // Event handlers read the latest draft without re-creating the editor or its history.
   const latest = useRef({
     entry,
@@ -189,7 +198,9 @@ export function RichWriting({
       shouldRerenderOnTransaction: false,
       extensions: [
         Document,
-        Paragraph.extend({ whitespace: 'pre' }),
+        ...(entry.type === 'note'
+          ? [NoteParagraph, NoteNumbering]
+          : [Paragraph.extend({ whitespace: 'pre' })]),
         Text,
         Bold,
         Italic,
@@ -237,6 +248,14 @@ export function RichWriting({
           if (event.isComposing || view.composing || event.keyCode === 229)
             return false;
           if (current.readOnly) return false;
+          if (
+            current.entry.type === 'note' &&
+            activeEditor &&
+            (noteMenuKey.current?.(event) || noteLineKey(activeEditor, event))
+          ) {
+            event.preventDefault();
+            return true;
+          }
           const format = formatForKey(event);
           if (format) {
             event.preventDefault();
@@ -292,7 +311,31 @@ export function RichWriting({
           if (latest.current.readOnly) return true;
           const text = event.clipboardData?.getData('text/plain');
           if (text === undefined) return false;
-          const plain = { ...latest.current.entry, text, formatRuns: [] };
+          const plain = {
+            ...latest.current.entry,
+            text,
+            formatRuns: [],
+            noteLines: undefined,
+          };
+          if (latest.current.entry.type === 'note') {
+            const paragraphs = documentFor(plain).content ?? [];
+            view.dispatch(
+              view.state.tr
+                .replaceSelection(
+                  new Slice(
+                    Fragment.fromArray(
+                      paragraphs.map((node) =>
+                        view.state.schema.nodeFromJSON(node),
+                      ),
+                    ),
+                    1,
+                    1,
+                  ),
+                )
+                .scrollIntoView(),
+            );
+            return true;
+          }
           fields
             .get(view.dom)
             ?.commands.insertContent(
@@ -322,6 +365,8 @@ export function RichWriting({
             ? { submitted: false, completed: false }
             : {}),
         };
+        if (changed.type === 'note' && changed.noteLines === undefined)
+          delete changed.noteLines;
         current.entry = changed;
         emittedEntries.current.add(changed);
         current.edit(changed);
@@ -357,6 +402,11 @@ export function RichWriting({
     if (editor.isEditable === readOnly) editor.setEditable(!readOnly, false);
     editor.view.dom.setAttribute('aria-readonly', String(readOnly));
     editor.view.dom.setAttribute('aria-label', label);
+    editor.view.dom
+      .querySelectorAll<HTMLInputElement>('.note-todo-checkbox')
+      .forEach((node) => {
+        node.disabled = readOnly;
+      });
   }, [editor, readOnly, label]);
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
@@ -373,7 +423,9 @@ export function RichWriting({
       if (
         current.text !== entry.text ||
         JSON.stringify(current.formatRuns) !==
-          JSON.stringify(contentForEntry(entry))
+          JSON.stringify(contentForEntry(entry)) ||
+        (entry.type === 'note' &&
+          JSON.stringify(current.noteLines) !== JSON.stringify(entry.noteLines))
       )
         editor.commands.setContent(content, { emitUpdate: false });
     }
@@ -418,7 +470,18 @@ export function RichWriting({
       return () => cancelAnimationFrame(frame);
     }
   }, [editor, selected, readOnly]);
-  return <EditorContent editor={editor} className="writing-field" />;
+  return (
+    <>
+      <EditorContent editor={editor} className="writing-field" />
+      {editor && entry.type === 'note' && (
+        <NoteListMenu
+          editor={editor}
+          readOnly={readOnly}
+          keyHandlerRef={noteMenuKey}
+        />
+      )}
+    </>
+  );
 }
 
 function contentForEntry(entry: Entry) {

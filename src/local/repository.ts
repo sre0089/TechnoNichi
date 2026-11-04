@@ -114,7 +114,7 @@ export class PlannerDB extends Dexie {
           );
         const validated = validateBackup({
           format: 'daily-book-backup',
-          version: 2,
+          version: 3,
           exportedAt: new Date().toISOString(),
           book: books[0],
           preferences: preferences[0],
@@ -225,7 +225,11 @@ export class PlannerDB extends Dexie {
         const preferences = await this.preferences.get('local');
         return validateBackup({
           format: 'daily-book-backup',
-          version: 2,
+          version: entries.some(
+            (entry) => entry.type === 'note' && entry.noteLines !== undefined,
+          )
+            ? 3
+            : 2,
           exportedAt: new Date().toISOString(),
           book,
           pages,
@@ -332,6 +336,9 @@ export class PlannerDB extends Dexie {
             ...target,
             text: current.text,
             formatRuns: current.formatRuns,
+            ...(current.type === 'note'
+              ? { noteLines: current.noteLines }
+              : {}),
             style: current.style,
             revision: current.revision + 1,
             deletedAt: target.deletedAt ? new Date().toISOString() : null,
