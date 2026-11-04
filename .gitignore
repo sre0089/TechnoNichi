@@ -28,6 +28,7 @@ __pycache__/
 .ruff_cache/
 .cache/
 /.next/
+/.netlify/
 /.nuxt/
 /.parcel-cache/
 /.turbo/

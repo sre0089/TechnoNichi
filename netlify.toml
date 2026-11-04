@@ -1,0 +1,16 @@
+[build]
+  command = "git diff --exit-code -- package.json package-lock.json && npm ci && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "24"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# The worker must be revalidated independently of cached app assets.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'"
+    X-Content-Type-Options = "nosniff"

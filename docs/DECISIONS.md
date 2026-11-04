@@ -1,5 +1,45 @@
 # Decisions
 
+## 2026-11-03 — Preserve the standalone app-window experience
+
+The user likes the current separate Chrome app window, purple title bar and
+native feeling, and explicitly wants to keep that direction. Preserve the
+existing standalone manifest display, purple theme color and restrained interface
+through hosting and later UI changes. Native window chrome is browser/OS-owned;
+check its actual behavior on target devices. The supplied reference screenshot
+remains private; only the design preference is recorded here. No UI change is
+requested by this confirmation.
+
+## 2026-11-03 — Approved Netlify Free staging
+
+The user approved the proposed green merges (#37/#39) and Netlify Free synthetic
+staging. Keep this separate from paid services, custom-domain purchase and real
+tester use. Official CLI 27.16.2 was reviewed and invoked temporarily with install
+scripts disabled; the user completed its browser authorization. No Netlify plugin
+was available. Credentials remain in Netlify's external user configuration.
+
+Track Node 24 and the full locked-install/worker build in `netlify.toml`, with
+explicit worker CDN headers matching Next's existing headers; ignore `.netlify/`.
+The official dry build detects runtime 5.16.5. Build and upload an isolated
+tracked-source checkout, excluding the private originals and runtime artifacts.
+First deploy is a synthetic draft; stable publication and invites wait for hosted
+acceptance. Existing book data/schema and UI stay unchanged. Record exact build,
+adapter and deployed source IDs, and never infer hosted behavior from a local build.
+
+The project's preview visibility was private by default and required the user's
+dashboard change; official Netlify docs expose no CLI/public API for that setting.
+The user made previews public while keeping production private. A separate local
+adapter build followed by `deploy --no-build` uploaded the wrong static directory;
+use one `netlify deploy --context deploy-preview --alias staging` command so
+adapter-modified output remains in scope. Hosted tests caught the missing worker
+before any real use. Keep failed draft IDs out of rollback baselines.
+
+Do not connect Git-wide credentials for this slice: an isolated checkout and
+manual deployment preserve source review and avoid automatic publication. The
+hosted smoke harness requires an explicit HTTPS origin, uses disposable browser
+profiles and synthetic backup downloads, and keeps screenshots/traces ignored.
+Record hosted pass/failure separately from local/CI and native OS installation.
+
 ## 2026-11-03 — Hosting-readiness proposal, not deployment
 
 The user authorized preparing the hosted-pilot proposal and local checks after
