@@ -112,9 +112,13 @@ at <https://staging--technonichi.netlify.app>, deploy `6ae982f33cba1eda0cac3ac4`
 source `89db2a9`, official CLI 27.16.2 / adapter 5.16.5. All six hosted smoke cases
 pass across Chromium/Firefox/WebKit, including actual CDN worker/assets, offline
 writing and independent backup restore. Production remains private/unpublished;
-there is no Git-connected auto-deploy. Physical-device installation, hosted
-updates/rollback and broader trial gates remain before invites. PROJECT_STATE.md
-records the failed first draft and corrected packaging procedure.
+there is no Git-connected auto-deploy. A subsequent authorized lifecycle exercise
+under issue #42 passed in Chromium/Firefox/WebKit: actual hosted A → B → A shell
+changes, other-client/failed-save refusal, saved activation and newer offline
+writing surviving compatible rollback. Staging now serves retained A through
+draft `6aea69b7d4d6174f7be0b903`. Native-device details and broader trial gates remain
+before invites. PROJECT_STATE.md records deployment IDs, narrow guarantees,
+the failed first draft and corrected packaging procedure.
 
 Add a manifest, original icons and installation guidance, reusing the existing
 offline worker. Test installed and browser modes on actual target devices;

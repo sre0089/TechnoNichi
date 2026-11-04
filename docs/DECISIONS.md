@@ -1,5 +1,34 @@
 # Decisions
 
+## 2026-11-03 — Hosted update and retained-artifact rollback
+
+The user authorized synthetic staging update/refusal/rollback checks. Preserve
+the current working build before the update and use a second isolated tracked
+checkout for the new build. A preflight redeploy of retained processed output
+passes on a separate draft alias. With `--no-build`, explicitly select
+`.netlify/static`; the normal `.next` publish setting is not the adapter's
+processed output. Preserve the generated internal function directory and cached
+function manifest too. Verify the resulting worker, root build ID and resources
+before treating it as a usable rollback baseline.
+
+Use an opt-in browser harness with operator file checkpoints rather than hiding
+provider mutations inside normal tests. Three fresh browser stores stay open
+across one hosted update and one return to the retained compatible build. Assert
+refusal, retained drafts, actual loaded shell identity, database/format/geometry
+preservation and offline edits. All data is synthetic and artifacts stay ignored.
+This re-publishes compatible artifacts to a draft alias; it does not exercise
+Netlify's production atomic-restore API or authorize schema downgrades. Production
+publication, native OS multi-window acceptance and PR merges remain separate.
+
+The live A → B → A exercise passed in Chromium, Firefox and WebKit with no page
+errors. The loaded client build IDs changed as expected; newer data across all
+four stores, including post-update offline writing, survived rollback exactly.
+The restored deployment also passes the six ordinary hosted smoke cases. A used
+adapter 5.16.5; B automatically selected 5.16.6. Verified the detected 5.16.6
+package's official source/provenance and record the platform difference outside
+the app lockfile. Retain the full tested output, not a fresh build assumed to be
+equivalent. No production release or schema downgrade is established by this test.
+
 ## 2026-11-03 — Preserve the standalone app-window experience
 
 The user likes the current separate Chrome app window, purple title bar and
