@@ -1,6 +1,6 @@
 # Project state
 
-## Free-note slash lists — implementation in progress, 2026-11-03
+## Free-note slash lists — 2026-11-03
 
 The user approved leading to-do checkboxes, bullets and numbered lists in free
 notes, chosen through `/`, with Enter continuation and Tab/Shift+Tab indentation.
@@ -25,12 +25,42 @@ must preserve newer note metadata just as they preserve newer writing. Older
 app versions are not compatible writers for structured notes; do not roll this
 feature back to the pre-list build or ask users to clear books.
 
-Acceptance: three list choices, leading independently checkable boxes, depth and
-numbering behavior, word styles/native undo, save/reload, portable empty-profile
-restore, old notes/backups and unaffected timed tasks. Unit checks currently
-pass 150 tests; focused browser verification and final closeout are in progress.
+Acceptance covers three list choices, leading independently checkable boxes,
+depth and numbering behavior, word styles/native undo, save/reload, portable
+empty-profile restore, old notes/backups and unaffected timed tasks.
 Raw synthetic screenshots/traces remain ignored; supplied personal writing stays
 private. No service/provider setting is changed by this task.
+
+Checkpoints `41829d4` (feature/storage) and `ecee4f1` (native editing compatibility
+and browser/offline journeys) are pushed in
+[PR #47](https://github.com/sre0089/TechnoNichi/pull/47), targeting
+`chore/production-release`. It remains unmerged; retarget to main after separately
+approved #45 integration. Layout checkpoint `ad273ff` gives wider numbered markers
+enough space for two-digit items without wrapping into the next row.
+
+Verification: `npm run check` passes formatting, lint, strict types, all 150 units
+and production build. The full browser suite at `ecee4f1` passes 263 cases with
+four existing intentional skips (4.7m), across Chromium/Firefox/WebKit. After the
+numbered-marker-only layout adjustment, all 21 focused note-list cases pass
+(38.8s), including the added 12-item list fixture. Production-offline verification
+passes 36 cases across all three engines (51.1s) before that spacing adjustment;
+the final-build offline note-list recheck passes three cases (12.7s). Inspected
+synthetic paper/menu screenshots; no real book/profile was used. Four local
+document links and whitespace checks pass. Final-head CI is pending after the
+closeout push; the PR exposes its current results.
+
+The initial regression run caught optional undefined fields blocking ordinary
+v2 backup downloads, an extra pasted blank line and first-line loss in a nested
+note view during native multiline replacement. All are corrected: ordinary notes
+omit unused metadata, plain paste uses an open paragraph slice, and checkboxes
+use widget decorations while native paragraph DOM stays intact. Tests include
+the focused phone editor, menu Escape/scroll behavior, failed-save recovery,
+keyboard completion undo and restoring into an independent empty profile.
+
+Physical-device IME/touch and screen-reader acceptance remain manual. No new
+dependency, schema index, provider change, PR merge or production release occurred.
+Next bounded action: preview this branch locally (`npm run dev`, then + Note and
+`/`), followed by review/explicit approval for integration and publication.
 
 ## Approved public production release — 2026-11-03
 
