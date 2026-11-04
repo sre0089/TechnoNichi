@@ -48,6 +48,21 @@ pending before invitations; the hosted automation does not establish those.
 Next bounded action is the user's production-origin book transfer/install check
 and the remaining personal trial, with focused fixes for any actual defects.
 
+Release/evidence checkpoint `2fef3d3` and usage-guide checkpoint `9c5cc91` are
+pushed in [PR #45](https://github.com/sre0089/TechnoNichi/pull/45), targeting main.
+This documentation PR remains unmerged; the explicit merge approval covered
+#41/#43. Four affected Markdown files pass Prettier, five local document links
+resolve, and working/staged whitespace checks pass. App suites were not repeated
+for documentation changes; production results above are from the actual release.
+The private untracked originals remain untouched and excluded.
+
+The provider's optional floating badge remains enabled. The CLI rejected the
+attempted setting change (HTTP 422); no successful badge removal is claimed.
+[Official badge documentation](https://docs.netlify.com/manage/projects/powered-by-netlify-badge/)
+allows disabling it on Free in Project configuration → General without a redeploy.
+The user was given that optional dashboard step to preserve the clean window
+appearance. It does not block book transfer or alter the deployed app artifacts.
+
 ## Hosted update and compatible rollback verification — 2026-11-03
 
 The user authorized the next bounded staging reliability check: a real hosted
