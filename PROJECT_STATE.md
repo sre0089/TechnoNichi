@@ -1,5 +1,42 @@
 # Project state
 
+## Approved note-list production update — verification in progress, 2026-11-03
+
+The user explicitly approved all outstanding integration and publication so the
+note-list feature can be tested live. PR #45 merged green as `f0b7512`; retargeted
+#47 merged green as `73d14aa`. Their merged tree matches reviewed head `8d95290`.
+All four final-head CI jobs passed for both PRs (runs 41764933479/41769990539).
+Issues #44/#46 closed. Release follow-up is on `chore/note-lists-release`, tracked
+by [issue #48](https://github.com/sre0089/TechnoNichi/issues/48).
+
+Built tracked source `73d14aa` in an isolated checkout with clean Node 24 `npm ci`
+(zero known audit findings). Official CLI 27.16.2 selected the already reviewed
+adapter 5.16.6; packaged function records Node 24. Preview
+`6aeaaffa2ada2ae8dfae631f` passed nine hosted cases (39.9s), including new note-list
+offline/independent-restore coverage across Chromium/Firefox/WebKit. All 1,245
+retained static/function fingerprints matched before atomic publication via the
+provider's publish API. That exact deploy became production at
+2026-11-04 04:12:43 UTC (November 3 locally); lock remained enabled. Worker
+`5573ddd1594a45aed905`, build `kufjkYhsObrTiP2dmhH3i`. All nine fresh-profile
+production cases pass (40.2s); actual worker bytes, root build ID, all 23 resources,
+headers and standalone/purple manifest match. No real user profile was accessed.
+
+The held old-build update probe exposed a release blocker for already-open apps:
+Netlify injects an `about:srcdoc` overlay which the waiting worker counted as a
+second editor, so Save and update refused activation. A disposable Chromium
+diagnostic confirms one `top-level` planner client and one `nested` srcdoc client.
+No data loss is observed or claimed. The guard fix excludes only nested
+`about:srcdoc` clients; real embedded planner URLs, other windows and unknown
+frame types remain guarded. Normal save-before-activation remains unchanged.
+The user authorized the release and necessary completion work; complete this
+fix and verify old-shell update before final handoff. Production is not rolled
+back to a pre-list writer. A separate old-build alias is only for synthetic tests.
+
+Combined checks pass formatting/lint/types, 150 units and production build for the
+fix. A new production-offline regression covers a harmless srcdoc overlay plus a
+real embedded planner; full engine verification and final publication are pending.
+Screenshots, fingerprints and operator checkpoints remain ignored local artifacts.
+
 ## Free-note slash lists — 2026-11-03
 
 The user approved leading to-do checkboxes, bullets and numbered lists in free

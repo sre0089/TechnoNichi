@@ -89,7 +89,14 @@ self.addEventListener('message', (event) => {
             type: 'window',
             includeUncontrolled: true,
           });
-          if (windows.length > 1) {
+          // Hosting overlays can create inherited-origin srcdoc clients. They
+          // are not independent book editors. Keep every real document/window,
+          // including embedded planner URLs and unknown frame types, guarded.
+          const editors = windows.filter(
+            (client) =>
+              !(client.frameType === 'nested' && client.url === 'about:srcdoc'),
+          );
+          if (editors.length > 1) {
             port.postMessage({
               error:
                 'Close other planner tabs or app windows, then try updating again.',
