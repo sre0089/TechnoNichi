@@ -1,5 +1,30 @@
 # Decisions
 
+## 2026-11-03 — Approved stable production origin and retained build
+
+The user explicitly approved merging #41 then #43 after green checks and making
+<https://technonichi.netlify.app> public on Netlify Free, without paid add-ons,
+a domain purchase or invitations. Both reviewed trees merged unchanged. Publish
+the already tested retained build A rather than introducing a new build during
+release: all 26 artifact fingerprints match; application runtime/configuration/
+dependencies are equivalent to merged main `b40ffd1`. Payload source remains
+`89db2a9`, with adapter 5.16.5 and Node 24. Distinguish this verified provenance
+from a provider Git integration, which is not configured.
+
+Production deployment `6aea7ab7c85f6df45f0ab51e` is ready and locked against
+automatic publication. All six production hosted smoke cases pass across three
+engines, including offline edits and independent backup recovery. Keep subsequent
+publication manual and separately reviewed. Preserve standalone display and the
+purple theme. The staging A → B → A exercise proves same-schema retained-artifact
+recovery only; it does not authorize data/schema downgrades.
+
+Hosted use needs no local terminal. The stable production origin owns a separate
+browser-local store: transfer existing writing by retained backup and explicit
+restore into an empty store before creating a new book. Keep the original book
+and backup. Installation can create another store, so retain the existing App
+setup guidance. Accounts, synchronization, invitations and broader device/trial
+acceptance remain separate work.
+
 ## 2026-11-03 — Hosted update and retained-artifact rollback
 
 The user authorized synthetic staging update/refusal/rollback checks. Preserve

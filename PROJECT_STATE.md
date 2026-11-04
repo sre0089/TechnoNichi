@@ -1,5 +1,53 @@
 # Project state
 
+## Approved public production release — 2026-11-03
+
+The user explicitly approved merging green PRs #41 then #43 and publishing the
+tested app publicly on Netlify Free. Both merged after all four final-head CI
+jobs passed: #41 as `cfc6b6f` (run 41593720888), then retargeted #43 as `b40ffd1`
+(run 41737946302). Each merged tree matches its reviewed head. Issues #40/#42
+closed. Local main fast-forwarded to `b40ffd1`; release records are on
+`chore/production-release`, tracked by
+[issue #44](https://github.com/sre0089/TechnoNichi/issues/44).
+
+**Production is live at <https://technonichi.netlify.app>.** Deployment
+`6aea7ab7c85f6df45f0ab51e` is ready and published (2026-11-04 00:22:24 UTC,
+November 3 locally). Published the retained tested build A without rebuilding:
+source `89db2a9bcbce7af9c07de1fc4af2ef3088767070`, worker
+`52dc0466c66817fe7e8b`, Next build `FQMVzhTIwbBvFJGyF649C`, adapter 5.16.5 and
+Node 24 function runtime. All 26 retained static/function fingerprints matched
+immediately before upload. Runtime/configuration/dependencies match merged main
+`b40ffd1`; subsequent source differences are tests, documentation and tooling.
+
+On the stable production origin, all six hosted smoke cases pass across
+Chromium/Firefox/WebKit (31.3s): fresh synthetic setup, saved/completed writing,
+reload, offline edits/reopening and independent empty-profile backup restore.
+All 23 precache resources return nonempty HTTP 200 without redirects; worker
+bytes, MIME, no-cache/no-store/must-revalidate, nosniff, CSP and HTTPS/HSTS pass.
+Manifest scope/start/id remain `/`, display `standalone`, purple theme `#514560`.
+Inspected the synthetic online setup and restored/offline screenshots. A fresh
+lockfile audit reports zero known findings at review time. Raw receipts and
+screenshots stay ignored under `artifacts/production-release*`.
+
+Provider read-back confirms Free / `credit-free`, this exact published deployment
+locked, and no Git-connected automatic deploys. No paid add-on, domain purchase,
+account, cloud book storage or invitation was added. Future publication remains
+a separately reviewed manual step. Previous unpublished/pending-merge statements
+below are historical and superseded by this record.
+
+Existing localhost/staging books stay in their original browser stores. Export
+and retain a backup there, restore it into the empty production store **before
+creating a book**, then install the production app separately and wait for
+Available offline. No terminal is required for hosted use. The original book is
+preserved; origins/profiles/devices do not synchronize. See
+[PERSONAL_ALPHA.md](docs/PERSONAL_ALPHA.md) for the exact transfer steps.
+
+No application code, schema, dependency version or standalone-window design
+changed. Broader physical-device/accessibility and seven-day use evidence remain
+pending before invitations; the hosted automation does not establish those.
+Next bounded action is the user's production-origin book transfer/install check
+and the remaining personal trial, with focused fixes for any actual defects.
+
 ## Hosted update and compatible rollback verification — 2026-11-03
 
 The user authorized the next bounded staging reliability check: a real hosted
