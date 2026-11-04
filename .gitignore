@@ -17,6 +17,19 @@ service-account*.json
 /runtime-data/
 /exports/
 
+# Local development instructions, planning records, and operator tooling
+/AGENTS.md
+/PROJECT_STATE.md
+/docs/
+/01_AGENT_AND_GITHUB_PREFACE.md
+/02_PRODUCT_PRD_AND_START.md
+/.agents/
+/.codex/
+/.claude/
+/CLAUDE.md
+/.local-development/
+/scripts/verify-hosted-lifecycle.mjs
+
 # Dependency, build, and tool caches
 node_modules/
 .venv/
