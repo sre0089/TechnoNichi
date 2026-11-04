@@ -295,7 +295,9 @@
   min-height: 1lh;
 }
 .note-line:not([data-kind='plain']) {
-  padding-left: calc(var(--note-indent, 0) * var(--note-step) + 1.45em);
+  padding-left: calc(
+    var(--note-indent, 0) * var(--note-step) + var(--note-marker-width, 1.45em)
+  );
 }
 .note-line[data-kind='bullet']::before,
 .note-line[data-kind='number']::before,
@@ -306,7 +308,8 @@
 .note-line[data-kind='bullet']::before,
 .note-line[data-kind='number']::before {
   content: attr(data-marker);
-  width: 1.2em;
+  width: max-content;
+  white-space: pre;
   text-align: left;
   pointer-events: none;
 }

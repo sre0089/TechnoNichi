@@ -29,7 +29,7 @@ export const NoteParagraph = Paragraph.extend({
         ),
         'data-marker':
           node.attrs.kind === 'bullet' ? '•' : `${node.attrs.number}.`,
-        style: `--note-indent: ${node.attrs.indent}`,
+        style: `--note-indent: ${node.attrs.indent}${node.attrs.kind === 'number' ? `; --note-marker-width: ${String(node.attrs.number).length + 2}ch` : ''}`,
       },
       0,
     ];

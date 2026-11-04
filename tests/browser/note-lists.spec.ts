@@ -376,3 +376,31 @@ test('the slash menu works inside the focused phone editor and Escape dismisses 
     'bullet',
   );
 });
+
+test('two-digit numbered markers remain on one line with room before the wording', async ({
+  page,
+}) => {
+  await ready(page);
+  const note = await noteOn(page);
+  await slash(note, page, 'Numbered list');
+  for (let index = 1; index <= 12; index++) {
+    if (index > 1) await note.press('Enter');
+    await note.pressSequentially(`Item ${index}`);
+  }
+  const line = note.locator('.note-line').last();
+  await expect(line).toHaveAttribute('data-marker', '12.');
+  const layout = await line.evaluate((node) => ({
+    padding: parseFloat(getComputedStyle(node).paddingLeft),
+    markerWidth: parseFloat(getComputedStyle(node, '::before').width),
+    whiteSpace: getComputedStyle(node, '::before').whiteSpace,
+  }));
+  expect(layout.padding).toBeGreaterThan(layout.markerWidth + 1);
+  expect(layout.whiteSpace).toBe('pre');
+  await note.press('Escape');
+  await expect(page.getByRole('status')).toHaveText('Saved on this device');
+  await page.reload();
+  await expect(note.locator('.note-line').last()).toHaveAttribute(
+    'data-marker',
+    '12.',
+  );
+});
