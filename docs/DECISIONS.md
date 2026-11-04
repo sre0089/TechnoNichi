@@ -1,5 +1,27 @@
 # Decisions
 
+## 2026-11-03 — Allow provider srcdoc overlays during saved app updates
+
+The approved live note-list update passed fresh-profile checks, but a held
+old-shell book could not apply Save and update. Netlify's injected badge adds a
+same-origin-inherited client with URL `about:srcdoc`, frame type `nested`. The
+existing conservative all-window count treated that overlay as a second editor.
+Confirmed the actual client list in a disposable Chromium store.
+
+Ignore only clients matching both `nested` and `about:srcdoc` during the waiting
+worker's update check. Keep every real embedded planner document, top-level or
+auxiliary window and unknown frame type in the refusal guard. Keep save-before-
+activation and retained recovery drafts unchanged. The waiting worker handles
+the message, so this correction can unblock an older running app too. Test both
+the harmless overlay and an actual embedded planner URL before accepting release.
+The [Client frame-type reference](https://developer.mozilla.org/en-US/docs/Web/API/Client/frameType)
+and installed worker source were reviewed for this narrow distinction.
+
+The user's approval covers completing this production release. Use a separate
+synthetic alias to exercise old → fixed-shell updates; do not roll production
+back to a pre-list writer now that v3 note metadata can exist. Publish the tested
+fixed artifact and retain the production lock. Book data remains on-device.
+
 ## 2026-11-03 — Structured lines in free notes
 
 The user explicitly approved three slash-menu choices in notes: to-do checkbox,
