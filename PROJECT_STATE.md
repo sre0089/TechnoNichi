@@ -1,5 +1,76 @@
 # Project state
 
+## Approved public production release — 2026-11-03
+
+The user explicitly approved merging green PRs #41 then #43 and publishing the
+tested app publicly on Netlify Free. Both merged after all four final-head CI
+jobs passed: #41 as `cfc6b6f` (run 41593720888), then retargeted #43 as `b40ffd1`
+(run 41737946302). Each merged tree matches its reviewed head. Issues #40/#42
+closed. Local main fast-forwarded to `b40ffd1`; release records are on
+`chore/production-release`, tracked by
+[issue #44](https://github.com/sre0089/TechnoNichi/issues/44).
+
+**Production is live at <https://technonichi.netlify.app>.** Deployment
+`6aea7ab7c85f6df45f0ab51e` is ready and published (2026-11-04 00:22:24 UTC,
+November 3 locally). Published the retained tested build A without rebuilding:
+source `89db2a9bcbce7af9c07de1fc4af2ef3088767070`, worker
+`52dc0466c66817fe7e8b`, Next build `FQMVzhTIwbBvFJGyF649C`, adapter 5.16.5 and
+Node 24 function runtime. All 26 retained static/function fingerprints matched
+immediately before upload. Runtime/configuration/dependencies match merged main
+`b40ffd1`; subsequent source differences are tests, documentation and tooling.
+
+On the stable production origin, all six hosted smoke cases pass across
+Chromium/Firefox/WebKit (31.3s): fresh synthetic setup, saved/completed writing,
+reload, offline edits/reopening and independent empty-profile backup restore.
+All 23 precache resources return nonempty HTTP 200 without redirects; worker
+bytes, MIME, no-cache/no-store/must-revalidate, nosniff, CSP and HTTPS/HSTS pass.
+Manifest scope/start/id remain `/`, display `standalone`, purple theme `#514560`.
+Inspected the synthetic online setup and restored/offline screenshots. A fresh
+lockfile audit reports zero known findings at review time. Raw receipts and
+screenshots stay ignored under `artifacts/production-release*`.
+
+Provider read-back confirms Free / `credit-free`, this exact published deployment
+locked, and no Git-connected automatic deploys. No paid add-on, domain purchase,
+account, cloud book storage or invitation was added. Future publication remains
+a separately reviewed manual step. Previous unpublished/pending-merge statements
+below are historical and superseded by this record.
+
+Existing localhost/staging books stay in their original browser stores. Export
+and retain a backup there, restore it into the empty production store **before
+creating a book**, then install the production app separately and wait for
+Available offline. No terminal is required for hosted use. The original book is
+preserved; origins/profiles/devices do not synchronize. See
+[PERSONAL_ALPHA.md](docs/PERSONAL_ALPHA.md) for the exact transfer steps.
+
+No application code, schema, dependency version or standalone-window design
+changed. Broader physical-device/accessibility and seven-day use evidence remain
+pending before invitations; the hosted automation does not establish those.
+Next bounded action is the user's production-origin book transfer/install check
+and the remaining personal trial, with focused fixes for any actual defects.
+
+Release/evidence checkpoint `2fef3d3` and usage-guide checkpoint `9c5cc91` are
+pushed in [PR #45](https://github.com/sre0089/TechnoNichi/pull/45), targeting main.
+This documentation PR remains unmerged; the explicit merge approval covered
+#41/#43. Four affected Markdown files pass Prettier, five local document links
+resolve, and working/staged whitespace checks pass. App suites were not repeated
+for documentation changes; production results above are from the actual release.
+The private untracked originals remain untouched and excluded.
+
+The provider's optional floating badge remains enabled. The CLI rejected the
+attempted setting change (HTTP 422); no successful badge removal is claimed.
+[Official badge documentation](https://docs.netlify.com/manage/projects/powered-by-netlify-badge/)
+allows disabling it on Free in Project configuration → General without a redeploy.
+The user was given that optional dashboard step to preserve the clean window
+appearance. It does not block book transfer or alter the deployed app artifacts.
+
+The user subsequently reported turning the badge off and saving. Follow-up
+read-back still reports `built_with_badge_enabled: true`, and a fresh disposable
+Chromium profile still displays the badge on the production setup screen (HTTP
+200). Record the discrepancy rather than claiming removal. The same published
+deployment remains ready and locked; no redeploy or book data change occurred.
+The synthetic screenshot remains ignored. Recheck the setting on the
+`technonichi` project; this optional appearance issue does not block normal use.
+
 ## Hosted update and compatible rollback verification — 2026-11-03
 
 The user authorized the next bounded staging reliability check: a real hosted
