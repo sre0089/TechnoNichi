@@ -1,35 +1,57 @@
-# Contributing
+# Contributing and testing
 
-Read `AGENTS.md`, `PROJECT_STATE.md`, and `docs/PRD.md` before starting.
-The PRD establishes the product and stack. Use Node 24 LTS and `npm ci`.
-See `docs/ARCHITECTURE.md` for the M1 checklist and the README for editing behavior.
+Use Node.js 24 LTS and install the locked dependencies with `npm ci`.
 
-Inspect the working tree before a task and preserve unrelated changes. After
-bootstrap, use a short-lived branch for one coherent milestone. State scope and
-acceptance criteria, implement it, run the available meaningful checks, review
-the diff, and update project state and affected documents.
-
-Stage only specific reviewed files. Keep secrets, private references, personal
-runtime data, and exports outside Git. Preserve approved specifications,
-sanitized fixtures, dependency lockfiles, migrations, and environment examples.
-
-Request approval before committing, pushing, or opening a PR unless the user
-explicitly authorized those actions for the task. Link PRs to actual GitHub
-Issues when applicable; do not invent issue numbers or completed checks.
-
-Stop after the milestone and report changed files, existing branch/commit/PR
-references, exact check outcomes, limitations, and the next bounded action.
-
-## Available checks
+## Checks
 
 ```sh
-git diff --check
-git diff --cached --check
 npm run check
+```
+
+This runs formatting, lint, strict TypeScript checks, unit tests and a production
+build. Individual commands are available in [package.json](package.json).
+
+## Browser tests
+
+```sh
+npx playwright install chromium firefox webkit
 npm run test:browser
 ```
 
-Install Playwright's Chromium, Firefox, and WebKit engines before the browser
-suite. CI runs real formatting, lint, type, unit, build, and browser checks;
-GitHub execution is unverified until the workflow is approved and pushed.
-No contribution license or open-source license has been selected.
+The suite starts a local development server. To test production/offline behavior
+after a successful build, run:
+
+```sh
+npm run test:offline
+```
+
+It starts its own production server on port 3100; leave that port free.
+
+## Installable offline preview
+
+```sh
+npm run build
+npm run start -- --port 3100
+```
+
+Open <http://127.0.0.1:3100> and wait for **Available offline**. Use **App setup**
+for installation guidance. The development server on port 3000 does not register
+the offline worker, and its browser-local book is separate from the port 3100
+book. Transfer writing with a retained backup and restore into an empty store.
+
+## Hosted checks
+
+To test a deployed copy of the app, replace the example with its HTTPS origin:
+
+```sh
+HOSTED_BASE_URL=https://your-preview.example npm run test:hosted
+```
+
+These checks use disposable browser stores and synthetic writing.
+
+## Changes and bug reports
+
+Keep pull requests focused and describe the behavior changed and checks run.
+For bugs, include reproduction steps, expected/actual behavior, browser and OS.
+Use synthetic examples; keep personal book contents, backups, credentials and
+generated build/test artifacts out of commits, screenshots and reports.

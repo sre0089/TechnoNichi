@@ -1,25 +1,27 @@
 ---
-name: Task or bug
-about: One actionable milestone or reproducible bug
+name: Bug report or feature request
+about: Report a problem or suggest an improvement
 title: ''
 labels: ''
 assignees: ''
 ---
 
-## Problem or requirement
+## What happened or what would help?
 
-Describe the user need or bug. Link relevant approved requirements.
-For a bug, include reproduction steps and expected/actual behavior without
-private data.
+Describe the problem or suggestion using a synthetic example.
 
-## Scope and acceptance criteria
+## Steps to reproduce
 
-- [ ] Observable outcome
+1.
+2.
 
-## Validation
+## Expected and actual behavior
 
-Describe meaningful checks and manual verification needed for completion.
+What did you expect, and what happened instead?
 
-## Dependencies and limits
+## Environment
 
-List blockers, relevant decisions, and boundaries for this milestone.
+Browser/version, operating system, and whether you used a tab or installed app.
+For save/offline problems, include the visible status message.
+
+Do not attach personal book contents, backups or credentials.

@@ -41,6 +41,12 @@ export default defineConfig([
     'playwright-report/**',
     'artifacts/**',
     'references/private/**',
+    '.agents/**',
+    '.codex/**',
+    '.claude/**',
+    '.local-development/**',
+    'docs/**',
+    'scripts/verify-hosted-lifecycle.mjs',
     'next-env.d.ts',
   ]),
 ]);
