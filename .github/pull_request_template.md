@@ -1,21 +1,13 @@
-## Problem and resulting behavior
+## Change
 
-Describe the concrete problem, requirement, and resulting change.
+Describe the problem and the resulting behavior.
 
-## Validation
+## Testing
 
-List exact checks run and outcomes, including relevant manual experience checks.
-State checks not run and why.
-
-## Limits and follow-up
-
-Describe material risks, known limitations, and the next bounded action.
+List checks run and their results, plus relevant manual testing. Note anything
+not tested and why.
 
 ## Related issue
 
-Link an existing issue if applicable. Use closing keywords only when this PR
-actually completes that issue.
-
-- [ ] Code, tests, and approved documents agree.
-- [ ] Project state and affected documentation are updated.
-- [ ] Diff reviewed for private content and unrelated changes.
+Link an issue if applicable. Use synthetic examples and exclude personal book
+data, backups, credentials and generated artifacts.
