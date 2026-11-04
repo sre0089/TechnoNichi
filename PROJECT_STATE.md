@@ -63,6 +63,14 @@ allows disabling it on Free in Project configuration → General without a redep
 The user was given that optional dashboard step to preserve the clean window
 appearance. It does not block book transfer or alter the deployed app artifacts.
 
+The user subsequently reported turning the badge off and saving. Follow-up
+read-back still reports `built_with_badge_enabled: true`, and a fresh disposable
+Chromium profile still displays the badge on the production setup screen (HTTP
+200). Record the discrepancy rather than claiming removal. The same published
+deployment remains ready and locked; no redeploy or book data change occurred.
+The synthetic screenshot remains ignored. Recheck the setting on the
+`technonichi` project; this optional appearance issue does not block normal use.
+
 ## Hosted update and compatible rollback verification — 2026-11-03
 
 The user authorized the next bounded staging reliability check: a real hosted
