@@ -1,11 +1,11 @@
 node_modules
 .next
+.netlify
 package-lock.json
 next-env.d.ts
 references/private
 01_AGENT_AND_GITHUB_PREFACE.md
 02_PRODUCT_PRD_AND_START.md
-docs/PRD.md
 AGENTS.md
 PROJECT_STATE.md
 docs
