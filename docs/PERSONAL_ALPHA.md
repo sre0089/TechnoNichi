@@ -1,10 +1,35 @@
 # Personal alpha use and readiness
 
-The app supports a local planning trial; PROJECT_STATE.md records current checks.
+The app is live at <https://technonichi.netlify.app>; no terminal is needed.
+Writing stays on your device. PROJECT_STATE.md records current checks.
 Acceptance as a personal alpha still needs a week of actual planning and
-the physical-device/accessibility checks below. Synthetic hosted staging is
-available; production publication, accounts, cloud synchronization and cross-device
-backup are not provided.
+the physical-device/accessibility checks below. Accounts, cloud synchronization
+and automatic cross-device backup are not provided.
+
+## Use the hosted app and bring your existing book
+
+1. Open your existing localhost or staging book in its original browser/app.
+   Choose **Backups → Download backup**. Keep that file and the original book.
+2. Open <https://technonichi.netlify.app> online in your preferred browser.
+   On **Create your book**, choose **Backups** and restore the downloaded backup
+   **before creating a book**. Review the file, then choose **Restore backup**.
+   If you already created a production book, keep it and use another empty browser
+   profile for the import; restore never overwrites an existing book.
+3. Check the restored dates and writing. Make a small edit, wait for **Saved on
+   this device**, and reopen to confirm it persisted.
+4. Open **App setup** and install this production address as a separate app.
+   Keep the backup: if the installed copy opens an empty store, restore there
+   before creating a book. Wait for **Available offline**.
+5. Disconnect networking, reopen the production app, write a test entry and reopen
+   once more. Confirm both the imported writing and new edit remain. Reconnect
+   afterward and continue keeping regular independent backups.
+
+For a brand-new book, skip the export/import and use **Create your book** instead.
+Localhost, staging and production have separate stores; changing browsers,
+profiles or devices does not transfer writing. The website hosts the application,
+not a cloud copy of your book. Keep the original until the new copy is verified.
+The standalone window and purple theme remain; exact title-bar appearance is
+controlled by the browser and operating system.
 
 ## Open it locally
 
@@ -44,16 +69,17 @@ running. Unregistering a worker does not require clearing IndexedDB. Do not use
 
 The approved Netlify Free draft is at <https://staging--technonichi.netlify.app>.
 It is publicly reachable and has passed synthetic desktop save/offline/restore
-checks in three engines. This preview is for test entries; the stable production
-app is still private/unpublished. Keep your real book and backups at their existing
-origin. Staging, localhost and the eventual production URL have separate stores.
+checks in three engines. This preview is for test entries; use the stable
+production address above for your ongoing book. Staging, localhost and production
+have separate stores. Keep your original book and retained backup when transferring.
 
 On a real phone/tablet or desktop, open this URL online, create a synthetic book,
 and follow App setup to install it. Wait for Available offline, add a test entry,
 disconnect networking, reopen from the icon, add another entry and reopen again.
 Report OS/browser versions, install behavior and whether both entries survived.
 On Safari, use the guide's separate-store backup/restore steps if needed. Do not
-clear your original book. Hosted update/rollback and accessibility/week-of-use
+clear your original book. Hosted update/refusal/compatible rollback has passed
+automated checks in three engines. Physical-device/accessibility and week-of-use
 acceptance remain separate checks before any invitations.
 
 On desktop Chrome, also confirm that launching the installed icon keeps the
@@ -108,9 +134,8 @@ installation on the device. Other browsers may share a book within a profile;
 separate stores do not synchronize. Removing an app or clearing its data may
 remove its book. Keep regular independent backups.
 
-Localhost is useful for desktop testing only. Physical-phone installation needs
-a reachable secure origin; no hosted deployment is configured by this milestone.
-Do not treat a preview origin as the permanent home of a real book.
+Localhost is useful for desktop testing only. Use the stable production HTTPS
+address above for physical-phone installation. Keep synthetic testing on staging.
 
 ## Plan a day
 
@@ -132,10 +157,12 @@ Do not treat a preview origin as the permanent home of a real book.
 
 ## Apply an app update
 
-After pulling an approved update, install its exact dependencies, build and start
-the production server again. The existing app offers **Save and update** when the
-new shell is cached. It saves current drafts before activation/reload and refuses
-if saving fails. Close other planner tabs and app windows before applying;
+For hosted use, reopen online to receive an approved published update. No terminal
+or Git command is needed. Developers testing a local build instead pull approved
+changes, install exact dependencies, rebuild and restart the local server.
+The app offers **Save and update** when the new shell is cached. It saves current
+drafts before activation/reload and refuses if saving fails. Close other planner
+tabs and app windows before applying;
 updates never reload another open editor automatically. If all old tabs are
 closed, a waiting worker
 can activate normally without interrupting an editor. Current and previous shell

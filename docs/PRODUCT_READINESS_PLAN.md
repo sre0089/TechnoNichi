@@ -1,12 +1,14 @@
 # Product readiness plan
 
 Planning date: 2026-11-01; readiness review updated 2026-11-03. Stage 1, interface
-typography and dependency maintenance merged through PR #35. Local installability
-in PR #37 passed all four final-head CI jobs and the user's reported native Chrome
-installation/offline-reopen check. PR #37 remains open. The user authorized the
-hosting proposal and local checks in issue #38; provider setup, spending,
-deployment and further merges remain separate. The starting-point snapshot below
-is historical; PROJECT_STATE.md records current implementation and evidence.
+typography, dependency maintenance and installability merged through PR #37.
+After hosted staging and update/rollback verification, the user approved merging
+#41/#43 and publishing the tested app publicly on Netlify Free. Both merged green;
+<https://technonichi.netlify.app> is live and passes all six production hosted
+smoke cases across Chromium/Firefox/WebKit. No accounts or synchronization were
+added. Invitations and broader device/accessibility/seven-day trial acceptance
+remain separate. The starting-point snapshot and pre-provisioning proposal below
+are historical; PROJECT_STATE.md records current implementation and evidence.
 
 ## Goal and release boundaries
 
@@ -103,31 +105,40 @@ Local implementation authorized on 2026-11-03 under issue #36: manifest/original
 icons, production App setup guidance/native offers, separate-store recovery hints
 and public metadata caching. Local production tests cover prompt/save/retry and
 offline behavior. This completes only the local implementation slice; physical
-device installation, a stable production origin and invited-pilot acceptance
-remain pending.
+device acceptance and an invited pilot remain separate from this local slice;
+the stable production origin was subsequently published as recorded below.
 
 The user subsequently approved Netlify Free synthetic staging under issue #40.
 PRs #37/#39 merged after green checks. Project `technonichi` now has a public draft
 at <https://staging--technonichi.netlify.app>, deploy `6ae982f33cba1eda0cac3ac4`,
 source `89db2a9`, official CLI 27.16.2 / adapter 5.16.5. All six hosted smoke cases
 pass across Chromium/Firefox/WebKit, including actual CDN worker/assets, offline
-writing and independent backup restore. Production remains private/unpublished;
-there is no Git-connected auto-deploy. A subsequent authorized lifecycle exercise
-under issue #42 passed in Chromium/Firefox/WebKit: actual hosted A → B → A shell
+writing and independent backup restore. There is no Git-connected auto-deploy.
+A subsequent authorized lifecycle exercise under issue #42 passed in
+Chromium/Firefox/WebKit: actual hosted A → B → A shell
 changes, other-client/failed-save refusal, saved activation and newer offline
 writing surviving compatible rollback. Staging now serves retained A through
-draft `6aea69b7d4d6174f7be0b903`. Native-device details and broader trial gates remain
-before invites. PROJECT_STATE.md records deployment IDs, narrow guarantees,
-the failed first draft and corrected packaging procedure.
+draft `6aea69b7d4d6174f7be0b903`. The user then explicitly approved the green #41/#43
+merges and public production release. Production deploy
+`6aea7ab7c85f6df45f0ab51e` publishes retained A at
+<https://technonichi.netlify.app>, with 26 artifact fingerprints matching and
+runtime/configuration/dependencies equivalent to merged main `b40ffd1`. All six
+production hosted smoke cases pass (31.3s). The deployment is locked; future
+publication stays manual and reviewed. No paid add-on or domain was purchased.
+Existing users transfer by retained backup into an empty production store before
+creating a book; see PERSONAL_ALPHA.md. Native-device details and broader trial
+gates remain before invites. PROJECT_STATE.md records deployment IDs, narrow
+guarantees, the failed first draft and corrected packaging procedure.
 
-Add a manifest, original icons and installation guidance, reusing the existing
-offline worker. Test installed and browser modes on actual target devices;
+The manifest, original icons and installation guidance reuse the existing offline
+worker. Continue testing installed and browser modes on actual target devices;
 installation and offline readiness are separate states.
 
-Vercel is a hosting candidate for the existing Next.js app. Before provisioning,
-review the intended use, eligible plan, budget, region, stable domain and build
-compatibility. Vercel Hobby is limited to personal non-commercial use; do not
-assume it covers the planned product. No provider or paid plan is selected here.
+The historical provider comparison below preceded the approved Netlify Free
+selection and production compatibility checks. Revisit use, plan eligibility,
+budget, region, stable origin and build compatibility before any future provider
+change. Vercel Hobby's personal non-commercial restriction remains a consideration
+if that alternative is proposed; no paid plan is authorized.
 
 Use synthetic data for the first hosted staging check. Verify that the host
 packages the generated `public/sw.js`, serves its headers correctly and supports
