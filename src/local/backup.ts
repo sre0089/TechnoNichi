@@ -211,7 +211,9 @@ export function validateBackup(value: unknown): PlannerBackup {
                   'y',
                   'width',
                   'height',
-                  ...(archive.version === 3 ? ['noteLines'] : []),
+                  ...(archive.version === 3 || entry.noteLines === undefined
+                    ? ['noteLines']
+                    : []),
                 ]
               : [];
     if (

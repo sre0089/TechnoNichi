@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import { type Editor, type JSONContent } from '@tiptap/core';
+import { Fragment, Slice } from '@tiptap/pm/model';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
@@ -317,9 +318,22 @@ export function RichWriting({
             noteLines: undefined,
           };
           if (latest.current.entry.type === 'note') {
-            fields
-              .get(view.dom)
-              ?.commands.insertContent(documentFor(plain).content ?? []);
+            const paragraphs = documentFor(plain).content ?? [];
+            view.dispatch(
+              view.state.tr
+                .replaceSelection(
+                  new Slice(
+                    Fragment.fromArray(
+                      paragraphs.map((node) =>
+                        view.state.schema.nodeFromJSON(node),
+                      ),
+                    ),
+                    1,
+                    1,
+                  ),
+                )
+                .scrollIntoView(),
+            );
             return true;
           }
           fields
@@ -351,6 +365,8 @@ export function RichWriting({
             ? { submitted: false, completed: false }
             : {}),
         };
+        if (changed.type === 'note' && changed.noteLines === undefined)
+          delete changed.noteLines;
         current.entry = changed;
         emittedEntries.current.add(changed);
         current.edit(changed);

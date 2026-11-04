@@ -294,23 +294,23 @@
   padding-left: calc(var(--note-indent, 0) * var(--note-step));
   min-height: 1lh;
 }
-.note-line:not([data-kind='plain']) .note-line-text {
-  display: block;
-  padding-left: 1.45em;
+.note-line:not([data-kind='plain']) {
+  padding-left: calc(var(--note-indent, 0) * var(--note-step) + 1.45em);
 }
-.note-list-marker,
+.note-line[data-kind='bullet']::before,
+.note-line[data-kind='number']::before,
 .note-todo-checkbox {
   position: absolute;
   left: calc(var(--note-indent, 0) * var(--note-step));
 }
-.note-list-marker {
+.note-line[data-kind='bullet']::before,
+.note-line[data-kind='number']::before {
+  content: attr(data-marker);
   width: 1.2em;
   text-align: left;
   pointer-events: none;
 }
-.note-list-marker::before {
-  content: attr(data-marker);
-}
+
 .note-todo-checkbox {
   appearance: none;
   width: 0.85em;
@@ -332,7 +332,7 @@
   font-size: 1.35em;
   line-height: 1;
 }
-.note-line[data-checked='true'] .note-line-text {
+.note-line[data-checked='true'] {
   text-decoration: line-through;
   text-decoration-color: rgb(81 69 96 / 40%);
   text-decoration-thickness: 0.08em;

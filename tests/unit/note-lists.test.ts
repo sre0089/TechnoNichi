@@ -155,6 +155,7 @@ it('restores v3 metadata exactly, keeps v1/v2 readers safe and retains newer lis
   expect(history.info().undoCount).toBe(1);
   const undo = history.request('undo')!;
   const undone = await db.applyHistory(undo.expected, undo.target);
+  if (undone.type !== 'note') throw new Error('Expected note');
   expect(undone).toMatchObject({
     x: original.x,
     text: written.text,
@@ -181,4 +182,15 @@ it('restores v3 metadata exactly, keeps v1/v2 readers safe and retains newer lis
   };
   expect(validateBackup(legacy).version).toBe(2);
   expect(validateBackup({ ...legacy, version: 1 }).version).toBe(1);
+  // An optional undefined field may exist on in-memory/IndexedDB records before
+  // JSON serialization removes it. It must not block an ordinary v2 export.
+  const ordinary = await db.save(
+    { ...undone, noteLines: undefined },
+    undone.revision,
+  );
+  const ordinaryArchive = await db.exportBackup(book.id);
+  expect(ordinaryArchive.version).toBe(2);
+  expect(parseBackup(serializeBackup(ordinaryArchive)).entries[0]).toEqual(
+    JSON.parse(JSON.stringify(ordinary)),
+  );
 });

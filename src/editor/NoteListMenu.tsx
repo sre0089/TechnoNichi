@@ -23,6 +23,7 @@ type Menu = {
   index: number;
   x: number;
   y: number;
+  position: 'fixed' | 'absolute';
 };
 
 function match(editor: Editor) {
@@ -65,21 +66,36 @@ export function NoteListMenu({
         choice.label.toLowerCase().includes(query.toLowerCase()),
       );
     const refresh = () => {
-      const found = !readOnly && editor.isFocused ? match(editor) : null;
+      const found =
+        !readOnly && editor.isFocused && !editor.view.composing
+          ? match(editor)
+          : null;
       const key = found ? `${found.from}:${found.to}:${found.query}` : null;
       if (!found || key === dismissed || !visibleChoices(found.query).length) {
         if (!found) dismissed = null;
         current = null;
       } else {
         const rect = editor.view.coordsAtPos(found.to);
+        const host = editor.view.dom.closest<HTMLElement>('[role="dialog"]');
+        const bounds = host?.getBoundingClientRect();
+        const minX = Math.max(8, (bounds?.left ?? 0) + 8);
+        const maxX =
+          Math.min(window.innerWidth, bounds?.right ?? window.innerWidth) - 248;
+        const minY = Math.max(8, (bounds?.top ?? 0) + 8);
+        const maxY =
+          Math.min(window.innerHeight, bounds?.bottom ?? window.innerHeight) -
+          185;
+        const x = Math.max(minX, Math.min(rect.left, maxX));
+        const y = Math.max(minY, Math.min(rect.bottom + 6, maxY));
         current = {
           ...found,
           index:
             current?.query === found.query
               ? Math.min(current.index, visibleChoices(found.query).length - 1)
               : 0,
-          x: Math.max(8, Math.min(rect.left, window.innerWidth - 248)),
-          y: Math.max(8, Math.min(rect.bottom + 6, window.innerHeight - 185)),
+          x: x - (bounds?.left ?? 0) + (host?.scrollLeft ?? 0),
+          y: y - (bounds?.top ?? 0) + (host?.scrollTop ?? 0),
+          position: host ? 'absolute' : 'fixed',
         };
       }
       setMenu(current);
@@ -109,11 +125,17 @@ export function NoteListMenu({
       refresh();
     };
     choose.current = apply;
+    const dismiss = () => {
+      if (!current) return;
+      dismissed = `${current.from}:${current.to}:${current.query}`;
+      refresh();
+    };
+    editor.view.dom.addEventListener('dismiss-note-list-menu', dismiss);
     keyHandlerRef.current = (event) => {
-      if (!current) return false;
+      if (!current || event.metaKey || event.ctrlKey || event.altKey)
+        return false;
       if (event.key === 'Escape') {
-        dismissed = `${current.from}:${current.to}:${current.query}`;
-        refresh();
+        dismiss();
         return true;
       }
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -134,12 +156,7 @@ export function NoteListMenu({
     editor.on('focus', refresh);
     editor.on('blur', refresh);
     window.addEventListener('resize', refresh);
-    // Close on scrolling; the next editor transaction can reposition the menu.
-    const scroll = () => {
-      current = null;
-      setMenu(null);
-    };
-    window.addEventListener('scroll', scroll, true);
+    window.addEventListener('scroll', refresh, true);
     refresh();
     return () => {
       keyHandlerRef.current = null;
@@ -148,7 +165,8 @@ export function NoteListMenu({
       editor.off('blur', refresh);
       choose.current = () => {};
       window.removeEventListener('resize', refresh);
-      window.removeEventListener('scroll', scroll, true);
+      window.removeEventListener('scroll', refresh, true);
+      editor.view.dom.removeEventListener('dismiss-note-list-menu', dismiss);
       editor.view.dom.removeAttribute('aria-expanded');
       editor.view.dom.removeAttribute('aria-controls');
       editor.view.dom.removeAttribute('aria-activedescendant');
@@ -159,7 +177,10 @@ export function NoteListMenu({
     choice.label.toLowerCase().includes(menu.query.toLowerCase()),
   );
   return createPortal(
-    <div className="note-slash-menu" style={{ left: menu.x, top: menu.y }}>
+    <div
+      className="note-slash-menu"
+      style={{ left: menu.x, top: menu.y, position: menu.position }}
+    >
       <div className="note-slash-title">Add a list</div>
       <div id={id} role="listbox" aria-label="Note list style">
         {filtered.map(({ kind, label, Icon }, index) => (

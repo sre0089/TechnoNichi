@@ -1,10 +1,12 @@
 import Paragraph from '@tiptap/extension-paragraph';
 import { Extension, type Editor } from '@tiptap/core';
 import { Plugin } from '@tiptap/pm/state';
+import { Decoration, DecorationSet } from '@tiptap/pm/view';
+import { closeHistory } from '@tiptap/pm/history';
 import type { NoteLine } from '../domain/model';
 import { noteNumbers } from '../domain/note-lines';
 
-/** Each logical note line stays a paragraph; markers are real, non-editable controls. */
+/** Keep native paragraph DOM intact so browser/IME text replacement stays reliable. */
 export const NoteParagraph = Paragraph.extend({
   whitespace: 'pre',
   addAttributes() {
@@ -16,68 +18,21 @@ export const NoteParagraph = Paragraph.extend({
       breakMarks: { default: [], rendered: false, keepOnSplit: false },
     };
   },
-  addNodeView() {
-    return ({ editor, node, getPos }) => {
-      let current = node;
-      const dom = document.createElement('p');
-      dom.className = 'note-line';
-      const marker = document.createElement('span');
-      marker.className = 'note-list-marker';
-      marker.contentEditable = 'false';
-      marker.setAttribute('aria-hidden', 'true');
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.className = 'note-todo-checkbox';
-      checkbox.contentEditable = 'false';
-      const contentDOM = document.createElement('span');
-      contentDOM.className = 'note-line-text';
-      dom.append(marker, checkbox, contentDOM);
-      const refresh = () => {
-        dom.dataset.kind = current.attrs.kind;
-        dom.dataset.checked = String(
-          current.attrs.kind === 'todo' && current.attrs.checked,
-        );
-        dom.style.setProperty('--note-indent', String(current.attrs.indent));
-        marker.dataset.marker =
-          current.attrs.kind === 'bullet' ? '•' : `${current.attrs.number}.`;
-        marker.hidden = !['bullet', 'number'].includes(current.attrs.kind);
-        checkbox.hidden = current.attrs.kind !== 'todo';
-        checkbox.checked = current.attrs.checked;
-        checkbox.disabled = !editor.isEditable;
-        checkbox.setAttribute(
-          'aria-label',
-          `Complete note to-do: ${current.textContent || 'Untitled'}`,
-        );
-      };
-      checkbox.addEventListener('change', () => {
-        const pos = getPos();
-        if (!editor.isEditable || pos === undefined) {
-          refresh();
-          return;
-        }
-        editor.view.dispatch(
-          editor.state.tr.setNodeMarkup(pos, undefined, {
-            ...current.attrs,
-            checked: checkbox.checked,
-          }),
-        );
-      });
-      refresh();
-      return {
-        dom,
-        contentDOM,
-        update: (next) => {
-          if (next.type !== current.type) return false;
-          current = next;
-          refresh();
-          return true;
-        },
-        stopEvent: (event) => event.target === checkbox,
-        ignoreMutation: (mutation) =>
-          mutation.type !== 'selection' &&
-          !contentDOM.contains(mutation.target),
-      };
-    };
+  renderHTML({ node }) {
+    return [
+      'p',
+      {
+        class: 'note-line',
+        'data-kind': node.attrs.kind,
+        'data-checked': String(
+          node.attrs.kind === 'todo' && node.attrs.checked,
+        ),
+        'data-marker':
+          node.attrs.kind === 'bullet' ? '•' : `${node.attrs.number}.`,
+        style: `--note-indent: ${node.attrs.indent}`,
+      },
+      0,
+    ];
   },
 });
 
@@ -86,6 +41,53 @@ export const NoteNumbering = Extension.create({
   addProseMirrorPlugins() {
     return [
       new Plugin({
+        props: {
+          decorations(state) {
+            const widgets: Decoration[] = [];
+            state.doc.forEach((node, position) => {
+              if (node.attrs.kind !== 'todo') return;
+              widgets.push(
+                Decoration.widget(
+                  position + 1,
+                  (view, getPos) => {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'note-todo-checkbox';
+                    checkbox.contentEditable = 'false';
+                    checkbox.checked = node.attrs.checked;
+                    checkbox.disabled = !view.editable;
+                    checkbox.setAttribute(
+                      'aria-label',
+                      `Complete note to-do: ${node.textContent || 'Untitled'}`,
+                    );
+                    checkbox.addEventListener('change', () => {
+                      const pos = getPos();
+                      if (!view.editable || pos === undefined) return;
+                      const current = view.state.doc.nodeAt(pos - 1);
+                      if (!current || current.attrs.kind !== 'todo') return;
+                      view.dispatch(
+                        closeHistory(
+                          view.state.tr.setNodeMarkup(pos - 1, undefined, {
+                            ...current.attrs,
+                            checked: checkbox.checked,
+                          }),
+                        ),
+                      );
+                    });
+                    return checkbox;
+                  },
+                  {
+                    key: `${position}:${node.attrs.checked}:${node.textContent}`,
+                    side: -1,
+                    ignoreSelection: true,
+                    stopEvent: () => true,
+                  },
+                ),
+              );
+            });
+            return DecorationSet.create(state.doc, widgets);
+          },
+        },
         appendTransaction(transactions, _old, state) {
           if (!transactions.some((tr) => tr.docChanged)) return;
           const lines: NoteLine[] = [];

@@ -9,8 +9,8 @@ keep timed tasks and the surrounding book interface unchanged.
 
 Extend the installed Tiptap paragraph rather than adding another editor or list
 dependency. Each logical line retains its text and inline marks, plus optional
-validated kind/depth/completion metadata. Native checkbox node views sit before
-editable text; derived sibling numbering is not stored as authoritative content.
+validated kind/depth/completion metadata. Native checkbox widget decorations sit
+before editable text; derived sibling numbering is not stored as authoritative content.
 Use the existing editor history and save queue for structural edits and checkbox
 changes. Preserve newer list metadata when undoing geometry changes.
 
@@ -25,10 +25,13 @@ reject v3 archives instead of silently discarding metadata. Older app writers
 must not be used against books with structured notes: subsequent release rollback
 must retain list support. Feature implementation does not authorize publication.
 
-Implementation follows the official
-[Tiptap node-view API](https://tiptap.dev/docs/editor/extensions/custom-extensions/node-views/javascript)
-and [node/mark commands](https://tiptap.dev/docs/editor/api/commands/nodes-and-marks)
-reviewed for this task. Render writing as text and schema nodes, never pasted HTML.
+Reviewed official Tiptap node-view and
+[node/mark commands](https://tiptap.dev/docs/editor/api/commands/nodes-and-marks)
+documentation, plus installed ProseMirror widget/view source. A nested custom
+node view lost first-line text during native multiline replacement; keep normal
+paragraph DOM and use decorations for real checkboxes instead. Regression tests
+cover both on-paper and focused phone editing. Render writing as text and schema
+nodes, never pasted HTML.
 
 ## 2026-11-03 — Approved stable production origin and retained build
 

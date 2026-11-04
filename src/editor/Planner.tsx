@@ -178,6 +178,12 @@ function FocusedEditor({
         title="A little more room"
         description="Take your time. Your writing stays with the page."
         className="max-w-xl"
+        onEscapeKeyDown={(event) => {
+          if (writing.current?.getAttribute('aria-expanded') === 'true') {
+            writing.current.dispatchEvent(new Event('dismiss-note-list-menu'));
+            event.preventDefault();
+          }
+        }}
         onOpenAutoFocus={(event) => {
           event.preventDefault();
           writing.current?.focus();
