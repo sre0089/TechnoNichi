@@ -1,5 +1,35 @@
 # Decisions
 
+## 2026-11-03 — Structured lines in free notes
+
+The user explicitly approved three slash-menu choices in notes: to-do checkbox,
+bullet and numbered list, with leading markers and Tab/Shift+Tab indentation.
+This extends the alpha's editing scope beyond the original plain free-note text;
+keep timed tasks and the surrounding book interface unchanged.
+
+Extend the installed Tiptap paragraph rather than adding another editor or list
+dependency. Each logical line retains its text and inline marks, plus optional
+validated kind/depth/completion metadata. Native checkbox node views sit before
+editable text; derived sibling numbering is not stored as authoritative content.
+Use the existing editor history and save queue for structural edits and checkbox
+changes. Preserve newer list metadata when undoing geometry changes.
+
+Enter continues a list, empty-item Enter exits it, Shift+Enter starts a plain
+line, and Backspace at a line start removes one indent or marker. Bound depth to
+six levels. Slash triggers only at the start of a line; Escape keeps literal
+text. Ordinary Tab remains focus navigation outside lists. Preserve IME handling.
+
+Export archive v3 only when note metadata exists; keep v1/v2 import and ordinary
+v2 export behavior. No database index migration is needed. Older app readers
+reject v3 archives instead of silently discarding metadata. Older app writers
+must not be used against books with structured notes: subsequent release rollback
+must retain list support. Feature implementation does not authorize publication.
+
+Implementation follows the official
+[Tiptap node-view API](https://tiptap.dev/docs/editor/extensions/custom-extensions/node-views/javascript)
+and [node/mark commands](https://tiptap.dev/docs/editor/api/commands/nodes-and-marks)
+reviewed for this task. Render writing as text and schema nodes, never pasted HTML.
+
 ## 2026-11-03 — Approved stable production origin and retained build
 
 The user explicitly approved merging #41 then #43 after green checks and making

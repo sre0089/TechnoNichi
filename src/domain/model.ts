@@ -28,6 +28,12 @@ export interface FormatRun {
   underline?: boolean;
 }
 
+export interface NoteLine {
+  kind: 'plain' | 'todo' | 'bullet' | 'number';
+  indent: number;
+  checked?: boolean;
+}
+
 interface BaseEntry {
   id: string;
   pageId: string;
@@ -64,7 +70,14 @@ export type Entry = BaseEntry &
         submitted?: boolean;
         completed?: boolean;
       }
-    | { type: 'note'; x: number; y: number; width: number; height: number }
+    | {
+        type: 'note';
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        noteLines?: NoteLine[];
+      }
     | { type: 'task'; slot: number; completed: boolean }
   );
 
@@ -219,6 +232,30 @@ export function assertEntry(value: unknown): asserts value is Entry {
         throw new Error('Invalid formatting ranges');
       end = run.to;
     }
+  }
+  if (e.noteLines !== undefined) {
+    if (
+      e.type !== 'note' ||
+      !Array.isArray(e.noteLines) ||
+      e.noteLines.length > 20_000 ||
+      e.noteLines.length !== e.text.split('\n').length ||
+      e.noteLines.some(
+        (line) =>
+          !line ||
+          typeof line !== 'object' ||
+          Array.isArray(line) ||
+          Object.keys(line).some(
+            (key) => !['kind', 'indent', 'checked'].includes(key),
+          ) ||
+          !['plain', 'todo', 'bullet', 'number'].includes(line.kind) ||
+          !Number.isInteger(line.indent) ||
+          line.indent < 0 ||
+          line.indent > 6 ||
+          (line.checked !== undefined &&
+            (line.kind !== 'todo' || typeof line.checked !== 'boolean')),
+      )
+    )
+      throw new Error('Invalid note lines');
   }
   if (e.type === 'task') {
     if (

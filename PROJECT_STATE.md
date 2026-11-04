@@ -1,5 +1,37 @@
 # Project state
 
+## Free-note slash lists — implementation in progress, 2026-11-03
+
+The user approved leading to-do checkboxes, bullets and numbered lists in free
+notes, chosen through `/`, with Enter continuation and Tab/Shift+Tab indentation.
+Work is on `feat/note-lists`, based on the still-unmerged release-record branch
+for PR #45, tracked by [issue #46](https://github.com/sre0089/TechnoNichi/issues/46).
+Keep its PR focused against that branch; no merge or production publication is
+authorized by this feature request. Existing production stays unchanged.
+
+Extend the existing Tiptap paragraph with validated per-line kind/indent/completion
+and a real leading checkbox; no new dependency. Keep plain text and inline marks
+as the shared search/recovery representation. Empty-list Enter exits to plain
+writing; Shift+Enter starts a plain line, Backspace at a marker removes one depth
+or the marker, and indent is bounded at six levels. Ordinary inline slashes stay
+text. Slash menu supports filtering, pointer choice, arrow keys, Enter/Tab and
+Escape; the focused note keeps its caret. IME events bypass these shortcuts.
+
+Backups containing structured note metadata use version 3; ordinary books keep
+version 2 exports. Both v1/v2 imports remain supported. No IndexedDB index/schema
+change is needed for optional note fields. Existing plain/formatted notes retain
+their text, whitespace, newline marks and geometry. Geometry/history operations
+must preserve newer note metadata just as they preserve newer writing. Older
+app versions are not compatible writers for structured notes; do not roll this
+feature back to the pre-list build or ask users to clear books.
+
+Acceptance: three list choices, leading independently checkable boxes, depth and
+numbering behavior, word styles/native undo, save/reload, portable empty-profile
+restore, old notes/backups and unaffected timed tasks. Unit checks currently
+pass 150 tests; focused browser verification and final closeout are in progress.
+Raw synthetic screenshots/traces remain ignored; supplied personal writing stays
+private. No service/provider setting is changed by this task.
+
 ## Approved public production release — 2026-11-03
 
 The user explicitly approved merging green PRs #41 then #43 and publishing the

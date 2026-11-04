@@ -61,7 +61,7 @@ export function prepareBook(input: BookSetup, now = new Date()) {
   );
   return validateBackup({
     format: 'daily-book-backup',
-    version: 2,
+    version: 3,
     exportedAt: now.toISOString(),
     book,
     pages: manifest(book),

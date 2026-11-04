@@ -143,6 +143,14 @@ address above for physical-phone installation. Keep synthetic testing on staging
   completion. Arrow keys move between rows while ordinary text selection works.
 - Select words and use Cmd/Ctrl+B, I or U. Focused writing keeps native text undo.
   Outside writing, Cmd/Ctrl+Z undoes page actions; Shift+Z redoes them.
+- In a free note, type `/` at a line's start for **To-do checkbox**, **Bullet list**
+  or **Numbered list**. Choose with the pointer or arrows and Enter; typing filters
+  the menu. Escape dismisses it and retains the slash. Boxes appear before text.
+  Enter continues the list; Enter on an empty item ends it. Tab/Shift+Tab changes
+  list depth (up to six levels). Shift+Enter starts a plain line; Backspace at the
+  start removes one indent or marker. Completed to-dos keep their wording with a
+  light strike-through. This feature requires the note-list build; the current
+  public release does not include it until separately approved publication.
 - Add duration or free notes, then use selected handles or keyboard/contextual
   controls to move/resize. One completed gesture makes one page action.
 - Today uses the book's saved timezone. Date and the miniature calendar open a
