@@ -22,6 +22,14 @@ synthetic alias to exercise old → fixed-shell updates; do not roll production
 back to a pre-list writer now that v3 note metadata can exist. Publish the tested
 fixed artifact and retain the production lock. Book data remains on-device.
 
+Release closeout: PR #49 merged green as `d99c9cc`, matching source `61fe3ac`.
+Published the exact tested preview `6aeab28865575a3e5356e978` via the provider's
+atomic publish API, preserving the production lock. Its nine hosted cases pass
+on production; a separate old-shell alias verifies all four database tables
+survive update in three engines. New lists then save and reopen offline. Keep
+this list-compatible artifact as the working baseline rather than reverting to
+a pre-list writer. No account, synchronization or billing setting changed.
+
 ## 2026-11-03 — Structured lines in free notes
 
 The user explicitly approved three slash-menu choices in notes: to-do checkbox,

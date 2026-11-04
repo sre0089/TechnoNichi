@@ -1,41 +1,61 @@
 # Project state
 
-## Approved note-list production update — verification in progress, 2026-11-03
+## Live note lists and iframe-safe updates — 2026-11-03
 
-The user explicitly approved all outstanding integration and publication so the
-note-list feature can be tested live. PR #45 merged green as `f0b7512`; retargeted
-#47 merged green as `73d14aa`. Their merged tree matches reviewed head `8d95290`.
-All four final-head CI jobs passed for both PRs (runs 41764933479/41769990539).
-Issues #44/#46 closed. Release follow-up is on `chore/note-lists-release`, tracked
-by [issue #48](https://github.com/sre0089/TechnoNichi/issues/48).
+The user explicitly approved integration and publication to test the new note
+features. PR #45 merged as `f0b7512`; #47 merged as `73d14aa`, after all four
+final-head CI jobs passed. The merged tree matches reviewed feature head
+`8d95290`. Issues #44/#46 closed. Issue #48 tracks this release and its verified
+update-path correction; final deployment/merge evidence is appended below.
 
-Built tracked source `73d14aa` in an isolated checkout with clean Node 24 `npm ci`
-(zero known audit findings). Official CLI 27.16.2 selected the already reviewed
-adapter 5.16.6; packaged function records Node 24. Preview
-`6aeaaffa2ada2ae8dfae631f` passed nine hosted cases (39.9s), including new note-list
-offline/independent-restore coverage across Chromium/Firefox/WebKit. All 1,245
-retained static/function fingerprints matched before atomic publication via the
-provider's publish API. That exact deploy became production at
-2026-11-04 04:12:43 UTC (November 3 locally); lock remained enabled. Worker
-`5573ddd1594a45aed905`, build `kufjkYhsObrTiP2dmhH3i`. All nine fresh-profile
-production cases pass (40.2s); actual worker bytes, root build ID, all 23 resources,
-headers and standalone/purple manifest match. No real user profile was accessed.
+The first published note-list artifact (`6aeaaffa2ada2ae8dfae631f`, source
+`73d14aa`, worker `5573ddd1594a45aed905`, build `kufjkYhsObrTiP2dmhH3i`) passed
+nine preview cases (39.9s) and nine production cases (40.2s). Its held old-book
+probe exposed an update refusal caused by Netlify's nested `about:srcdoc` badge
+client being counted as a second editor. No data loss was observed. Fixed only the
+waiting worker's client classification: ignore that precise nested URL; continue
+blocking all actual planner windows/embedded planner URLs and unknown frame types.
 
-The held old-build update probe exposed a release blocker for already-open apps:
-Netlify injects an `about:srcdoc` overlay which the waiting worker counted as a
-second editor, so Save and update refused activation. A disposable Chromium
-diagnostic confirms one `top-level` planner client and one `nested` srcdoc client.
-No data loss is observed or claimed. The guard fix excludes only nested
-`about:srcdoc` clients; real embedded planner URLs, other windows and unknown
-frame types remain guarded. Normal save-before-activation remains unchanged.
-The user authorized the release and necessary completion work; complete this
-fix and verify old-shell update before final handoff. Production is not rolled
-back to a pre-list writer. A separate old-build alias is only for synthetic tests.
+Release-fix source `61fe3ac` merged in PR #49 as `d99c9cc` after all four
+final-head jobs passed in CI run 41772537532. The merged tree matches the tested
+source exactly. Combined checks pass format/lint/types,
+150 units and production build. All 39 production-offline cases pass (56.8s),
+including the overlay-versus-real-embedded-planner regression. The fixed preview
+`6aeab28865575a3e5356e978` passes all nine hosted cases (41.4s). Node 24, adapter
+5.16.6, build `mZVI6bk526T9WH1bUzrat`, worker `1054bce112e7249fffb6`;
+all 1,245 retained static/function fingerprints are unchanged.
 
-Combined checks pass formatting/lint/types, 150 units and production build for the
-fix. A new production-offline regression covers a harmless srcdoc overlay plus a
-real embedded planner; full engine verification and final publication are pending.
-Screenshots, fingerprints and operator checkpoints remain ignored local artifacts.
+A separate synthetic alias (`upgrade-check`, deploy `6aeab2cf711b2e41e2222fa5`)
+proved old build `FQMVzhTIwbBvFJGyF649C` → fixed build in Chromium/Firefox/WebKit
+with the real Netlify overlay present. All four stored tables matched exactly
+after Save and update; new leading to-dos then retained completion/depth through
+offline reopening. Production was never rolled back to the pre-list writer.
+The initial failed probe and successful rerun remain separately recorded in
+ignored local logs/checkpoints. No personal browser profile was opened.
+
+The exact fixed preview deploy became production at 2026-11-04 04:31:34 UTC
+(November 3 locally), without rebuilding. Provider read-back confirms published
+ID `6aeab28865575a3e5356e978`, ready, locked, no Git auto-deploy and team Free.
+All nine final production hosted cases pass (36.7s), including lists, offline
+writing and independent v3 backup restore. Exact worker bytes, actual root build
+ID, all 23 nonempty/no-redirect precache resources, worker security/cache headers,
+HTTPS/HSTS and standalone/purple manifest are verified. No terminal or new book
+is required for existing production users; save pending writing and apply Save
+and update online after closing other planner windows.
+
+Count only the successful three-engine old-shell alias run as complete held-book
+upgrade evidence. Two extra structured-book probes did not finish: one stopped
+at a checkbox interaction after overflowing a four-row note, and a sized-note
+rerun encountered an unmet baseline-metadata assumption. They are not counted as
+passes. A separate final-production resize diagnostic retains structured metadata
+and completion. Real-device overflow interaction remains manual acceptance; no
+personal book was inspected or altered. Logs remain ignored for follow-up.
+No dependency/schema index,
+account, cloud-book storage, paid service, domain purchase or invitation changed.
+Native standalone display and the purple theme stay intact. Physical-device
+IME/touch and screen-reader acceptance remain manual. Next action for the user:
+open the production app online, close other planner windows, apply Save and
+update, then use `/` at a new note line to choose a list.
 
 ## Free-note slash lists — 2026-11-03
 
